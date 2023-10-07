@@ -17,6 +17,7 @@ import { useMe } from '@/data/user';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { GetStaticProps } from 'next';
+import { toast } from 'react-hot-toast';
 
 const CheckoutPage: NextPageWithLayout = () => {
   const router = useRouter();
@@ -36,6 +37,12 @@ const CheckoutPage: NextPageWithLayout = () => {
   const { mutate, isLoading } = useMutation(client.orders.verify, {
     onSuccess: (res) => {
       setVerifiedResponse(res);
+    },
+    onError: (error: any) => {
+      const {
+        response: { data },
+      }: any = error ?? {};
+      toast.error(data?.message);
     },
   });
   function verify() {

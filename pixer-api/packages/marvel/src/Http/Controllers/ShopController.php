@@ -406,18 +406,20 @@ class ShopController extends CoreController
             $maxShopDistance = isset($settings['options']['maxShopDistance']) ? $settings['options']['maxShopDistance'] : 1000;
             $lat = $request->lat;
             $lng = $request->lng;
-            if(!is_numeric($lat) || !is_numeric($lng)){
+            if (!is_numeric($lat) || !is_numeric($lng)) {
                 throw new HttpException(400, 'invalid argument');
             }
 
-            $near_shop = Shop::select(
-                "shops.*",
-                DB::raw("6371 * acos(cos(radians(" . $lat . ")) 
+            $near_shop = Shop::where('settings->location->lat', '!=', null)
+                ->where('settings->location->lng', '!=', null)
+                ->select(
+                    "shops.*",
+                    DB::raw("6371 * acos(cos(radians(" . $lat . ")) 
         * cos(radians(json_unquote(json_extract(`shops`.`settings`, '$.\"location\".\"lat\"')))) 
         * cos(radians(json_unquote(json_extract(`shops`.`settings`, '$.\"location\".\"lng\"'))) - radians(" . $lng . ")) 
         + sin(radians(" . $lat . ")) 
         * sin(radians(json_unquote(json_extract(`shops`.`settings`, '$.\"location\".\"lat\"'))))) AS distance")
-            )
+                )
                 ->orderBy('distance', 'ASC')
                 ->where('is_active', 1)
                 ->get()

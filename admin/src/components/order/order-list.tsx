@@ -101,16 +101,18 @@ const OrderList = ({
       },
     },
     {
+      // title: t('table:table-item-total'),
       title: (
         <TitleWithSort
           title={t('table:table-item-total')}
           ascending={
-            sortingObj.sort === SortOrder.Asc && sortingObj.column === 'total'
+            sortingObj?.sort === SortOrder?.Asc &&
+            sortingObj?.column === 'total'
           }
-          isActive={sortingObj.column === 'total'}
+          isActive={sortingObj?.column === 'total'}
+          className="cursor-pointer"
         />
       ),
-      className: 'cursor-pointer',
       dataIndex: 'total',
       key: 'total',
       align: 'center',
@@ -124,17 +126,18 @@ const OrderList = ({
       },
     },
     {
+      // title: t('table:table-item-order-date'),
       title: (
         <TitleWithSort
           title={t('table:table-item-order-date')}
           ascending={
-            sortingObj.sort === SortOrder.Asc &&
-            sortingObj.column === 'created_at'
+            sortingObj?.sort === SortOrder?.Asc &&
+            sortingObj?.column === 'created_at'
           }
-          isActive={sortingObj.column === 'created_at'}
+          isActive={sortingObj?.column === 'created_at'}
+          className="cursor-pointer"
         />
       ),
-      className: 'cursor-pointer',
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center',
@@ -180,7 +183,7 @@ const OrderList = ({
                     disabled={currentButtonLoading}
                     className="cursor-pointer text-accent transition-colors duration-300 hover:text-accent-hover"
                   >
-                    <ChatIcon width="19" height="20" />
+                    {/* <ChatIcon width="19" height="20" /> */}
                   </button>
                 ) : (
                   ''

@@ -1,16 +1,18 @@
-import Button from '@/components/ui/button';
-import Input from '@/components/ui/input';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { useTranslation } from 'next-i18next';
-import { yupResolver } from '@hookform/resolvers/yup';
-import Description from '@/components/ui/description';
 import Card from '@/components/common/card';
+import GooglePlacesAutocomplete from '@/components/form/google-places-autocomplete';
+import { EditIcon } from '@/components/icons/edit';
+import * as socialIcons from '@/components/icons/social';
+import Button from '@/components/ui/button';
+import Description from '@/components/ui/description';
 import FileInput from '@/components/ui/file-input';
+import Input from '@/components/ui/input';
+import Label from '@/components/ui/label';
+import SelectInput from '@/components/ui/select-input';
+import SwitchInput from '@/components/ui/switch-input';
 import TextArea from '@/components/ui/text-area';
-import { shopValidationSchema } from './shop-validation-schema';
-import { getFormattedImage } from '@/utils/get-formatted-image';
+import { Config } from '@/config';
+import { useSettingsQuery } from '@/data/settings';
 import { useCreateShopMutation, useUpdateShopMutation } from '@/data/shop';
-import { useRouter } from 'next/router';
 import {
   BalanceInput,
   ItemProps,
@@ -18,19 +20,23 @@ import {
   ShopSocialInput,
   UserAddressInput,
 } from '@/types';
-import GooglePlacesAutocomplete from '@/components/form/google-places-autocomplete';
-import Label from '@/components/ui/label';
-import { getIcon } from '@/utils/get-icon';
-import SelectInput from '@/components/ui/select-input';
-import * as socialIcons from '@/components/icons/social';
-import omit from 'lodash/omit';
-import SwitchInput from '@/components/ui/switch-input';
 import { getAuthCredentials } from '@/utils/auth-utils';
-import { SUPER_ADMIN, STORE_OWNER } from '@/utils/constants';
-import { useModalAction } from '../ui/modal/modal.context';
+import { STORE_OWNER, SUPER_ADMIN } from '@/utils/constants';
+import { getFormattedImage } from '@/utils/get-formatted-image';
+import { getIcon } from '@/utils/get-icon';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { join, split } from 'lodash';
+import omit from 'lodash/omit';
+import { useTranslation } from 'next-i18next';
+import { useRouter } from 'next/router';
+import { useCallback, useMemo, useState } from 'react';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import OpenAIButton from '../openAI/openAI.button';
-import { useCallback, useMemo } from 'react';
-import { useSettingsQuery } from '@/data/settings';
+import { useAtom } from 'jotai';
+import { locationAtom } from '@/utils/use-location';
+import { useModalAction } from '../ui/modal/modal.context';
+import { shopValidationSchema } from './shop-validation-schema';
+import { formatSlug } from '@/utils/use-slug';
 
 export const chatbotAutoSuggestion = ({ name }: { name: string }) => {
   return [
@@ -114,6 +120,7 @@ export const updatedIcons = socialIcon.map((item: any) => {
 
 type FormValues = {
   name: string;
+  slug: string;
   description: string;
   cover_image: any;
   logo: any;
@@ -123,6 +130,7 @@ type FormValues = {
 };
 
 const ShopForm = ({ initialValues }: { initialValues?: any }) => {
+  const [location] = useAtom(locationAtom);
   const { mutate: createShop, isLoading: creating } = useCreateShopMutation();
   const { mutate: updateShop, isLoading: updating } = useUpdateShopMutation();
   // const { permissions } = getAuthCredentials();
@@ -140,27 +148,28 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
     shouldUnregister: true,
     ...(initialValues
       ? {
-          defaultValues: {
-            ...initialValues,
-            logo: getFormattedImage(initialValues.logo),
-            cover_image: getFormattedImage(initialValues.cover_image),
-            settings: {
-              ...initialValues?.settings,
-              socials: initialValues?.settings?.socials
-                ? initialValues?.settings?.socials.map((social: any) => ({
-                    icon: updatedIcons?.find(
-                      (icon) => icon?.value === social?.icon
-                    ),
-                    url: social?.url,
-                  }))
-                : [],
-            },
+        defaultValues: {
+          ...initialValues,
+          logo: getFormattedImage(initialValues.logo),
+          cover_image: getFormattedImage(initialValues.cover_image),
+          settings: {
+            ...initialValues?.settings,
+            socials: initialValues?.settings?.socials
+              ? initialValues?.settings?.socials.map((social: any) => ({
+                icon: updatedIcons?.find(
+                  (icon) => icon?.value === social?.icon
+                ),
+                url: social?.url,
+              }))
+              : [],
           },
-        }
+        },
+      }
       : {}),
     resolver: yupResolver(shopValidationSchema),
   });
   const router = useRouter();
+
   const { openModal } = useModalAction();
   const { locale } = router;
   const {
@@ -185,20 +194,26 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
     });
   }, [generateName]);
 
+  const slugAutoSuggest = formatSlug(watch('name'));
   const { t } = useTranslation();
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'settings.socials',
   });
+
+  const [isSlugDisable, setIsSlugDisable] = useState<boolean>(true);
+  const isSlugEditable =
+    (router?.query?.action === 'edit' || router?.pathname === '/[shop]/edit') &&
+    router?.locale === Config.defaultLanguage;
   function onSubmit(values: FormValues) {
     const settings = {
       ...values?.settings,
       location: { ...omit(values?.settings?.location, '__typename') },
       socials: values?.settings?.socials
         ? values?.settings?.socials?.map((social: any) => ({
-            icon: social?.icon?.value,
-            url: social?.url,
-          }))
+          icon: social?.icon?.value,
+          url: social?.url,
+        }))
         : [],
     };
     if (initialValues) {
@@ -223,6 +238,8 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
       });
     }
   }
+
+  const isGoogleMapActive = options?.useGoogleMap
 
   const coverImageInformation = (
     <span>
@@ -272,6 +289,35 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
               className="mb-5"
               error={t(errors.name?.message!)}
             />
+
+            {isSlugEditable ? (
+              <div className="relative mb-5">
+                <Input
+                  label={`${t('Slug')}`}
+                  {...register('slug')}
+                  error={t(errors.slug?.message!)}
+                  variant="outline"
+                  disabled={isSlugDisable}
+                />
+                <button
+                  className="absolute top-[27px] right-px z-10 flex h-[46px] w-11 items-center justify-center rounded-tr rounded-br border-l border-solid border-border-base bg-white px-2 text-body transition duration-200 hover:text-heading focus:outline-none"
+                  type="button"
+                  title={t('common:text-edit')}
+                  onClick={() => setIsSlugDisable(false)}
+                >
+                  <EditIcon width={14} />
+                </button>
+              </div>
+            ) : (
+              <Input
+                label={`${t('Slug')}`}
+                {...register('slug')}
+                value={slugAutoSuggest}
+                variant="outline"
+                className="mb-5"
+                disabled
+              />
+            )}
 
             <div className="relative">
               {options?.useAi && (
@@ -334,6 +380,33 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
           />
 
           <Card className="w-full sm:w-8/12 md:w-2/3">
+            {isGoogleMapActive && (
+              <div className="mb-5">
+                <Label>{t('form:input-label-autocomplete')}</Label>
+                <Controller
+                  control={control}
+                  name="settings.location"
+                  render={({ field: { onChange, value } }) => (
+                    <GooglePlacesAutocomplete
+                      // @ts-ignore
+                      onChange={(location: any) => {
+                        onChange(location);
+                        setValue('address.country', location?.country);
+                        setValue('address.city', location?.city);
+                        setValue('address.state', location?.state);
+                        setValue('address.zip', location?.zip);
+                        setValue(
+                          'address.street_address',
+                          location?.street_address
+                        );
+                      }}
+                      data={getValues('settings.location')!}
+                      onChangeCurrentLocation={onChange}
+                    />
+                  )}
+                />
+              </div>
+            )}
             <Input
               label={t('form:input-label-country')}
               {...register('address.country')}
@@ -412,19 +485,6 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
           />
 
           <Card className="w-full sm:w-8/12 md:w-2/3">
-            <div className="mb-5">
-              <Label>{t('form:input-label-autocomplete')}</Label>
-              <Controller
-                control={control}
-                name="settings.location"
-                render={({ field: { onChange } }) => (
-                  <GooglePlacesAutocomplete
-                    onChange={onChange}
-                    data={getValues('settings.location')!}
-                  />
-                )}
-              />
-            </div>
             <Input
               label={t('form:input-label-contact')}
               {...register('settings.contact')}
@@ -439,11 +499,22 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
               className="mb-5"
               error={t(errors.settings?.website?.message!)}
             />
+          </Card>
+        </div>
+
+        <div className="my-5 flex flex-wrap border-b border-dashed border-gray-300 pb-8 sm:my-8">
+          <Description
+            title={t('form:social-settings')}
+            details={t('form:social-settings-helper-text')}
+            className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
+          />
+
+          <Card className="w-full sm:w-8/12 md:w-2/3">
             <div>
               {fields.map(
                 (item: ShopSocialInput & { id: string }, index: number) => (
                   <div
-                    className="border-b border-dashed border-border-200 py-5 first:mt-5 first:border-t last:border-b-0 md:py-8 md:first:mt-10"
+                    className="border-b border-dashed border-border-200 py-5 first:pt-0 first:mt-0 first:border-t-0 last:border-b-0 md:py-8 md:first:mt-0"
                     key={item.id}
                   >
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-5">

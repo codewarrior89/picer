@@ -1,11 +1,13 @@
 import Card from '@/components/common/card';
 import GooglePlacesAutocomplete from '@/components/form/google-places-autocomplete';
 import * as socialIcons from '@/components/icons/social';
-import { CURRENCY } from '@/components/settings/currency';
 import { AI } from '@/components/settings/ai';
+import { COUNTRY_LOCALE } from '@/components/settings/country-locale';
+import { CURRENCY } from '@/components/settings/currency';
 import { PAYMENT_GATEWAY } from '@/components/settings/payment';
+import { settingsValidationSchema } from '@/components/settings/settings-validation-schema';
 import WebHookURL from '@/components/settings/webhook-url';
-import Alert from '@/components/ui/alert';
+import Badge from '@/components/ui/badge/badge';
 import Button from '@/components/ui/button';
 import Description from '@/components/ui/description';
 import FileInput from '@/components/ui/file-input';
@@ -18,19 +20,21 @@ import SelectInput from '@/components/ui/select-input';
 import SwitchInput from '@/components/ui/switch-input';
 import TextArea from '@/components/ui/text-area';
 import { Config } from '@/config';
-import { useSettingsQuery, useUpdateSettingsMutation } from '@/data/settings';
+import { useUpdateSettingsMutation } from '@/data/settings';
 import { siteSettings } from '@/settings/site.settings';
 import {
   AttachmentInput,
   ContactDetailsInput,
-  SettingCurrencyOptions,
+  ItemProps,
+  ServerInfo,
   Settings,
-  Shipping,
   ShopSocialInput,
   Tax,
-  ServerInfo,
-  ItemProps,
 } from '@/types';
+import {
+  formatEventAPIData,
+  formatEventOptions,
+} from '@/utils/format-event-options';
 import { getIcon } from '@/utils/get-icon';
 import { formatPrice } from '@/utils/use-price';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -40,16 +44,9 @@ import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useCallback, useMemo, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import Badge from '@/components/ui/badge/badge';
-import { COUNTRY_LOCALE } from '@/components/settings/country-locale';
-import { settingsValidationSchema } from '@/components/settings/settings-validation-schema';
-import {
-  formatEventAPIData,
-  formatEventOptions,
-} from '@/utils/format-event-options';
-import { EMAIL_GROUP_OPTION, SMS_GROUP_OPTION } from './eventsOption';
 import OpenAIButton from '../openAI/openAI.button';
 import { useModalAction } from '../ui/modal/modal.context';
+import { EMAIL_GROUP_OPTION, SMS_GROUP_OPTION } from './eventsOption';
 
 export const chatbotAutoSuggestion = ({ name }: { name: string }) => {
   return [
@@ -145,22 +142,19 @@ type FormValues = {
   siteTitle: string;
   siteSubtitle: string;
   currency: any;
-  currencyOptions?: SettingCurrencyOptions;
+  currencyOptions?: any;
   minimumOrderAmount: number;
   logo: any;
-  // useOtp: boolean;
   useAi: boolean;
   defaultAi: any;
   useGoogleMap: boolean;
   useMustVerifyEmail: boolean;
-  // freeShipping: boolean;
-  // freeShippingAmount: number;
-  // useCashOnDelivery: boolean;
   defaultPaymentGateway: paymentGatewayOption;
   useEnableGateway: boolean;
   paymentGateway: paymentGatewayOption[];
   taxClass: Tax;
   signupPoints: number;
+  maxShopDistance: number;
   maximumQuestionLimit: number;
   currencyToWalletRatio: number;
   contactDetails: ContactDetailsInput;
@@ -184,10 +178,17 @@ type FormValues = {
     appId: string;
     pageId: string;
   };
-  // guestCheckout: boolean;
   smsEvent: any;
   emailEvent: any;
   server_info: ServerInfo;
+  /**
+   * For Pixer Only
+   */
+  // guestCheckout: boolean;
+  // useOtp: boolean;
+  // freeShipping: boolean;
+  // freeShippingAmount: number;
+  // useCashOnDelivery: boolean;
 };
 
 type paymentGatewayOption = {
@@ -262,14 +263,13 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
         ...options?.contactDetails,
         socials: options?.contactDetails?.socials
           ? options?.contactDetails?.socials.map((social: any) => ({
-            icon: updatedIcons?.find((icon) => icon?.value === social?.icon),
-            url: social?.url,
-          }))
+              icon: updatedIcons?.find((icon) => icon?.value === social?.icon),
+              url: social?.url,
+            }))
           : [],
       },
       logo: options?.logo ?? '',
       useEnableGateway: options?.useEnableGateway ?? true,
-      // guestCheckout: options?.guestCheckout ?? true,
       currency: options?.currency
         ? CURRENCY.find((item) => item.code == options?.currency)
         : '',
@@ -277,6 +277,7 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
         ? AI.find((item) => item.value == options?.defaultAi)
         : 'openai',
 
+      // guestCheckout: options?.guestCheckout ?? true,
       // single-select on payment gateway
       // paymentGateway: options?.paymentGateway
       //   ? PAYMENT_GATEWAY.find((item) => item.name == options?.paymentGateway)
@@ -284,25 +285,24 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
 
       defaultPaymentGateway: options?.defaultPaymentGateway
         ? PAYMENT_GATEWAY.find(
-          (item) => item.name == options?.defaultPaymentGateway
-        )
+            (item) => item.name == options?.defaultPaymentGateway
+          )
         : PAYMENT_GATEWAY[0],
 
       currencyOptions: {
         ...options?.currencyOptions,
-        // @ts-ignore
         formation: options?.currencyOptions?.formation
           ? COUNTRY_LOCALE.find(
-            (item) => item.code == options?.currencyOptions?.formation
-          )
+              (item) => item.code == options?.currencyOptions?.formation
+            )
           : COUNTRY_LOCALE[0],
       },
       // multi-select on payment gateway
       paymentGateway: options?.paymentGateway
         ? options?.paymentGateway?.map((gateway: any) => ({
-          name: gateway?.name,
-          title: gateway?.title,
-        }))
+            name: gateway?.name,
+            title: gateway?.title,
+          }))
         : [],
 
       // @ts-ignore
@@ -358,9 +358,6 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
   const formation = watch('currencyOptions.formation');
   const currentFractions = watch('currencyOptions.fractions') as number;
 
-
-
-
   const {
     fields: socialFields,
     append: socialAppend,
@@ -378,9 +375,9 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
       location: { ...omit(values?.contactDetails?.location, '__typename') },
       socials: values?.contactDetails?.socials
         ? values?.contactDetails?.socials?.map((social: any) => ({
-          icon: social?.icon?.value,
-          url: social?.url,
-        }))
+            icon: social?.icon?.value,
+            url: social?.url,
+          }))
         : [],
     };
     const smsEvent = formatEventOptions(values.smsEvent);
@@ -391,36 +388,35 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
         ...values,
         server_info: serverInfo,
         signupPoints: Number(values.signupPoints),
+        maxShopDistance: Number(values.maxShopDistance),
         currencyToWalletRatio: Number(values.currencyToWalletRatio),
         minimumOrderAmount: Number(values.minimumOrderAmount),
-        // freeShippingAmount: Number(values.freeShippingAmount),
         currency: values.currency?.code,
         defaultAi: values?.defaultAi?.value,
+        // freeShippingAmount: Number(values.freeShippingAmount),
         // paymentGateway: values.paymentGateway?.name,
         defaultPaymentGateway: values.defaultPaymentGateway?.name,
         paymentGateway:
           values?.paymentGateway && values?.paymentGateway!.length
             ? values?.paymentGateway?.map((gateway: any) => ({
-              name: gateway.name,
-              title: gateway.title,
-            }))
+                name: gateway.name,
+                title: gateway.title,
+              }))
             : PAYMENT_GATEWAY.filter((value: any, index: number) => index < 2),
         useEnableGateway: values?.useEnableGateway,
-        // guestCheckout: values?.guestCheckout,
+        guestCheckout: false,
         taxClass: values?.taxClass?.id,
         logo: values?.logo,
         smsEvent,
         emailEvent,
         contactDetails,
-        //@ts-ignore
         seo: {
           ...values?.seo,
           ogImage: values?.seo?.ogImage,
         },
         currencyOptions: {
-          ...values.currencyOptions,
-          //@ts-ignore
-          formation: values?.currencyOptions?.formation?.code,
+          formation: formation.code!,
+          fractions: currentFractions,
         },
       },
     });
@@ -464,7 +460,9 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
     (item: any) => item?.name === defaultPaymentGateway?.name
   );
 
-  const isStripeActive = paymentGateway?.some(payment => payment?.name === "stripe");
+  const isStripeActive = paymentGateway?.some(
+    (payment) => payment?.name === 'stripe'
+  );
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -476,7 +474,12 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
         />
 
         <Card className="w-full sm:w-8/12 md:w-2/3">
-          <FileInput name="logo" control={control} multiple={false} maxSize={max_fileSize} />
+          <FileInput
+            name="logo"
+            control={control}
+            multiple={false}
+            maxSize={max_fileSize}
+          />
         </Card>
       </div>
 
@@ -492,7 +495,7 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
         </Card>
       </div>
 
-      <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
+      <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
         <Description
           title={t('form:form-title-information')}
           details={t('form:site-info-help-text')}
@@ -791,6 +794,7 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
             type="number"
             variant="outline"
             placeholder={t('form:input-placeholder-currency-number-of-decimal')}
+            // @ts-ignore
             error={t(errors.currencyOptions?.fractions?.message!)}
             className="mb-5"
           />
@@ -1083,7 +1087,7 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
             <Button
               type="button"
               onClick={() => socialAppend({ icon: '', url: '' })}
-              className="w-full sm:w-auto py-5"
+              className="w-full py-5 sm:w-auto"
               disabled={isNotDefaultSettingsPage}
             >
               {t('form:button-label-add-social')}

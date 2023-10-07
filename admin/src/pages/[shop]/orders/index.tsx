@@ -107,7 +107,10 @@ export default function Orders() {
 
         <div className="flex w-full flex-1 items-center">
           <div className="flex w-full flex-col items-center ms-auto md:w-1/2 md:flex-row">
-            <Search onSearch={handleSearch} />
+          <Search
+            onSearch={handleSearch}
+            placeholderText={t('form:input-placeholder-search-tracking-number')}
+          />
           </div>
 
           <Menu

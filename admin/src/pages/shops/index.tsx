@@ -44,8 +44,11 @@ export default function AllShopPage() {
           </h1>
         </div>
 
-        <div className="ms-auto flex w-full flex-col items-center md:w-1/2 md:flex-row">
-          <Search onSearch={handleSearch} />
+        <div className="flex w-full flex-col items-center ms-auto md:w-1/2 md:flex-row">
+          <Search
+            onSearch={handleSearch}
+            placeholderText={t('form:input-placeholder-search-name')}
+          />
         </div>
       </Card>
       <ShopList

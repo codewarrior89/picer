@@ -12,10 +12,12 @@ import Label from '@/components/ui/label';
 import Card from '@/components/common/card';
 import Description from '@/components/ui/description';
 import * as categoriesIcon from '@/components/icons/category';
+import { EditIcon } from '@/components/icons/edit';
 import { getIcon } from '@/utils/get-icon';
 import { useRouter } from 'next/router';
+import { Config } from '@/config';
 import ValidationError from '@/components/ui/form-validation-error';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Category, ItemProps } from '@/types';
 import { categoryIcons } from './category-icons';
 import { useTranslation } from 'next-i18next';
@@ -32,6 +34,8 @@ import { useTypesQuery } from '@/data/type';
 import { useSettingsQuery } from '@/data/settings';
 import { useModalAction } from '../ui/modal/modal.context';
 import OpenAIButton from '../openAI/openAI.button';
+import { join, split } from 'lodash';
+import { formatSlug } from '@/utils/use-slug';
 
 export const chatbotAutoSuggestion = ({ name }: { name: string }) => {
   return [
@@ -125,6 +129,7 @@ function SelectCategories({
 
 type FormValues = {
   name: string;
+  slug: string;
   details: string;
   parent: any;
   image: any;
@@ -135,6 +140,7 @@ type FormValues = {
 const defaultValues = {
   image: [],
   name: '',
+  slug: '',
   details: '',
   parent: '',
   icon: '',
@@ -149,7 +155,13 @@ export default function CreateOrUpdateCategoriesForm({
 }: IProps) {
   const router = useRouter();
   const { t } = useTranslation();
+
+  const [isSlugDisable, setIsSlugDisable] = useState<boolean>(true);
+
   const isNewTranslation = router?.query?.action === 'translate';
+  const isSlugEditable =
+    router?.query?.action === 'edit' &&
+    router?.locale === Config.defaultLanguage;
   const {
     register,
     handleSubmit,
@@ -177,6 +189,7 @@ export default function CreateOrUpdateCategoriesForm({
   });
 
   const { openModal } = useModalAction();
+  const slugAutoSuggest = formatSlug(watch('name'));
   const { locale } = router;
   const {
     // @ts-ignore
@@ -209,6 +222,7 @@ export default function CreateOrUpdateCategoriesForm({
     const input = {
       language: router.locale,
       name: values.name,
+      slug: values.slug,
       details: values.details,
       image: {
         thumbnail: values?.image?.thumbnail,
@@ -268,6 +282,35 @@ export default function CreateOrUpdateCategoriesForm({
             variant="outline"
             className="mb-5"
           />
+
+          {isSlugEditable ? (
+            <div className="relative mb-5">
+              <Input
+                label={`${t('Slug')}`}
+                {...register('slug')}
+                error={t(errors.slug?.message!)}
+                variant="outline"
+                disabled={isSlugDisable}
+              />
+              <button
+                className="absolute top-[27px] right-px z-10 flex h-[46px] w-11 items-center justify-center rounded-tr rounded-br border-l border-solid border-border-base bg-white px-2 text-body transition duration-200 hover:text-heading focus:outline-none"
+                type="button"
+                title={t('common:text-edit')}
+                onClick={() => setIsSlugDisable(false)}
+              >
+                <EditIcon width={14} />
+              </button>
+            </div>
+          ) : (
+            <Input
+              label={`${t('Slug')}`}
+              {...register('slug')}
+              value={slugAutoSuggest}
+              variant="outline"
+              className="mb-5"
+              disabled
+            />
+          )}
 
           <div className="relative">
             {options?.useAi && (

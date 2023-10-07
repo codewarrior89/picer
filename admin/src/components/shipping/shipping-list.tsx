@@ -90,16 +90,7 @@ const ShippingList = ({ shippings, onSort, onOrder }: IProps) => {
       ),
     },
     {
-      title: (
-        <TitleWithSort
-          title={t('table:table-shipping-type')}
-          ascending={
-            sortingObj.sort === SortOrder.Asc && sortingObj.column === 'type'
-          }
-          isActive={sortingObj.column === 'type'}
-        />
-      ),
-      className: 'cursor-pointer',
+      title: t('table:table-item-type'),
       dataIndex: 'type',
       key: 'type',
       align: 'center',

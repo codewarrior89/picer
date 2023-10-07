@@ -4,6 +4,7 @@ import { useModalState } from '@/components/ui/modal/modal.context';
 import { useTranslation } from 'next-i18next';
 import ImportProducts from './import-products';
 import ImportVariationOptions from './import-variation-options';
+import { InfoIcon } from '../icons/info-icon';
 
 const ExportImportView = () => {
   const { data: shopId } = useModalState();
@@ -44,6 +45,12 @@ const ExportImportView = () => {
             {t('common:text-export-product-variations')}
           </span>
         </a>
+      </div>
+      <div className="mt-4">
+        <b className="text-accent">{`${t('common:text-note')}: `}</b>
+        <span className="text-slate-500">
+          {t('common:text-import-note-details')}
+        </span>
       </div>
     </Card>
   );

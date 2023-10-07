@@ -1,20 +1,20 @@
-import { useRouter } from 'next/router';
 import Card from '@/components/common/card';
-import Layout from '@/components/layouts/admin';
 import Search from '@/components/common/search';
+import { ArrowDown } from '@/components/icons/arrow-down';
+import { ArrowUp } from '@/components/icons/arrow-up';
+import Layout from '@/components/layouts/admin';
+import CategoryTypeFilter from '@/components/product/category-type-filter';
 import ProductList from '@/components/product/product-list';
 import ErrorMessage from '@/components/ui/error-message';
 import Loader from '@/components/ui/loader/loader';
-import { SortOrder } from '@/types';
-import { useState } from 'react';
 import { useProductsQuery } from '@/data/product';
+import { Category, SortOrder, Type } from '@/types';
+import { adminOnly } from '@/utils/auth-utils';
+import cn from 'classnames';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import CategoryTypeFilter from '@/components/product/category-type-filter';
-import cn from 'classnames';
-import { ArrowDown } from '@/components/icons/arrow-down';
-import { ArrowUp } from '@/components/icons/arrow-up';
-import { adminOnly } from '@/utils/auth-utils';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,7 +25,7 @@ export default function ProductsPage() {
   const { locale } = useRouter();
   const [orderBy, setOrder] = useState('created_at');
   const [sortedBy, setColumn] = useState<SortOrder>(SortOrder.Desc);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
 
   const toggleVisible = () => {
     setVisible((v) => !v);
@@ -65,7 +65,10 @@ export default function ProductsPage() {
           </div>
 
           <div className="flex w-full flex-col items-center ms-auto md:w-3/4">
-            <Search onSearch={handleSearch} />
+            <Search
+              onSearch={handleSearch}
+              placeholderText={t('form:input-placeholder-search-name')}
+            />
           </div>
 
           <button
@@ -90,12 +93,13 @@ export default function ProductsPage() {
           <div className="mt-5 flex w-full flex-col border-t border-gray-200 pt-5 md:mt-8 md:flex-row md:items-center md:pt-8">
             <CategoryTypeFilter
               className="w-full"
-              onCategoryFilter={({ slug }: { slug: string }) => {
+              type={type}
+              onCategoryFilter={(category: Category) => {
+                setCategory(category?.slug!);
                 setPage(1);
-                setCategory(slug);
               }}
-              onTypeFilter={({ slug }: { slug: string }) => {
-                setType(slug);
+              onTypeFilter={(type: Type) => {
+                setType(type?.slug!);
                 setPage(1);
               }}
             />

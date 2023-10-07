@@ -20,16 +20,29 @@ export const settingsValidationSchema = yup.object().shape({
     .number()
     .transform((value) => (isNaN(value) ? undefined : value))
     .moreThan(-1, 'form:error-sale-price-must-positive'),
-  freeShippingAmount: yup
-    .number()
-    .moreThan(-1, 'form:error-free-shipping-amount-must-positive')
-    .typeError('form:error-amount-number'),
-  deliveryTime: yup
-    .array()
-    .min(1, 'add-at-least-one-delivery-time')
-    .of(
-      yup.object().shape({
-        title: yup.string().required('form:error-title-required'),
-      })
-    ),
+
+  /**
+   * Commenting for Pixer only
+   * 
+   * */
+  //   freeShippingAmount: yup
+  //   .number()
+  //   .moreThan(-1, 'form:error-free-shipping-amount-must-positive')
+  //   .typeError('form:error-amount-number'),
+  //   maxShopDistance: yup
+  //   .number()
+  //   .positive('form:error-max-shop-distance-must-positive')
+  //   .required('form:error-max-shop-distance')
+  //   .typeError('form:error-max-shop-distance'),
+  // deliveryTime: yup
+  //   .array()
+  //   .min(1, 'add-at-least-one-delivery-time')
+  //   .of(
+  //     yup.object().shape({
+  //       title: yup.string().required('form:error-title-required'),
+  //     })
+  //   ),
+
+
+
 });

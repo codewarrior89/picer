@@ -52,7 +52,10 @@ export default function Coupons() {
         </div>
 
         <div className="flex w-full flex-col items-center space-y-4 ms-auto md:flex-row md:space-y-0 xl:w-1/2">
-          <Search onSearch={handleSearch} />
+          <Search
+            onSearch={handleSearch}
+            placeholderText={t('form:input-placeholder-search-code')}
+          />
 
           {locale === Config.defaultLanguage && (
             <LinkButton

@@ -69,6 +69,10 @@ class OrderController extends CoreController
     {
         $user = $request->user();
 
+        if (!$user) {
+            throw new AuthorizationException(NOT_AUTHORIZED);
+        }
+
         if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN) && (!isset($request->shop_id) || $request->shop_id === 'undefined')) {
             return $this->repository->with('children')->where('id', '!=', null)->where('parent_id', '=', null); //->paginate($limit);
         } else if ($this->repository->hasPermission($user, $request->shop_id)) {

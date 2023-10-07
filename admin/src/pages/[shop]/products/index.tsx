@@ -1,33 +1,33 @@
 import Card from '@/components/common/card';
 import Search from '@/components/common/search';
-import ProductList from '@/components/product/product-list';
-import ErrorMessage from '@/components/ui/error-message';
-import Loader from '@/components/ui/loader/loader';
-import { useState } from 'react';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { ArrowDown } from '@/components/icons/arrow-down';
+import { ArrowUp } from '@/components/icons/arrow-up';
+import { MoreIcon } from '@/components/icons/more-icon';
 import ShopLayout from '@/components/layouts/shop';
-import router, { useRouter } from 'next/router';
+import CategoryTypeFilter from '@/components/product/category-type-filter';
+import ProductList from '@/components/product/product-list';
+import Button from '@/components/ui/button';
+import ErrorMessage from '@/components/ui/error-message';
 import LinkButton from '@/components/ui/link-button';
+import Loader from '@/components/ui/loader/loader';
+import { useModalAction } from '@/components/ui/modal/modal.context';
+import { Config } from '@/config';
+import { Routes } from '@/config/routes';
+import { useProductsQuery } from '@/data/product';
+import { useShopQuery } from '@/data/shop';
+import { useMeQuery } from '@/data/user';
+import { Category, SortOrder, Type } from '@/types';
 import {
   adminOnly,
   adminOwnerAndStaffOnly,
   getAuthCredentials,
   hasAccess,
 } from '@/utils/auth-utils';
-import { useShopQuery } from '@/data/shop';
-import { useProductsQuery } from '@/data/product';
-import { SortOrder } from '@/types';
-import CategoryTypeFilter from '@/components/product/category-type-filter';
 import cn from 'classnames';
-import { ArrowDown } from '@/components/icons/arrow-down';
-import { ArrowUp } from '@/components/icons/arrow-up';
-import { useModalAction } from '@/components/ui/modal/modal.context';
-import { MoreIcon } from '@/components/icons/more-icon';
-import Button from '@/components/ui/button';
-import { Config } from '@/config';
-import { Routes } from '@/config/routes';
-import { useMeQuery } from '@/data/user';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -47,7 +47,7 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1);
   const [orderBy, setOrder] = useState('created_at');
   const [sortedBy, setColumn] = useState<SortOrder>(SortOrder.Desc);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   const { openModal } = useModalAction();
   const { locale } = useRouter();
 
@@ -108,7 +108,10 @@ export default function ProductsPage() {
 
           <div className="flex w-full flex-col items-center md:w-3/4 md:flex-row">
             <div className="flex w-full items-center">
-              <Search onSearch={handleSearch} />
+              <Search
+                onSearch={handleSearch}
+                placeholderText={t('form:input-placeholder-search-name')}
+              />
 
               {locale === Config.defaultLanguage && (
                 <LinkButton
@@ -162,11 +165,14 @@ export default function ProductsPage() {
           <div className="mt-5 flex w-full flex-col border-t border-gray-200 pt-5 md:mt-8 md:flex-row md:items-center md:pt-8">
             <CategoryTypeFilter
               className="w-full"
-              onCategoryFilter={({ slug }: { slug: string }) => {
-                setCategory(slug);
+              type={type}
+              onCategoryFilter={(category: Category) => {
+                setCategory(category?.slug!);
+                setPage(1);
               }}
-              onTypeFilter={({ slug }: { slug: string }) => {
-                setType(slug);
+              onTypeFilter={(type: Type) => {
+                setType(type?.slug!);
+                setPage(1);
               }}
             />
           </div>

@@ -1,4 +1,4 @@
-import Router from 'next/router';
+import Router,{ useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'next-i18next';
@@ -42,11 +42,25 @@ export const useDeleteTypeMutation = () => {
 
 export const useUpdateTypeMutation = () => {
   const { t } = useTranslation();
+  const router = useRouter();
   const queryClient = useQueryClient();
   return useMutation(typeClient.update, {
-    onSuccess: () => {
+    onSuccess: async (data) => {
+      const generateRedirectUrl = router.query.shop
+        ? `/${router.query.shop}${Routes.type.list}`
+        : Routes.type.list;
+      await router.push(
+        `${generateRedirectUrl}/${data?.slug}/edit`,
+        undefined,
+        {
+          locale: Config.defaultLanguage,
+        }
+      );
       toast.success(t('common:successfully-updated'));
     },
+    // onSuccess: () => {
+    //   toast.success(t('common:successfully-updated'));
+    // },
     // Always refetch after error or success:
     onSettled: () => {
       queryClient.invalidateQueries(API_ENDPOINTS.TYPES);

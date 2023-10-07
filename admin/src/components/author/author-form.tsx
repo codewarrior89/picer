@@ -18,14 +18,19 @@ import SelectInput from '@/components/ui/select-input';
 import * as socialIcons from '@/components/icons/social';
 import { AttachmentInput, Author, ItemProps, ShopSocialInput } from '@/types';
 import { useShopQuery } from '@/data/shop';
+import { EditIcon } from '@/components/icons/edit';
+import { Config } from '@/config';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { join, split } from 'lodash';
 import {
   useCreateAuthorMutation,
   useUpdateAuthorMutation,
 } from '@/data/author';
 import { useSettingsQuery } from '@/data/settings';
 import { useModalAction } from '../ui/modal/modal.context';
-import { useCallback, useMemo } from 'react';
+
 import OpenAIButton from '../openAI/openAI.button';
+import { formatSlug } from '@/utils/use-slug';
 
 export const chatbotAutoSuggestion = ({ name }: { name: string }) => {
   return [
@@ -154,6 +159,7 @@ export const updatedIcons = socialIcon.map((item: any) => {
 
 type FormValues = {
   name: string;
+  slug: string;
   bio: string;
   quote: string;
   death: string;
@@ -174,6 +180,10 @@ export default function CreateOrUpdateAuthorForm({ initialValues }: IProps) {
   const router = useRouter();
   const { locale } = useRouter();
   const { t } = useTranslation();
+  const [isSlugDisable, setIsSlugDisable] = useState<boolean>(true);
+  const isSlugEditable =
+    router?.query?.action === 'edit' &&
+    router?.locale === Config.defaultLanguage;
   const {
     query: { shop },
   } = router;
@@ -211,6 +221,7 @@ export default function CreateOrUpdateAuthorForm({ initialValues }: IProps) {
   });
 
   const { openModal } = useModalAction();
+  const slugAutoSuggest = formatSlug(watch('name'));
   const {
     // @ts-ignore
     settings: { options },
@@ -350,6 +361,35 @@ export default function CreateOrUpdateAuthorForm({ initialValues }: IProps) {
             variant="outline"
             className="mb-5"
           />
+
+          {isSlugEditable ? (
+            <div className="relative mb-5">
+              <Input
+                label={`${t('Slug')}`}
+                {...register('slug')}
+                error={t(errors.slug?.message!)}
+                variant="outline"
+                disabled={isSlugDisable}
+              />
+              <button
+                className="absolute top-[27px] right-px z-10 flex h-[46px] w-11 items-center justify-center rounded-tr rounded-br border-l border-solid border-border-base bg-white px-2 text-body transition duration-200 hover:text-heading focus:outline-none"
+                type="button"
+                title={t('common:text-edit')}
+                onClick={() => setIsSlugDisable(false)}
+              >
+                <EditIcon width={14} />
+              </button>
+            </div>
+          ) : (
+            <Input
+              label={`${t('Slug')}`}
+              {...register('slug')}
+              value={slugAutoSuggest}
+              variant="outline"
+              className="mb-5"
+              disabled
+            />
+          )}
           <Input
             label={t('form:input-label-languages')}
             {...register('languages')}

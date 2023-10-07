@@ -137,6 +137,8 @@ export const useDownloadInvoiceMutation = (
       quantity: t('text-quantity'),
       invoice_no: t('text-invoice-no'),
       date: t('text-date'),
+      paid_from_wallet: t('text-paid_from_wallet'),
+      amount_due: t('text-amount-due'),
     },
   };
 

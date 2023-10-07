@@ -26,6 +26,7 @@ export default function TypeFilter({ onTypeFilter, className }: Props) {
           getOptionValue={(option: any) => option.slug}
           placeholder={t('common:filter-by-group-placeholder')}
           onChange={onTypeFilter}
+          isClearable={true}
         />
       </div>
     </div>

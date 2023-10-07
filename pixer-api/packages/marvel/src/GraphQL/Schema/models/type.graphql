@@ -12,7 +12,7 @@ type Type {
     name: String!
     language: String
     translated_languages: [String]
-    slug: String
+    slug: String!
     banners: [Banner] @hasMany
     promotional_sliders: [Attachment]
     settings: TypeSettings

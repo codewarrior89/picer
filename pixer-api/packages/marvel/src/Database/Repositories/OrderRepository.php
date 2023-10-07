@@ -201,6 +201,11 @@ class OrderRepository extends BaseRepository
         }
 
         $order = $this->createOrder($request);
+        
+        if (($useWalletPoints || $request->isFullWalletPayment) && $user) {
+            $this->storeOrderWalletPoint(round($request['paid_total'], 2) - $amount, $order->id);
+            $this->manageWalletAmount(round($request['paid_total'], 2), $user->id);
+        }
 
         if (($useWalletPoints || $request->isFullWalletPayment) && $user) {
             $this->storeOrderWalletPoint(round($request['paid_total'], 2) - $amount, $order->id);

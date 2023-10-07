@@ -52,6 +52,8 @@ export default function Orders() {
     language: locale,
     limit: 20,
     page,
+    orderBy,
+    sortedBy,
     tracking_number: searchTerm,
   });
   const { refetch } = useExportOrderQuery(
@@ -88,7 +90,12 @@ export default function Orders() {
 
         <div className="flex w-full flex-1 items-center">
           <div className="flex w-full flex-col items-center ms-auto md:w-1/2 md:flex-row">
-            <Search onSearch={handleSearch} />
+            <Search
+              onSearch={handleSearch}
+              placeholderText={t(
+                'form:input-placeholder-search-tracking-number'
+              )}
+            />
           </div>
 
           <Menu

@@ -43,6 +43,7 @@ import { useModalAction } from '@/components/ui/modal/modal.context';
 import { useCallback } from 'react';
 import OpenAIButton from '@/components/openAI/openAI.button';
 import { ItemProps } from '@/types';
+import { formatSlug } from '@/utils/use-slug';
 
 export const chatbotAutoSuggestion = ({ name }: { name: string }) => {
   return [
@@ -87,7 +88,7 @@ export const chatbotAutoSuggestion = ({ name }: { name: string }) => {
       title: `Write a product description about ${name} that includes a call-to-action and encourages the reader to make a purchase.`,
     },
   ];
-}
+};
 
 type ProductFormProps = {
   initialValues?: Product | null;
@@ -215,7 +216,7 @@ export default function CreateOrUpdateProductForm({
     });
   }, [productName]);
 
-  const slugAutoSuggest = join(split(watch('name'), ' '), '-').toLowerCase();
+  const slugAutoSuggest = formatSlug(watch('name'));
   if (Boolean(options?.isProductReview)) {
     if (permission) {
       if (initialValues?.status !== ProductStatus?.Draft) {
@@ -345,7 +346,7 @@ export default function CreateOrUpdateProductForm({
             </Card>
           </div>
 
-          <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
+          <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
             <Description
               title={t('form:video-title')}
               details={t('form:video-help-text')}
@@ -357,11 +358,12 @@ export default function CreateOrUpdateProductForm({
               <div>
                 {fields.map((item: any, index: number) => (
                   <div
-                    className="py-5 border-b border-dashed border-border-200 first:pt-0 last:border-b-0 md:py-8 md:first:pt-0"
+                    className="border-b border-dashed border-border-200 py-5 first:pt-0 last:border-b-0 md:py-8 md:first:pt-0"
                     key={index}
-                  > <div className="flex gap-1 mb-3 text-sm font-semibold leading-none text-body-dark">
-                      {`${t('form:input-label-video-embed')} ${index + 1
-                        }`}
+                  >
+                    {' '}
+                    <div className="mb-3 flex gap-1 text-sm font-semibold leading-none text-body-dark">
+                      {`${t('form:input-label-video-embed')} ${index + 1}`}
                       <Tooltip content={t('common:text-video-tooltip')} />
                     </div>
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-5">

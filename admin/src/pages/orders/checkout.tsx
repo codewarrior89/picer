@@ -72,6 +72,7 @@ export default function CheckoutPage() {
             addresses={user?.address?.filter(
               (address) => address?.type === AddressType.Billing
             )}
+            //@ts-ignore
             atom={billingAddressAtom}
             type={AddressType.Billing}
           />
@@ -84,6 +85,7 @@ export default function CheckoutPage() {
             addresses={user?.address?.filter(
               (address) => address?.type === AddressType.Shipping
             )}
+            //@ts-ignore
             atom={shippingAddressAtom}
             type={AddressType.Shipping}
           />

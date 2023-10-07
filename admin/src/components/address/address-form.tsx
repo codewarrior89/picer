@@ -123,6 +123,7 @@ const AddressForm: React.FC<any> = ({ onSubmit }) => {
                   render={({ field: { onChange } }) => (
                     <GooglePlacesAutocomplete
                       icon={true}
+                      //@ts-ignore
                       onChange={(location: any) => {
                         onChange(location);
                         setValue('address.country', location?.country);

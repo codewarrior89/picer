@@ -1,13 +1,14 @@
-import { useTranslation } from 'next-i18next';
+import { Config } from '@/config';
 import { Routes } from '@/config/routes';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { API_ENDPOINTS } from '@/data/client/api-endpoints';
+import { Shop, ShopPaginator, ShopQueryOptions } from '@/types';
+import { adminOnly, getAuthCredentials, hasAccess } from '@/utils/auth-utils';
+import { mapPaginatorData } from '@/utils/data-mappers';
+import { useTranslation } from 'next-i18next';
+import { useRouter } from 'next/router';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
 import { shopClient } from './client/shop';
-import { mapPaginatorData } from '@/utils/data-mappers';
-import { useRouter } from 'next/router';
-import { adminOnly, getAuthCredentials, hasAccess } from '@/utils/auth-utils';
-import { Shop, ShopPaginator, ShopQueryOptions } from '@/types';
 
 export const useApproveShopMutation = () => {
   const { t } = useTranslation();
@@ -58,12 +59,15 @@ export const useCreateShopMutation = () => {
 
 export const useUpdateShopMutation = () => {
   const { t } = useTranslation();
+  const router = useRouter();
   const queryClient = useQueryClient();
   return useMutation(shopClient.update, {
-    onSuccess: () => {
+    onSuccess: async (data) => {
+      await router.push(`/${data?.slug}/edit`, undefined, {
+        locale: Config.defaultLanguage,
+      });
       toast.success(t('common:successfully-updated'));
     },
-    // Always refetch after error or success:
     onSettled: () => {
       queryClient.invalidateQueries(API_ENDPOINTS.SHOPS);
     },

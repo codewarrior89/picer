@@ -227,6 +227,7 @@ const ReviewDetailsView = ({ review }: IProps) => {
                   width={32}
                   height={32}
                   className="inline-flex rounded-md bg-gray-200"
+                  // @ts-ignore
                   alt={review?.product?.name}
                 />
               </div>

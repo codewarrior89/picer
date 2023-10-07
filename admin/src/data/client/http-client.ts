@@ -22,7 +22,7 @@ Axios.interceptors.request.use((config) => {
   if (cookies) {
     token = JSON.parse(cookies)['token'];
   }
-
+// @ts-ignore
   config.headers = {
     ...config.headers,
     Authorization: `Bearer ${token}`,

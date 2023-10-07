@@ -14,6 +14,8 @@ import {
   useCreateAttributeMutation,
   useUpdateAttributeMutation,
 } from '@/data/attributes';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { attributeValidationSchema } from '@/components/attribute/attribute.validation-schema';
 
 type FormValues = {
 	name?: string | null;
@@ -46,6 +48,7 @@ export default function CreateOrUpdateAttributeForm({ initialValues }: IProps) {
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: initialValues ? initialValues : { name: '', values: [] },
+    resolver: yupResolver(attributeValidationSchema),
   });
   const { fields, append, remove } = useFieldArray({
     control,
@@ -113,7 +116,7 @@ export default function CreateOrUpdateAttributeForm({ initialValues }: IProps) {
                 ? t('form:item-description-update')
                 : t('form:item-description-add')
             } ${t('form:form-description-attribute-name')}`}
-            className="sm:pe-4 md:pe-5 w-full px-0 pb-5 sm:w-4/12 sm:py-8 md:w-1/3"
+            className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
           />
 
           <Card className="w-full sm:w-8/12 md:w-2/3">
@@ -135,7 +138,7 @@ export default function CreateOrUpdateAttributeForm({ initialValues }: IProps) {
                 ? t('form:item-description-update')
                 : t('form:item-description-add')
             } ${t('form:form-description-attribute-value')}`}
-            className="sm:pe-4 md:pe-5 w-full px-0 pb-5 sm:w-4/12 sm:py-8 md:w-1/3"
+            className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
           />
 
           <Card className="w-full sm:w-8/12 md:w-2/3">
@@ -152,6 +155,8 @@ export default function CreateOrUpdateAttributeForm({ initialValues }: IProps) {
                       variant="outline"
                       {...register(`values.${index}.value` as const)}
                       defaultValue={item.value!} // make sure to set up defaultValue
+                      // @ts-ignore
+                      error={t(errors?.values?.[index]?.value?.message)}
                     />
                     <Input
                       className="sm:col-span-2"
@@ -159,6 +164,8 @@ export default function CreateOrUpdateAttributeForm({ initialValues }: IProps) {
                       variant="outline"
                       {...register(`values.${index}.meta` as const)}
                       defaultValue={item.meta!} // make sure to set up defaultValue
+                      // @ts-ignore
+                      error={t(errors?.values?.[index]?.meta?.message)}
                     />
                     <button
                       onClick={() => remove(index)}
@@ -182,7 +189,7 @@ export default function CreateOrUpdateAttributeForm({ initialValues }: IProps) {
           </Card>
         </div>
 
-        <div className="text-end mb-4">
+        <div className="mb-4 text-end">
           {initialValues && (
             <Button
               variant="outline"

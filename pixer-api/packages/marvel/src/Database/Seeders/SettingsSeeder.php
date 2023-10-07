@@ -51,21 +51,21 @@ class SettingsSeeder extends Seeder
                 "signupPoints" => 100,
                 "useGoogleMap" => false,
                 "siteSubtitle" => "Your next ecommerce",
-                "shippingClass" => "1",
-                "contactDetails" => [
-                    "contact" => "+161649646591, +5454645431",
-                    "socials" => [],
-                    "website" => "https://redq.io/",
-                    "location" => [
-                        "lat" => 48.2016556,
-                        "lng" => 16.3378535,
-                        "zip" => "1070",
-                        "city" => "Wien",
-                        "state" => "Wien",
-                        "country" => "Austria",
-                        "formattedAddress" => "Urban-Loritz-Platz, 1070 Wien, Austria"
-                    ]
-                ],
+                // "shippingClass" => "1",
+                // "contactDetails" => [
+                //     "contact" => "+161649646591, +5454645431",
+                //     "socials" => [],
+                //     "website" => "https://redq.io/",
+                //     "location" => [
+                //         "lat" => 48.2016556,
+                //         "lng" => 16.3378535,
+                //         "zip" => "1070",
+                //         "city" => "Wien",
+                //         "state" => "Wien",
+                //         "country" => "Austria",
+                //         "formattedAddress" => "Urban-Loritz-Platz, 1070 Wien, Austria"
+                //     ]
+                // ],
                 "paymentGateway" => [
                     [
                         "name" => "stripe",
@@ -89,7 +89,7 @@ class SettingsSeeder extends Seeder
                 "server_info" => server_environment_info(),
                 "useAi"         => false,
                 "defaultAi" => "openai",
-                "maxShopDistance" => 1000,
+                // "maxShopDistance" => 1000,
             ]),
             "language" => "en",
             "created_at" => Carbon::now(),

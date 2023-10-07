@@ -50,11 +50,14 @@ export default function Customers() {
           </h1>
         </div>
 
-        <div className="ms-auto flex w-full items-center md:w-3/4">
-          <Search onSearch={handleSearch} />
+        <div className="flex w-full items-center ms-auto md:w-3/4">
+          <Search
+            onSearch={handleSearch}
+            placeholderText={t('form:input-placeholder-search-name')}
+          />
           <LinkButton
             href={`${Routes.user.create}`}
-            className="ms-4 md:ms-6 h-12"
+            className="h-12 ms-4 md:ms-6"
           >
             <span>+ {t('form:button-label-add-customer')}</span>
           </LinkButton>

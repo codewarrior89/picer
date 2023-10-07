@@ -131,20 +131,21 @@ const CategoryList = ({
       },
     },
     {
-      title: t('table:table-item-slug'),
-      dataIndex: 'slug',
-      key: 'slug',
-      align: 'center',
-      ellipsis: true,
-      width: 150,
-      render: (slug: any) => (
-        <div
-          className="overflow-hidden truncate whitespace-nowrap"
-          title={slug}
-        >
-          {slug}
-        </div>
+      title: (
+        <TitleWithSort
+          title={t('table:table-item-slug')}
+          ascending={
+            sortingObj.sort === SortOrder.Asc && sortingObj.column === 'slug'
+          }
+          isActive={sortingObj.column === 'slug'}
+        />
       ),
+      className: 'cursor-pointer',
+      dataIndex: 'name',
+      key: 'slug',
+      align: alignLeft,
+      width: 150,
+      onHeaderCell: () => onHeaderClick('slug'),
     },
     {
       title: t('table:table-item-actions'),

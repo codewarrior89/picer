@@ -1,23 +1,24 @@
-import Select from '@/components/ui/select/select';
-import React from 'react';
-import { useTranslation } from 'next-i18next';
 import Label from '@/components/ui/label';
-import cn from 'classnames';
+import Select from '@/components/ui/select/select';
 import { useCategoriesQuery } from '@/data/category';
-import { useRouter } from 'next/router';
 import { useTypesQuery } from '@/data/type';
+import cn from 'classnames';
+import { useTranslation } from 'next-i18next';
+import { useRouter } from 'next/router';
 import { ActionMeta } from 'react-select';
 
 type Props = {
   onCategoryFilter: (newValue: any, actionMeta: ActionMeta<unknown>) => void;
   onTypeFilter: (newValue: any, actionMeta: ActionMeta<unknown>) => void;
   className?: string;
+  type?: string;
 };
 
 export default function CategoryTypeFilter({
   onTypeFilter,
   onCategoryFilter,
   className,
+  type,
 }: Props) {
   const { locale } = useRouter();
   const { t } = useTranslation();
@@ -26,6 +27,7 @@ export default function CategoryTypeFilter({
   const { categories, loading: categoryLoading } = useCategoriesQuery({
     limit: 999,
     language: locale,
+    type,
   });
 
   return (
@@ -44,6 +46,7 @@ export default function CategoryTypeFilter({
           getOptionValue={(option: any) => option.slug}
           placeholder={t('common:filter-by-group-placeholder')}
           onChange={onTypeFilter}
+          isClearable={true}
         />
       </div>
       <div className="w-full">
@@ -55,6 +58,7 @@ export default function CategoryTypeFilter({
           placeholder={t('common:filter-by-category-placeholder')}
           isLoading={categoryLoading}
           onChange={onCategoryFilter}
+          isClearable={true}
         />
       </div>
     </div>

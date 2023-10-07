@@ -72,6 +72,20 @@ export enum AddressType {
   Shipping = 'shipping',
 }
 
+export interface GoogleMapLocation {
+  lat?: number | string;
+  lng?: number | string;
+  street_number?: string;
+  route?: string;
+  street_address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  zip?: string;
+  formattedAddress?: string;
+  formatted_address?: string;
+}
+
 export type QueryOptionsType = {
   page?: number;
   name?: string;
@@ -478,6 +492,13 @@ export interface StoreNoticeInput {
 export interface StoreNoticeUserToNotifyInput {
   type: string;
 }
+export interface WalletPoint {
+  id: number
+  amount: number
+  order_id: number
+  created_at: string
+  updated_at: string
+}
 
 export interface Order {
   id: string;
@@ -495,6 +516,7 @@ export interface Order {
   payment_gateway?: string;
   coupon?: Coupon;
   discount?: number;
+  wallet_point?: WalletPoint;
   delivery_fee?: number;
   delivery_time: string;
   products: Product[];
@@ -877,36 +899,37 @@ export interface Tax {
   rate?: number;
 }
 
-export interface SettingsOptions {
-  siteTitle?: string;
-  siteSubtitle?: string;
-  currency?: string;
-  defaultAi?: string;
-  useOtp?: boolean;
-  useAi?: boolean;
-  useGoogleMap?: boolean;
-  isProductReview?: boolean;
-  freeShipping?: boolean;
-  contactDetails?: ContactDetails;
-  minimumOrderAmount?: number;
-  freeShippingAmount?: number;
-  currencyToWalletRatio?: number;
-  signupPoints?: number;
-  maximumQuestionLimit?: number;
-  deliveryTime?: DeliveryTime[];
-  logo?: Attachment;
-  taxClass?: string;
-  shippingClass?: string;
-  seo?: SeoSettings;
-  google?: GoogleSettings;
-  facebook?: FacebookSettings;
-  paymentGateway?: any;
-  defaultPaymentGateway?: string;
-  guestCheckout: boolean;
-  smsEvent?: SmsEvent;
-  emailEvent?: EmailEvent;
-  server_info?: ServerInfo;
-}
+// export interface SettingsOptions {
+//   siteTitle?: string;
+//   siteSubtitle?: string;
+//   currency?: string;
+//   defaultAi?: string;
+//   useOtp?: boolean;
+//   useAi?: boolean;
+//   useGoogleMap?: boolean;
+//   isProductReview?: boolean;
+//   freeShipping?: boolean;
+//   contactDetails?: ContactDetails;
+//   minimumOrderAmount?: number;
+//   freeShippingAmount?: number;
+//   currencyToWalletRatio?: number;
+//   signupPoints?: number;
+//   maxShopDistance?: number;
+//   maximumQuestionLimit?: number;
+//   deliveryTime?: DeliveryTime[];
+//   logo?: Attachment;
+//   taxClass?: string;
+//   shippingClass?: string;
+//   seo?: SeoSettings;
+//   google?: GoogleSettings;
+//   facebook?: FacebookSettings;
+//   paymentGateway?: any;
+//   defaultPaymentGateway?: string;
+//   guestCheckout: boolean;
+//   smsEvent?: SmsEvent;
+//   emailEvent?: EmailEvent;
+//   server_info?: ServerInfo;
+// }
 
 export interface ContactDetails {
   socials?: ShopSocials[];
@@ -979,9 +1002,11 @@ export type SeoSettings = {
 };
 
 export interface Settings {
-  id: string;
-  language: string;
-  options: SettingsOptions;
+  id: number
+  options: SettingsOptions
+  language: string
+  created_at: string
+  updated_at: string
 }
 
 export interface SettingsInput {
@@ -1067,10 +1092,12 @@ export interface SettingsOptions {
   defaultPaymentGateway?: string;
   useOtp?: boolean;
   useAi?: boolean;
+  defaultAi?: string;
   contactDetails?: ContactDetails;
   minimumOrderAmount?: number;
   currencyToWalletRatio?: number;
   signupPoints?: number;
+  maxShopDistance?: number;
   maximumQuestionLimit?: number;
   deliveryTime?: DeliveryTime[];
   logo?: Attachment;
@@ -1085,6 +1112,10 @@ export interface SettingsOptions {
   smsEvent?: SmsEvent;
   emailEvent?: EmailEvent;
   server_info?: ServerInfo;
+  useGoogleMap?: boolean;
+  isProductReview?: boolean;
+  freeShipping?: boolean;
+  freeShippingAmount?: number;
 }
 
 export interface ServerInfo {
@@ -1111,6 +1142,7 @@ export interface SettingsOptionsInput {
   freeShippingAmount?: number;
   currencyToWalletRatio?: number;
   signupPoints?: number;
+  maxShopDistance?: number;
   maximumQuestionLimit?: number;
   deliveryTime?: DeliveryTimeInput[];
   logo?: AttachmentInput;
@@ -1482,7 +1514,9 @@ export interface ShopQueryOptions extends Omit<QueryOptions, 'language'> {
 }
 
 export interface GoogleMapLocation {
+  //@ts-ignore
   lat?: number;
+  //@ts-ignore
   lng?: number;
   street_number?: string;
   route?: string;
@@ -1509,43 +1543,43 @@ export interface ItemProps {
 
 export interface ShopPaginator extends PaginatorInfo<Shop> {}
 
-export interface WithdrawPaginator extends PaginatorInfo<Withdraw> {}
+export interface WithdrawPaginator extends PaginatorInfo<Withdraw> { }
 
-export interface UserPaginator extends PaginatorInfo<User> {}
+export interface UserPaginator extends PaginatorInfo<User> { }
 
-export interface QuestionPaginator extends PaginatorInfo<Question> {}
+export interface QuestionPaginator extends PaginatorInfo<Question> { }
 
-export interface StaffPaginator extends PaginatorInfo<User> {}
+export interface StaffPaginator extends PaginatorInfo<User> { }
 
-export interface OrderPaginator extends PaginatorInfo<Order> {}
+export interface OrderPaginator extends PaginatorInfo<Order> { }
 
-export interface CouponPaginator extends PaginatorInfo<Coupon> {}
+export interface CouponPaginator extends PaginatorInfo<Coupon> { }
 
-export interface StoreNoticePaginator extends PaginatorInfo<StoreNotice> {}
+export interface StoreNoticePaginator extends PaginatorInfo<StoreNotice> { }
 
-export interface ProductPaginator extends PaginatorInfo<Product> {}
+export interface ProductPaginator extends PaginatorInfo<Product> { }
 
-export interface CategoryPaginator extends PaginatorInfo<Category> {}
+export interface CategoryPaginator extends PaginatorInfo<Category> { }
 
-export interface TaxPaginator extends PaginatorInfo<Tax> {}
+export interface TaxPaginator extends PaginatorInfo<Tax> { }
 
-export interface ReviewPaginator extends PaginatorInfo<Review> {}
+export interface ReviewPaginator extends PaginatorInfo<Review> { }
 
-export interface TagPaginator extends PaginatorInfo<Tag> {}
+export interface TagPaginator extends PaginatorInfo<Tag> { }
 
-export interface AttributePaginator extends PaginatorInfo<Attribute> {}
+export interface AttributePaginator extends PaginatorInfo<Attribute> { }
 
 export interface AttributeValuePaginator
-  extends PaginatorInfo<AttributeValue> {}
+  extends PaginatorInfo<AttributeValue> { }
 
-export interface ShippingPaginator extends PaginatorInfo<Shipping> {}
+export interface ShippingPaginator extends PaginatorInfo<Shipping> { }
 
-export interface AuthorPaginator extends PaginatorInfo<Author> {}
+export interface AuthorPaginator extends PaginatorInfo<Author> { }
 
-export interface ManufacturerPaginator extends PaginatorInfo<Manufacturer> {}
+export interface ManufacturerPaginator extends PaginatorInfo<Manufacturer> { }
 
-export interface OrderStatusPaginator extends PaginatorInfo<OrderStatus> {}
+export interface OrderStatusPaginator extends PaginatorInfo<OrderStatus> { }
 
-export interface ConversionPaginator extends PaginatorInfo<Conversations> {}
+export interface ConversionPaginator extends PaginatorInfo<Conversations> { }
 
-export interface MessagePaginator extends PaginatorInfo<Message> {}
+export interface MessagePaginator extends PaginatorInfo<Message> { }

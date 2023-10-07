@@ -83,6 +83,15 @@ export const Routes = {
   question: {
     ...routesFactory('/questions'),
   },
+  message: {
+    ...routesFactory('/message'),
+  },
+  shopMessage: {
+    ...routesFactory('/shop-message'),
+  },
+  conversations: {
+    ...routesFactory('/message/conversations'),
+  },
 };
 
 function routesFactory(endpoint: string) {

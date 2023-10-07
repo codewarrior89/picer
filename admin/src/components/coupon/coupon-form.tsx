@@ -88,7 +88,6 @@ const defaultValues = {
   amount: 0,
   minimum_cart_amount: 0,
   active_from: new Date(),
-  expire_at: new Date(),
 };
 
 type IProps = {

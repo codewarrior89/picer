@@ -205,8 +205,8 @@
   "text-shop-approve-description": "Are you sure?",
   "text-approve-shop": "Approve Shop",
   "text-disapprove-shop": "Disapprove Shop",
-  "filter-by-group": "Filter By Group",
-  "filter-by-group-placeholder": "Filter by Group",
+  "filter-by-group": "Filter By Layout",
+  "filter-by-group-placeholder": "Filter by Layout",
   "filter-by-category": "Filter By Category",
   "filter-by-category-placeholder": "Filter by Category",
   "filter-by-order": "Order By",
@@ -386,5 +386,8 @@
   "text-paid-from-wallet": "Paid From Wallet",
   "text-total-item": "Total Item",
   "text-deliver-time": "Delivery Time",
-  "text-order-failed": "Order Failed"
+  "text-order-failed": "Order Failed",
+  "text-paid_from_wallet": "Wallet Payment",
+  "text-amount-due": "Amount Due",
+  "text-import-note-details": "Upload CSV File To import products. To see formation export a sample CSV from here!"
 }

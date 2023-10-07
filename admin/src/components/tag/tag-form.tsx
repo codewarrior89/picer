@@ -20,9 +20,13 @@ import { useCreateTagMutation, useUpdateTagMutation } from '@/data/tag';
 import { useTypesQuery } from '@/data/type';
 import OpenAIButton from '../openAI/openAI.button';
 import { useSettingsQuery } from '@/data/settings';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ItemProps } from '@/types';
 import { useModalAction } from '../ui/modal/modal.context';
+import { EditIcon } from '@/components/icons/edit';
+import { Config } from '@/config';
+import { join, split } from 'lodash';
+import { formatSlug } from '@/utils/use-slug';
 
 export const chatbotAutoSuggestion = ({ name }: { name: string }) => {
   return [
@@ -68,7 +72,6 @@ export const chatbotAutoSuggestion = ({ name }: { name: string }) => {
     },
   ];
 };
-
 
 function SelectTypes({
   control,
@@ -119,6 +122,8 @@ export const updatedIcons = tagIcons.map((item: any) => {
 
 type FormValues = {
   name: string;
+  slug: string;
+  type: any;
   details: string;
   image: any;
   icon: any;
@@ -127,6 +132,7 @@ type FormValues = {
 const defaultValues = {
   image: '',
   name: '',
+  slug: '',
   details: '',
   icon: '',
 };
@@ -138,6 +144,10 @@ export default function CreateOrUpdateTagForm({ initialValues }: IProps) {
   const router = useRouter();
   const { t } = useTranslation();
   const isNewTranslation = router?.query?.action === 'translate';
+  const [isSlugDisable, setIsSlugDisable] = useState<boolean>(true);
+  const isSlugEditable =
+    router?.query?.action === 'edit' &&
+    router?.locale === Config.defaultLanguage;
 
   const {
     register,
@@ -191,11 +201,12 @@ export default function CreateOrUpdateTagForm({ initialValues }: IProps) {
 
   const { mutate: createTag, isLoading: creating } = useCreateTagMutation();
   const { mutate: updateTag, isLoading: updating } = useUpdateTagMutation();
-
+  const slugAutoSuggest = formatSlug(watch('name'));
   const onSubmit = async (values: FormValues) => {
     const input = {
       language: router.locale,
       name: values.name,
+      slug: values.slug,
       details: values.details,
       image: {
         thumbnail: values?.image?.thumbnail,
@@ -259,6 +270,35 @@ export default function CreateOrUpdateTagForm({ initialValues }: IProps) {
             variant="outline"
             className="mb-5"
           />
+
+          {isSlugEditable ? (
+            <div className="relative mb-5">
+              <Input
+                label={`${t('Slug')}`}
+                {...register('slug')}
+                error={t(errors.slug?.message!)}
+                variant="outline"
+                disabled={isSlugDisable}
+              />
+              <button
+                className="absolute top-[27px] right-px z-10 flex h-[46px] w-11 items-center justify-center rounded-tr rounded-br border-l border-solid border-border-base bg-white px-2 text-body transition duration-200 hover:text-heading focus:outline-none"
+                type="button"
+                title={t('common:text-edit')}
+                onClick={() => setIsSlugDisable(false)}
+              >
+                <EditIcon width={14} />
+              </button>
+            </div>
+          ) : (
+            <Input
+              label={`${t('Slug')}`}
+              {...register('slug')}
+              value={slugAutoSuggest}
+              variant="outline"
+              className="mb-5"
+              disabled
+            />
+          )}
 
           <div className="relative">
             {options?.useAi && (

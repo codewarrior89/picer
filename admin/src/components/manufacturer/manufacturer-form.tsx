@@ -15,6 +15,10 @@ import { getIcon } from '@/utils/get-icon';
 import SelectInput from '@/components/ui/select-input';
 import * as socialIcons from '@/components/icons/social';
 import ProductGroupInput from '@/components/product/product-group-input';
+import { EditIcon } from '@/components/icons/edit';
+import { Config } from '@/config';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { join, split } from 'lodash';
 import {
   AttachmentInput,
   ItemProps,
@@ -28,8 +32,8 @@ import {
 } from '@/data/manufacturer';
 import { useSettingsQuery } from '@/data/settings';
 import OpenAIButton from '../openAI/openAI.button';
-import { useCallback, useMemo } from 'react';
 import { useModalAction } from '../ui/modal/modal.context';
+import { formatSlug } from '@/utils/use-slug';
 
 export const chatbotAutoSuggestion = ({ name }: { name: string }) => {
   return [
@@ -113,6 +117,7 @@ export const updatedIcons = socialIcon.map((item: any) => {
 
 type FormValues = {
   name: string;
+  slug: string;
   description: string;
   website: string;
   socials: ShopSocialInput[];
@@ -131,6 +136,10 @@ export default function CreateOrUpdateManufacturerForm({
 }: IProps) {
   const router = useRouter();
   const { t } = useTranslation();
+  const [isSlugDisable, setIsSlugDisable] = useState<boolean>(true);
+  const isSlugEditable =
+    router?.query?.action === 'edit' &&
+    router?.locale === Config.defaultLanguage;
   const {
     query: { shop },
   } = router;
@@ -143,6 +152,7 @@ export default function CreateOrUpdateManufacturerForm({
   const shopId = shopData?.id!;
   const isNewTranslation = router?.query?.action === 'translate';
   const { locale } = router;
+
   const {
     // @ts-ignore
     settings: { options },
@@ -183,7 +193,7 @@ export default function CreateOrUpdateManufacturerForm({
     useCreateManufacturerMutation();
   const { mutate: updateManufacturer, isLoading: updating } =
     useUpdateManufacturerMutation();
-
+  const slugAutoSuggest = formatSlug(watch('name'));
   const generateName = watch('name');
   const autoSuggestionList = useMemo(() => {
     return chatbotAutoSuggestion({ name: generateName ?? '' });
@@ -207,6 +217,7 @@ export default function CreateOrUpdateManufacturerForm({
   const onSubmit = async (values: FormValues) => {
     const {
       name,
+      slug,
       description,
       is_approved,
       website,
@@ -218,6 +229,7 @@ export default function CreateOrUpdateManufacturerForm({
     const input = {
       language: router.locale,
       name,
+      slug,
       description,
       is_approved,
       website,
@@ -312,6 +324,35 @@ export default function CreateOrUpdateManufacturerForm({
             className="mb-5"
           />
 
+          {isSlugEditable ? (
+            <div className="relative mb-5">
+              <Input
+                label={`${t('Slug')}`}
+                {...register('slug')}
+                error={t(errors.slug?.message!)}
+                variant="outline"
+                disabled={isSlugDisable}
+              />
+              <button
+                className="absolute top-[27px] right-px z-10 flex h-[46px] w-11 items-center justify-center rounded-tr rounded-br border-l border-solid border-border-base bg-white px-2 text-body transition duration-200 hover:text-heading focus:outline-none"
+                type="button"
+                title={t('common:text-edit')}
+                onClick={() => setIsSlugDisable(false)}
+              >
+                <EditIcon width={14} />
+              </button>
+            </div>
+          ) : (
+            <Input
+              label={`${t('Slug')}`}
+              {...register('slug')}
+              value={slugAutoSuggest}
+              variant="outline"
+              className="mb-5"
+              disabled
+            />
+          )}
+
           <Input
             label={t('form:input-label-website')}
             {...register('website')}
@@ -334,7 +375,7 @@ export default function CreateOrUpdateManufacturerForm({
               className="mb-5"
             />
           </div>
-          
+
           <ProductGroupInput
             control={control}
             error={t(errors?.type?.message)}

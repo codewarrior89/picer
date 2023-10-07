@@ -1,28 +1,27 @@
+import Cart from '@/components/cart/cart';
+import CartCounterButton from '@/components/cart/cart-counter-button';
 import Card from '@/components/common/card';
-import Layout from '@/components/layouts/admin';
 import Search from '@/components/common/search';
-import ErrorMessage from '@/components/ui/error-message';
-import Loader from '@/components/ui/loader/loader';
-import { useState } from 'react';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { adminOnly } from '@/utils/auth-utils';
-import CategoryTypeFilter from '@/components/product/category-type-filter';
-import cn from 'classnames';
 import { ArrowDown } from '@/components/icons/arrow-down';
 import { ArrowUp } from '@/components/icons/arrow-up';
+import Layout from '@/components/layouts/admin';
 import ProductCard from '@/components/product/card';
-import Cart from '@/components/cart/cart';
-import { useUI } from '@/contexts/ui.context';
-import DrawerWrapper from '@/components/ui/drawer-wrapper';
+import CategoryTypeFilter from '@/components/product/category-type-filter';
 import Drawer from '@/components/ui/drawer';
-import CartCounterButton from '@/components/cart/cart-counter-button';
-import Pagination from '@/components/ui/pagination';
-import { Product, ProductStatus } from '@/types';
-import { useProductsQuery } from '@/data/product';
+import DrawerWrapper from '@/components/ui/drawer-wrapper';
+import ErrorMessage from '@/components/ui/error-message';
+import Loader from '@/components/ui/loader/loader';
 import NotFound from '@/components/ui/not-found';
+import Pagination from '@/components/ui/pagination';
+import { useUI } from '@/contexts/ui.context';
+import { useProductsQuery } from '@/data/product';
+import { Category, Product, ProductStatus, Type } from '@/types';
+import { adminOnly } from '@/utils/auth-utils';
+import cn from 'classnames';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
-
+import { useState } from 'react';
 export default function ProductsPage() {
   const { locale } = useRouter();
   const { t } = useTranslation();
@@ -67,12 +66,15 @@ export default function ProductsPage() {
             </h1>
           </div>
 
-          <div className="ms-auto flex w-full flex-col items-center md:w-3/4">
-            <Search onSearch={handleSearch} />
+          <div className="flex w-full flex-col items-center ms-auto md:w-3/4">
+            <Search
+              onSearch={handleSearch}
+              placeholderText={t('form:input-placeholder-search-name')}
+            />
           </div>
 
           <button
-            className="md:ms-5 mt-5 flex items-center whitespace-nowrap text-base font-semibold text-accent md:mt-0"
+            className="mt-5 flex items-center whitespace-nowrap text-base font-semibold text-accent md:mt-0 md:ms-5"
             onClick={toggleVisible}
           >
             {t('common:text-filter')}{' '}
@@ -92,12 +94,13 @@ export default function ProductsPage() {
         >
           <div className="mt-5 flex w-full flex-col border-t border-gray-200 pt-5 md:mt-8 md:flex-row md:items-center md:pt-8">
             <CategoryTypeFilter
-              onCategoryFilter={({ slug }: { slug: string }) => {
-                setCategory(slug);
+              type={type}
+              onCategoryFilter={(category: Category) => {
+                setCategory(category?.slug!);
                 setPage(1);
               }}
-              onTypeFilter={({ slug }: { slug: string }) => {
-                setType(slug);
+              onTypeFilter={(type: Type) => {
+                setType(type?.slug!);
                 setPage(1);
               }}
               className="w-full"

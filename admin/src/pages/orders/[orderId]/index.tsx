@@ -43,6 +43,7 @@ export default function OrderDetailsPage() {
 
 	useEffect(() => {
 		resetCart();
+    // @ts-ignore
 		resetCheckout();
 	}, [resetCart, resetCheckout]);
 
@@ -110,14 +111,21 @@ export default function OrderDetailsPage() {
     amount: order?.wallet_point?.amount!,
   });
 
+  const amountPayable: number =
+    order?.payment_status !== PaymentStatus.SUCCESS
+      ? order?.paid_total! - order?.wallet_point?.amount!
+      : 0;
+
+  const { price: amountDue } = usePrice({ amount: amountPayable });
+
   const totalItem = order?.products.reduce(
+    // @ts-ignore
     (initial = 0, p) => initial + parseInt(p?.pivot?.order_quantity!),
     0
   );
 
   if (loading) return <Loader text={t('common:text-loading')} />;
   if (error) return <ErrorMessage message={error.message} />;
-  console.log(order);
 
   async function handleDownloadInvoice() {
     const { data } = await refetch();
@@ -280,16 +288,24 @@ export default function OrderDetailsPage() {
                     <span>{discount}</span>
                   </div>
                 )}
-                {wallet_total && (
-                  <div className="flex items-center justify-between text-sm text-body">
-                    <span> {t('text-paid-from-wallet')}</span>
-                    <span>{wallet_total}</span>
-                  </div>
-                )}
+
                 <div className="flex items-center justify-between text-base font-semibold text-heading">
                   <span> {t('text-total')}</span>
                   <span>{total}</span>
                 </div>
+
+                {order?.wallet_point?.amount! && (
+                  <>
+                    <div className="flex items-center justify-between text-sm text-body">
+                      <span> {t('text-paid-from-wallet')}</span>
+                      <span>{wallet_total}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-base font-semibold text-heading">
+                      <span> {t('text-amount-due')}</span>
+                      <span>{amountDue}</span>
+                    </div>
+                  </>
+                )}
               </div>
             </>
           )}
@@ -306,6 +322,9 @@ export default function OrderDetailsPage() {
                 {formatString(order?.products?.length, t('text-item'))}
               </span>
               <span>{order?.delivery_time}</span>
+              <span>
+                {`${t('text-payment-method')}:  ${order?.payment_gateway}`}
+              </span>
             </div>
           </div>
 
