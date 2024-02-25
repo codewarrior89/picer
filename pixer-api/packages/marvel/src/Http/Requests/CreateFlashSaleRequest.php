@@ -29,7 +29,7 @@ class CreateFlashSaleRequest extends FormRequest
     {
         return [
             'title'        => ['required', 'string'],
-            'description'  => ['required', 'string', 'max:10000'],
+            'description'  => ['required', 'string'],
             'start_date'   => ['required', 'date'],
             'end_date'     => ['required', 'date'],
             'slug'         => ['nullable', 'string'],

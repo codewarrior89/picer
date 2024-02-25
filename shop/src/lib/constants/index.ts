@@ -19,8 +19,6 @@ export const isMultiLangEnable =
   process.env.NEXT_PUBLIC_ENABLE_MULTI_LANG === 'true' &&
   !!process.env.NEXT_PUBLIC_AVAILABLE_LANGUAGES;
 export const checkIsScrollingStart = atom(false);
-export const NEWSLETTER_POPUP_MODAL_KEY = 'SEEN_POPUP';
-export const REVIEW_POPUP_MODAL_KEY = 'SEEN_REVIEW_POPUP';
 
 export function getDirection(language: string | undefined) {
   if (!language) return 'ltr';

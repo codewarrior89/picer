@@ -34,7 +34,7 @@ class StoreRefundPolicyRequest extends FormRequest
             'target'      => ['required', ],
             'status'      => ['required',],
             'slug'        => ['nullable', 'string', 'max: 255'],
-            'description' => ['nullable', 'string', 'max:10000'],
+            'description' => ['nullable', 'string'],
             'shop_id'     => ['nullable', 'exists: ' . Shop::class . ',id'],
             'language'    => ['nullable', 'string'],
         ];

@@ -2,16 +2,19 @@
 
 namespace Marvel\Console;
 
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Marvel\Database\Models\Settings;
-use function Laravel\Prompts\{text,  confirm, info};
 
 class SettingsDataImporter extends Command
 {
     private array $appData;
     protected MarvelVerification $verification;
-    protected $signature = 'marvel:settings-seed';
+    protected $signature = 'marvel:settings_seed';
 
     protected $description = 'Import Settings Data';
 
@@ -28,22 +31,22 @@ class SettingsDataImporter extends Command
         }
         if (DB::table('settings')->where('id', 1)->exists()) {
 
-            if (confirm('Already data exists. Do you want to refresh it with dummy settings?')) {
+            if ($this->confirm('Already data exists. Do you want to refresh it with dummy settings?')) {
 
-                info('Seeding necessary settings....');
+                $this->info('Seeding necessary settings....');
 
                 DB::table('settings')->truncate();
 
-                info('Importing dummy settings...');
+                $this->info('Importing dummy settings...');
 
                 $this->call('db:seed', [
                     '--class' => '\\Marvel\\Database\\Seeders\\SettingsSeeder'
                 ]);
 
                 $this->verification->modifySettingsData();
-                info('Settings were imported successfully');
+                $this->info('Settings were imported successfully');
             } else {
-                info('Previous settings was kept. Thanks!');
+                $this->info('Previous settings was kept. Thanks!');
             }
         }
     }
@@ -54,7 +57,7 @@ class SettingsDataImporter extends Command
         if ($count < 1) {
             $message = 'Please Enter Your License Key.';
         }
-        $licenseKey = text(label: $message, required: 'License Key is required');
+        $licenseKey = $this->ask($message);
         $isValid = $this->licenseKeyValidator($licenseKey);
         if (!$isValid) {
             ++$count;

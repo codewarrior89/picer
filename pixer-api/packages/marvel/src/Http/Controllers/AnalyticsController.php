@@ -20,11 +20,11 @@ use Spatie\Permission\Models\Permission as ModelsPermission;
 
 class AnalyticsController extends CoreController
 {
-    public $addressRepository;
+    public $repository;
 
-    public function __construct(AddressRepository $addressRepository)
+    public function __construct(AddressRepository $repository)
     {
-        $this->addressRepository = $addressRepository;
+        $this->repository = $repository;
     }
 
 
@@ -36,38 +36,40 @@ class AnalyticsController extends CoreController
             //     throw new AuthenticationException();
             // }
             $shops = $user?->shops->pluck('id') ?? [];
-
-            // Total revenue
-            $totalRevenueQuery = DB::table('orders as childOrder')
-                ->whereDate('childOrder.created_at', '<=', Carbon::now())
-                ->where('childOrder.order_status', OrderStatus::COMPLETED)
-                ->whereNotNull('childOrder.parent_id')
-                ->join('orders as parentOrder', 'childOrder.parent_id', '=', 'parentOrder.id')
-                ->whereDate('parentOrder.created_at', '<=', Carbon::now())
-                ->where('parentOrder.order_status', OrderStatus::COMPLETED)
+            $dbRevenueQuery = DB::table('orders as A')
+                ->whereDate('A.created_at', '<', Carbon::now())
+                ->where('A.order_status', OrderStatus::COMPLETED)
+                ->where('A.parent_id', '!=', null)
+                ->join('orders as B', 'A.parent_id', '=', 'B.id')
+                ->where('B.order_status', OrderStatus::COMPLETED)
                 ->select(
-                    'childOrder.id',
-                    'childOrder.parent_id',
-                    'childOrder.paid_total',
-                    'childOrder.created_at',
-                    'childOrder.shop_id',
-                    'parentOrder.delivery_fee',
-                    'parentOrder.sales_tax',
+                    'A.id',
+                    'A.parent_id',
+                    'A.paid_total',
+                    'B.delivery_fee',
+                    'B.sales_tax',
+                    'A.created_at',
+                    'A.shop_id'
                 );
 
             if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN)) {
-                $totalRevenueQuery = $totalRevenueQuery->get();
-                $totalRevenue = $totalRevenueQuery->sum('paid_total')
-                    + $totalRevenueQuery->unique('parent_id')->sum('delivery_fee')
-                    + $totalRevenueQuery->unique('parent_id')->sum('sales_tax');
+                $dbRevenueQuery = $dbRevenueQuery->get();
+                $totalRevenue = $dbRevenueQuery->sum('paid_total') +
+                    $dbRevenueQuery->unique('parent_id')->sum('delivery_fee') + $dbRevenueQuery->unique('parent_id')->sum('sales_tax');
             } else {
-                $totalRevenue = $totalRevenueQuery
-                    ->whereIn('childOrder.shop_id', $shops)
+                $totalRevenue = $dbRevenueQuery
+                    ->whereIn('A.shop_id', $shops)
                     ->get()
                     ->sum('paid_total');
             }
 
-            // Today's revenue
+            $totalRefundQuery = DB::table('refunds')->whereDate('created_at', '<', Carbon::now());
+            if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN)) {
+                $totalRefunds = $totalRefundQuery->where('shop_id', null)->sum('amount');
+            } else {
+                $totalRefunds = $totalRefundQuery->whereIn('shop_id', $shops)->sum('amount');
+            }
+
             $todaysRevenueQuery =  DB::table('orders as A')
                 ->whereDate('A.created_at', '>', Carbon::now()->subDays(1))
                 ->where('A.order_status', OrderStatus::COMPLETED)
@@ -93,15 +95,6 @@ class AnalyticsController extends CoreController
                 $todaysRevenue = $todaysRevenueQuery->whereIn('A.shop_id', $shops)->get()->sum('paid_total');
             }
 
-            // total refunds
-            $totalRefundQuery = DB::table('refunds')->whereDate('created_at', '<', Carbon::now());
-            if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN)) {
-                $totalRefunds = $totalRefundQuery->where('shop_id', null)->sum('amount');
-            } else {
-                $totalRefunds = $totalRefundQuery->whereIn('shop_id', $shops)->sum('amount');
-            }
-
-            // total orders
             $totalOrdersQuery = DB::table('orders')->whereDate('created_at', '<', Carbon::now());
             if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN)) {
                 $totalOrders = $totalOrdersQuery->where('parent_id', null)->count();
@@ -109,7 +102,6 @@ class AnalyticsController extends CoreController
                 $totalOrders = $totalOrdersQuery->whereIn('shop_id', $shops)->count();
             }
 
-            // total shops
             if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN)) {
                 $totalVendors = User::whereHas('permissions', function ($query) {
                     $query->where('name', Permission::STORE_OWNER);
@@ -129,7 +121,7 @@ class AnalyticsController extends CoreController
 
 
             return [
-                'totalRevenue'              => $totalRevenue ?? 0,
+                'totalRevenue'              => $totalRevenue,
                 'totalRefunds'              => $totalRefunds ?? 0,
                 'totalShops'                => $totalShops,
                 'totalVendors'              => $totalVendors ?? 0,

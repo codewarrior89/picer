@@ -4,8 +4,11 @@ namespace Marvel\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use function Laravel\Prompts\{info, error};
-
+use Marvel\Database\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Marvel\Enums\Permission as UserPermission;
+use Illuminate\Support\Facades\Validator;
 
 
 
@@ -20,15 +23,15 @@ class CopyFilesCommand extends Command
         try {
             (new Filesystem)->ensureDirectoryExists(resource_path('views/emails'));
 
-            info('Copying resources files...');
+            $this->info('Copying resources files...');
 
             (new Filesystem)->copyDirectory(__DIR__ . '/../../stubs/resources/views/emails', resource_path('views/emails'));
             (new Filesystem)->copyDirectory(__DIR__ . '/../../stubs/resources/views/pdf', resource_path('views/pdf'));
             (new Filesystem)->copyDirectory(__DIR__ . '/../../stubs/resources/lang', resource_path('lang'));
 
-            info('Installation Complete');
+            $this->info('Installation Complete');
         } catch (\Exception $e) {
-            error($e->getMessage());
+            $this->error($e->getMessage());
         }
     }
 }

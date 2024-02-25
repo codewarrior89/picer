@@ -52,6 +52,7 @@ input UpdateReviewInput {
 extend type Mutation {
     createReview(input: CreateReviewInput! @spread): Review
         @field(resolver: "ReviewMutator@store")
-    updateReview(id: ID!, input: UpdateReviewInput! @spread): Review @update
+    updateReview(id: ID!, input: UpdateReviewInput! @spread): Review
+        @update
     deleteReview(id: ID!): Review @delete @can(ability: "super_admin")
 }

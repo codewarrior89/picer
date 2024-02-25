@@ -14,17 +14,14 @@ class FlashSaleProcessed implements ShouldQueue
 
     public $language;
 
-    public $optional_data;
-
     /**
      * Create a new event instance.
      *
      * @param  $flash_sale
      */
-    public function __construct($action, $language = null, $optional_data = null)
+    public function __construct($action, $language)
     {
         $this->action = $action;
         $this->language = $language;
-        $this->optional_data = $optional_data;
     }
 }

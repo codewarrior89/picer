@@ -25,11 +25,10 @@ import {
   useUpdateTermsAndConditionsMutation,
 } from '@/data/terms-and-condition';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
-import RichTextEditor from '@/components/ui/wysiwyg-editor/editor';
 
 type FormValues = {
   title: string;
-  description?: string;
+  description: string;
 };
 
 type IProps = {
@@ -55,7 +54,7 @@ export default function CreateOrUpdateTermsAndConditionsForm({
     { slug: router.query.shop as string },
     {
       enabled: !!router.query.shop,
-    },
+    }
   );
   const shopId = shopData?.id!;
 
@@ -162,12 +161,11 @@ export default function CreateOrUpdateTermsAndConditionsForm({
 
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <Input
-            label={t('form:input-title')}
+            label={`${t('form:input-title')}*`}
             {...register('title')}
             error={t(errors.title?.message!)}
             variant="outline"
             className="mb-5"
-            required
             // disabled={isTranslateTermsAndConditions}
           />
 
@@ -188,12 +186,13 @@ export default function CreateOrUpdateTermsAndConditionsForm({
               />
             )}
 
-            <RichTextEditor
-              title={t('form:input-label-description')}
-              required={true}
-              error={t(errors?.description?.message!)}
-              name="description"
-              control={control}
+            <TextArea
+              label={`${t('form:input-label-description')}*`}
+              {...register('description')}
+              error={t(errors.description?.message!)}
+              variant="outline"
+              className="mb-5"
+              // disabled={isTranslateTermsAndConditions}
             />
           </div>
         </Card>

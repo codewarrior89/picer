@@ -30,7 +30,7 @@ export const productClient = {
   }: Partial<ProductQueryOptions>) => {
     return HttpClient.get<ProductPaginator>(API_ENDPOINTS.PRODUCTS, {
       searchJoin: 'and',
-      with: 'shop;type;categories',
+      with: 'shop;type',
       shop_id,
       ...params,
       search: HttpClient.formatSearchParams({

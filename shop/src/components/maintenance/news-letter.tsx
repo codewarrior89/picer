@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { useModalState } from '@/components/modal-views/context';
-import SubscriptionWidget from '@/components/common/subscribe-to-newsletter';
+import SubscriptionWidget from '@/components/maintenance/subscribe-to-newsletter';
 
 const NewsLetter = () => {
   const {

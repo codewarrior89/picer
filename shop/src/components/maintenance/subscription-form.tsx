@@ -41,7 +41,7 @@ export default function SubscriptionForm({
                 {...register('email')}
                 type="email"
                 placeholder={t('contact-us-email-field')}
-                // error={t(errors.email?.message)}
+                error={t(errors.email?.message)}
                 inputClassName="border-0 dark:focus:outline-none focus:outline-none focus:ring-0 ring-0"
                 label=""
               />
@@ -58,11 +58,6 @@ export default function SubscriptionForm({
                 )}
               </button>
             </div>
-            {errors.email?.message && (
-              <span role="alert" className="block pt-2 text-xs text-warning">
-                {t(errors.email?.message)}
-              </span>
-            )}
             {!loading && success && (
               <div className="mt-1 text-[13px]">
                 <span className="text-accent">

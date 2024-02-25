@@ -2,9 +2,7 @@ extend type Query {
     users(
         text: String @where(operator: "like", key: "name")
         orderBy: _
-            @orderBy(
-                columns: ["updated_at", "created_at", "name", "is_active", "id"]
-            )
+            @orderBy(columns: ["updated_at", "created_at", "name", "is_active", "id"])
     ): [User!]! @paginate(defaultCount: 10) @can(ability: "super_admin")
     user(id: ID @eq): User @find @can(ability: "super_admin")
     me: User @ensureEmailIsVerified @field(resolver: "UserQuery@me")
@@ -53,7 +51,6 @@ type User {
     is_active: Boolean
     address: [Address] @hasMany
     orders: [Order] @hasMany @lazyLoad(relations: ["products", "status"])
-    last_order: Order
 }
 
 type UserPermission @model(class: "Spatie\\Permission\\Models\\Permission") {
@@ -284,6 +281,4 @@ extend type Mutation {
         @field(resolver: "AuthMutator@updateUserEmail")
     resendVerificationEmail: SuccessResponse!
         @field(resolver: "AuthMutator@resendVerificationEmail")
-    licenseKeyValidation(license_key: String!): Boolean
-        @field(resolver: "AuthMutator@licenseVerification")
 }

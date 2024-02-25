@@ -45,12 +45,12 @@ export default function Coupons() {
 
   return (
     <>
-      <Card className="flex flex-col items-center mb-8 md:flex-row">
+      <Card className="mb-8 flex flex-col items-center md:flex-row">
         <div className="mb-4 md:mb-0 md:w-1/4">
           <PageHeading title={t('form:input-label-coupons')} />
         </div>
 
-        <div className="flex flex-col items-center w-full space-y-4 ms-auto md:w-3/4 md:flex-row md:space-y-0 xl:w-1/2">
+        <div className="flex w-full flex-col items-center space-y-4 ms-auto md:w-3/4 md:flex-row md:space-y-0 xl:w-1/2">
           <Search
             onSearch={handleSearch}
             placeholderText={t('form:input-placeholder-search-code')}
@@ -59,7 +59,7 @@ export default function Coupons() {
           {locale === Config.defaultLanguage && (
             <LinkButton
               href="/coupons/create"
-              className="w-full h-12 md:w-auto md:ms-6"
+              className="h-12 w-full md:w-auto md:ms-6"
             >
               <span>+ {t('form:button-label-add-coupon')}</span>
             </LinkButton>

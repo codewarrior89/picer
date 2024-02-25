@@ -78,23 +78,6 @@ type Maintenance {
     overlayColor: String
     overlayColorRange: String
 }
-type PopUpNotShow {
-    title: String
-    popUpExpiredIn: Float
-}
-type PromoPopup {
-    image: Attachment
-    title: String
-    description: String
-    popUpDelay: Float
-    popUpExpiredIn: Float
-    isPopUpNotShow: Boolean
-    popUpNotShow: PopUpNotShow
-}
-type ReviewSystem {
-    name: String
-    value: String
-}
 type SettingsOptions {
     siteTitle: String
     siteSubtitle: String
@@ -140,11 +123,6 @@ type SettingsOptions {
     externalLink: String
     isUnderMaintenance: Boolean!
     maintenance: Maintenance!
-    enableCoupons: Boolean
-    isPromoPopUp: Boolean
-    promoPopup: PromoPopup
-    enableReviewPopup: Boolean
-    reviewSystem: ReviewSystem
 }
 
 type EventSettings {
@@ -280,24 +258,6 @@ input MaintenanceInput {
     overlayColor: String
     overlayColorRange: String
 }
-input PopUpNotShowInput {
-    title: String
-    popUpExpiredIn: Float
-}
-input PromoPopupInput {
-    image: AttachmentInput
-    title: String
-    description: String
-    popUpDelay: Float
-    popUpExpiredIn: Float
-    isPopUpNotShow: Boolean
-    popUpNotShow: PopUpNotShowInput
-}
-
-input ReviewSystemInput {
-    name: String
-    value: String
-}
 
 input SettingsOptionsInput {
     siteTitle: String
@@ -343,11 +303,6 @@ input SettingsOptionsInput {
     externalLink: String
     isUnderMaintenance: Boolean
     maintenance: MaintenanceInput
-    enableCoupons: Boolean
-    isPromoPopUp: Boolean
-    promoPopup: PromoPopupInput
-    enableReviewPopup: Boolean
-    reviewSystem: ReviewSystemInput
 }
 
 input SettingsInput {

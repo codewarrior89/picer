@@ -1,6 +1,6 @@
 import Input from '@/components/ui/input';
 import { Controller, useForm } from 'react-hook-form';
-import DatePicker from '@/components/ui/date-picker';
+import { DatePicker } from '@/components/ui/date-picker';
 import Button from '@/components/ui/button';
 import TextArea from '@/components/ui/text-area';
 import Description from '@/components/ui/description';
@@ -27,8 +27,6 @@ import { useCallback, useMemo } from 'react';
 import OpenAIButton from '@/components/openAI/openAI.button';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
 import { CouponDescriptionSuggestion } from '@/components/coupon/coupon-ai-prompt';
-import { useShopQuery } from '@/data/shop';
-import SwitchInput from '../ui/switch-input';
 
 type FormValues = {
   code: string;
@@ -39,14 +37,12 @@ type FormValues = {
   image: AttachmentInput;
   active_from: string;
   expire_at: string;
-  target: boolean;
 };
 
 const defaultValues = {
   image: '',
   type: CouponType.FIXED,
   amount: 0,
-  target: 0,
   minimum_cart_amount: 0,
   active_from: new Date(),
 };
@@ -58,15 +54,6 @@ export default function CreateOrUpdateCouponForm({ initialValues }: IProps) {
   const router = useRouter();
   const { locale } = useRouter();
   const { t } = useTranslation();
-
-  const { data: shopData } = useShopQuery(
-    { slug: router.query.shop as string },
-    {
-      enabled: !!router.query.shop,
-    },
-  );
-  const shopId = shopData?.id!;
-
   const {
     register,
     handleSubmit,
@@ -125,7 +112,6 @@ export default function CreateOrUpdateCouponForm({ initialValues }: IProps) {
     const input = {
       language: router.locale,
       type: values.type,
-      target: values.target,
       description: values.description,
       amount: values.amount,
       minimum_cart_amount: values.minimum_cart_amount,
@@ -147,14 +133,12 @@ export default function CreateOrUpdateCouponForm({ initialValues }: IProps) {
           ...input,
           code: values.code,
           ...(initialValues?.code && { code: initialValues.code }),
-          shop_id: shopId,
         });
       } else {
         updateCoupon({
           ...input,
           ...(initialValues.code !== values.code && { code: values.code }),
           id: initialValues.id!,
-          shop_id: initialValues.shop_id!,
         });
       }
     } catch (error) {
@@ -201,7 +185,6 @@ export default function CreateOrUpdateCouponForm({ initialValues }: IProps) {
             variant="outline"
             className="mb-5"
             disabled={isTranslateCoupon}
-            required
           />
 
           <div className="relative">
@@ -266,49 +249,56 @@ export default function CreateOrUpdateCouponForm({ initialValues }: IProps) {
             variant="outline"
             className="mb-5"
             disabled={isTranslateCoupon}
-            required
           />
-
-          <div className="mb-5">
-            <div className="flex items-center gap-x-4">
-              <SwitchInput name="target" control={control} />
-              <Label className="!mb-0.5">
-                {t('form:input-label-verified-customer')}
-              </Label>
-            </div>
-          </div>
-
           <div className="flex flex-col sm:flex-row">
             <div className="w-full p-0 mb-5 sm:mb-0 sm:w-1/2 sm:pe-2">
-              <DatePicker
+              <Label>{t('form:coupon-active-from')}</Label>
+
+              <Controller
                 control={control}
                 name="active_from"
-                dateFormat="dd/MM/yyyy"
-                minDate={new Date()}
-                maxDate={new Date(expire_at)}
-                startDate={new Date(active_from)}
-                endDate={new Date(expire_at)}
-                label={t('form:coupon-active-from')}
-                className="border border-border-base"
-                disabled={isTranslateCoupon}
-                error={t(errors.active_from?.message!)}
-                required
+                render={({ field: { onChange, onBlur, value } }) => (
+                  //@ts-ignore
+                  <DatePicker
+                    dateFormat="dd/MM/yyyy"
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    selected={value}
+                    selectsStart
+                    minDate={new Date()}
+                    maxDate={expire_at}
+                    startDate={active_from}
+                    endDate={expire_at}
+                    className="border border-border-base"
+                    disabled={isTranslateCoupon}
+                  />
+                )}
               />
+              <ValidationError message={t(errors.active_from?.message!)} />
             </div>
             <div className="w-full p-0 sm:w-1/2 sm:ps-2">
-              <DatePicker
-                name="expire_at"
-                dateFormat="dd/MM/yyyy"
+              <Label>{t('form:coupon-expire-at')}</Label>
+
+              <Controller
                 control={control}
-                startDate={new Date(active_from)}
-                endDate={new Date(expire_at)}
-                minDate={new Date(active_from)}
-                className="border border-border-base"
-                disabled={isTranslateCoupon}
-                error={t(errors.expire_at?.message!)}
-                label={t('form:coupon-expire-at')}
-                required
+                name="expire_at"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  //@ts-ignore
+                  <DatePicker
+                    dateFormat="dd/MM/yyyy"
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    selected={value}
+                    selectsEnd
+                    startDate={active_from}
+                    endDate={expire_at}
+                    minDate={active_from}
+                    className="border border-border-base"
+                    disabled={isTranslateCoupon}
+                  />
+                )}
               />
+              <ValidationError message={t(errors.expire_at?.message!)} />
             </div>
           </div>
         </Card>

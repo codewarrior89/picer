@@ -33,7 +33,6 @@ import { useForm } from 'react-hook-form';
 import Radio from '@/components/ui/radio/radio';
 import { RefundPolicySuggestions } from '@/components/refund-policy/refund-policy-ai-prompt';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
-import RichTextEditor from '@/components/ui/wysiwyg-editor/editor';
 
 type FormValues = {
   title: string;
@@ -170,7 +169,7 @@ export default function CreateOrUpdateRefundPolicyForm({
 
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <Input
-            label={`${t('form:input-label-refund-policy-heading')}`}
+            label={`${t('form:input-label-refund-policy-heading')}*`}
             {...register('title')}
             placeholder={t(
               'form:input-label-refund-policy-heading-placeholder',
@@ -178,7 +177,6 @@ export default function CreateOrUpdateRefundPolicyForm({
             error={t(errors.title?.message!)}
             variant="outline"
             className="mb-5"
-            required
           />
 
           {isSlugEditable ? (
@@ -210,26 +208,23 @@ export default function CreateOrUpdateRefundPolicyForm({
             />
           )}
 
-          <div className="relative mb-5">
+          <div className="relative">
             {options?.useAi && (
               <OpenAIButton
                 title={t('form:button-label-description-ai')}
                 onClick={handleGenerateDescription}
               />
             )}
-            <RichTextEditor
-              title={t('form:input-label-refund-policy-description')}
-              error={t(errors?.description?.message!)}
-              name="description"
-              control={control}
+            <TextArea
+              label={t('form:input-label-refund-policy-description')}
+              {...register('description')}
+              variant="outline"
+              className="mb-5"
             />
           </div>
 
           <div className="mb-5">
-            <Label>
-              {t('common:text-select-refund-policy-for')}
-              <span className="ml-0.5 text-red-500">*</span>
-            </Label>
+            <Label>{t('common:text-select-refund-policy-for')}*</Label>
             <SelectInput
               control={control}
               name="target"

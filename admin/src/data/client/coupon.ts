@@ -32,16 +32,4 @@ export const couponClient = {
       );
     }
   },
-  approve: (variables: { id: string }) => {
-    return HttpClient.post<{ id: string }>(
-      API_ENDPOINTS.APPROVE_COUPON,
-      variables
-    );
-  },
-  disapprove: (variables: { id: string }) => {
-    return HttpClient.post<{ id: string }>(
-      API_ENDPOINTS.DISAPPROVE_COUPON,
-      variables
-    );
-  },
 };

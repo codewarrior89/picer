@@ -95,7 +95,5 @@
   "table-item-heading": "Heading",
   "table-homepage-name": "Homepage name",
   "table-item-url": "Domains",
-  "table-item-target": "Applied on",
-  "table-item-coupon-amount": "Coupon Amount",
-  "table-item-minimum-cart-amount": "Minimum Cart Amount"
+  "table-item-target": "Applied on"
 }

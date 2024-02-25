@@ -31,7 +31,7 @@ class DeliveryTimeRequest extends FormRequest
             'title'        => ['required', 'string'],
             'slug'         => ['nullable', 'string'],
             'language'     => ['nullable', 'string'],
-            'description'  => ['nullable', 'string', 'max:10000'],
+            'description'  => ['nullable', 'string'],
             'icon'         => ['nullable', 'string'],
         ];
     }

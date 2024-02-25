@@ -30,7 +30,7 @@ class ShopCreateRequest extends FormRequest
             'name'                   => ['required', 'string', 'max:255'],
             'categories'             => ['array'],
             'is_active'              => ['boolean'],
-            'description'            => ['nullable', 'string', 'max:10000'],
+            'description'            => ['nullable', 'string'],
             'admin_commission_rate'  => ['nullable', 'numeric'],
             'total_earnings'         => ['nullable', 'numeric'],
             'withdrawn_amount'       => ['nullable', 'numeric'],

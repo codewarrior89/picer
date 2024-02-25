@@ -29,7 +29,7 @@ class ShopUpdateRequest extends FormRequest
             'name'                   => ['required', 'string', 'max:255'],
             'categories'             => ['array'],
             'is_active'              => ['boolean'],
-            'description'            => ['nullable', 'string', 'max:10000'],
+            'description'            => ['nullable', 'string'],
             'balance'                => ['array'],
             'image'                  => ['nullable', 'array'],
             'cover_image'            => ['nullable', 'array'],

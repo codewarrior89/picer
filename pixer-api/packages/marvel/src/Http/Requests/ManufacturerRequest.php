@@ -30,7 +30,7 @@ class ManufacturerRequest extends FormRequest
         return [
             'name' => ['required', 'string'],
             'slug'        => ['nullable', 'string'],
-            'description' => ['nullable', 'string', 'max:10000'],
+            'description' => ['nullable', 'string'],
             'type_id' => ['required', 'exists:Marvel\Database\Models\Type,id'],
             'shop_id'     => ['nullable', 'exists:Marvel\Database\Models\Shop,id'],
             'image' => ['array'],

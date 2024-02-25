@@ -24,7 +24,7 @@ export const mapPaginatorData = (obj: Paginator | undefined) => {
     ...formattedValues
   } = camelCaseKeys(
     //@ts-ignore
-    obj
+    obj,
   );
   return {
     ...formattedValues,

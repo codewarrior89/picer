@@ -14,7 +14,6 @@ import utc from 'dayjs/plugin/utc';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import Badge from '../ui/badge/badge';
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -50,7 +49,7 @@ const FlashSaleLists = ({
       onSort((currentSortDirection: SortOrder) =>
         currentSortDirection === SortOrder?.Desc
           ? SortOrder?.Asc
-          : SortOrder?.Desc,
+          : SortOrder?.Desc
       );
       onOrder(column!);
 
@@ -120,15 +119,11 @@ const FlashSaleLists = ({
       dataIndex: 'description',
       key: 'description',
       align: alignLeft,
-      width: 350,
+      width: 500,
       ellipsis: true,
       onHeaderCell: () => onHeaderClick('description'),
       render: (text: string) => (
-        <span
-          dangerouslySetInnerHTML={{
-            __html: text?.length < 130 ? text : text?.substring(0, 130) + '...',
-          }}
-        />
+        <span className="whitespace-nowrap">{text}</span>
       ),
     },
 
@@ -177,44 +172,51 @@ const FlashSaleLists = ({
     },
 
     {
-      title: (
-        <TitleWithSort
-          title={t('table:table-item-status')}
-          ascending={
-            sortingObj.sort === SortOrder.Asc &&
-            sortingObj.column === 'sale_status'
-          }
-          isActive={sortingObj.column === 'sale_status'}
-        />
-      ),
-      className: 'cursor-pointer',
-      dataIndex: 'sale_status',
-      key: 'sale_status',
-      align: 'center',
-      width: 150,
-      onHeaderCell: () => onHeaderClick('sale_status'),
-      render: (sale_status: boolean) => (
-        <Badge
-          textKey={sale_status ? 'Active' : 'Inactive'}
-          color={
-            sale_status
-              ? 'bg-accent/10 !text-accent'
-              : 'bg-status-failed/10 text-status-failed'
-          }
-        />
-      ),
-    },
-
-    {
       title: t('table:table-item-details'),
       dataIndex: 'id',
       key: 'actions',
       align: 'center',
       width: 150,
       render: (id: string, { slug, is_approved }: any) => {
-        return <ActionButtons id={id} detailsUrl={`/flash-sale/${slug}`} />;
+        return (
+          <ActionButtons
+            id={id}
+            detailsUrl={`/flash-sale/${slug}`}
+            // termApproveButton={true}
+            // isTermsApproved={is_approved}
+          />
+        );
       },
     },
+
+    // {
+    //   title: t('table:table-item-actions'),
+    //   key: 'actions',
+    //   align: alignRight,
+    //   width: 150,
+    //   render: (data: FlashSale) => {
+    //     if (router?.asPath !== '/') {
+    //       return (
+    //         <>
+    //           <LanguageSwitcher
+    //             slug={data?.id}
+    //             record={data}
+    //             deleteModalView="DELETE_FLASH_SALE"
+    //             routes={Routes?.flashSale}
+    //           />
+    //         </>
+    //       );
+    //     } else {
+    //       return (
+    //         <ActionButtons
+    //           id={data?.id}
+    //           detailsUrl={Routes?.flashSale?.details(data?.id)}
+    //           customLocale={router?.locale}
+    //         />
+    //       );
+    //     }
+    //   },
+    // },
 
     {
       title: t('table:table-item-actions'),
@@ -241,7 +243,7 @@ const FlashSaleLists = ({
           emptyText={() => (
             <div className="flex flex-col items-center py-7">
               <NoDataFound className="w-52" />
-              <div className="pt-6 mb-1 text-base font-semibold text-heading">
+              <div className="mb-1 pt-6 text-base font-semibold text-heading">
                 {t('table:empty-table-data')}
               </div>
               <p className="text-[13px]">{t('table:empty-table-sorry-text')}</p>

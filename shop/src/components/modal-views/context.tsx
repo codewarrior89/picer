@@ -14,9 +14,7 @@ export type MODAL_VIEWS =
   | 'ADD_NEW_CARD'
   | 'DELETE_CARD_MODAL'
   | 'GATEWAY_MODAL'
-  | 'NEWSLETTER_MODAL'
-  | 'PROMO_POPUP_MODAL'
-  | 'REVIEW_POPUP_MODAL';
+  | 'NEWSLETTER_MODAL';
 
 interface State {
   view: MODAL_VIEWS | undefined;

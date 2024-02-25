@@ -4,7 +4,6 @@ import { TermsAndConditions } from '@/types';
 import { isEmpty } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import Button from '@/components/ui/button';
-import { useSanitizeContent } from '@/lib/sanitize-content';
 
 type TermsAndConditionProps = {
   isLoading: boolean;
@@ -34,7 +33,22 @@ const TermsAndCondition: React.FC<TermsAndConditionProps> = ({
         </div>
       ) : (
         <>
-          {terms?.map((item) => <TermsItem key={item?.id} term={item} />)}
+          {terms?.map((item) => (
+            <div
+              key={item.id}
+              className="order-list-enable mb-8 last:mb-0 lg:mb-10"
+            >
+              <h3 className="mb-4 text-sm font-medium text-dark dark:text-light lg:mb-5">
+                {t(item.title)}
+              </h3>
+              <div
+                className="space-y-5 leading-6"
+                dangerouslySetInnerHTML={{
+                  __html: t(item.description),
+                }}
+              />
+            </div>
+          ))}
 
           {hasMore && (
             <div className="mt-8 grid place-content-center md:mt-10">
@@ -50,28 +64,6 @@ const TermsAndCondition: React.FC<TermsAndConditionProps> = ({
         </>
       )}
     </>
-  );
-};
-
-export const TermsItem = ({ term }: { term: TermsAndConditions }) => {
-  const { t } = useTranslation();
-  const content = useSanitizeContent({ description: term?.description });
-  return (
-    <div className="order-list-enable mb-8 last:mb-0 lg:mb-10">
-      <h3 className="mb-4 text-sm font-medium text-dark dark:text-light lg:mb-5">
-        {t(term?.title)}
-      </h3>
-      {content ? (
-        <div
-          className="space-y-5 leading-6 react-editor-description"
-          dangerouslySetInnerHTML={{
-            __html: content,
-          }}
-        />
-      ) : (
-        ''
-      )}
-    </div>
   );
 };
 

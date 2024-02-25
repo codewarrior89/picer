@@ -3,6 +3,7 @@
 namespace Marvel\Http\Controllers;
 
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
+use Carbon\Carbon;
 use Dompdf\Options;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -29,7 +30,6 @@ use Marvel\Traits\PaymentStatusManagerWithOrderTrait;
 use Marvel\Traits\PaymentTrait;
 use Marvel\Traits\TranslationTrait;
 use Marvel\Traits\WalletsTrait;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
@@ -130,11 +130,6 @@ class OrderController extends CoreController
     public function store(OrderCreateRequest $request)
     {
         try {
-            // decision need
-            // if(!($this->settings->options['useCashOnDelivery'] && $this->settings->options['useEnableGateway'])){
-            //     throw new HttpException(400, PLEASE_ENABLE_PAYMENT_OPTION_FROM_THE_SETTINGS);
-            // }
-
             return DB::transaction(fn () => $this->repository->storeOrder($request, $this->settings));
         } catch (MarvelException $th) {
             throw new MarvelException(SOMETHING_WENT_WRONG, $th->getMessage());
@@ -402,7 +397,7 @@ class OrderController extends CoreController
             $options->setIsPhpEnabled(true);
             $options->setIsJavascriptEnabled(true);
             $pdf->getDomPDF()->setOptions($options);
-
+            
             $filename = 'invoice-order-' . $payloads['order_id'] . '.pdf';
 
             return $pdf->download($filename);

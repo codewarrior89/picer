@@ -146,13 +146,4 @@ class Shop extends Model
     {
         return $this->HasMany(TermsAndConditions::class);
     }
-        /**
-     * faqs
-     *
-     * @return HasMany
-     */
-    public function coupons(): HasMany
-    {
-        return $this->HasMany(Coupon::class);
-    }
 }

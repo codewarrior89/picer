@@ -100,8 +100,4 @@ class AuthMutator
     {
         return Shop::call('Marvel\Http\Controllers\UserController@sendVerificationEmail', $args);
     }
-    public function licenseVerification($rootValue, array $args, GraphQLContext $context)
-    {
-        return Shop::call('Marvel\Http\Controllers\UserController@verifyLicenseKey', $args);
-    }
 }

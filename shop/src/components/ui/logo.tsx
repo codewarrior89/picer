@@ -20,7 +20,7 @@ export default function Logo({
       href={routes.home}
       className={cn(
         'relative flex items-center text-dark focus:outline-none dark:text-light',
-        className
+        className,
       )}
       {...props}
     >

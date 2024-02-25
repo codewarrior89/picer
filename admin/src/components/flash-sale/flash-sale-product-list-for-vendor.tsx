@@ -13,8 +13,8 @@ import { useRouter } from 'next/router';
 
 export type IProps = {
   products: Product[] | undefined;
-  paginatorInfo?: MappedPaginatorInfo | null;
-  onPagination?: (current: number) => void;
+  paginatorInfo: MappedPaginatorInfo | null;
+  onPagination: (current: number) => void;
 };
 
 type SearchValue = {
@@ -189,7 +189,7 @@ const FlashSaleProductListForVendor = ({
               'bg-opacity-10 capitalize',
               status?.toLocaleLowerCase() === 'draft'
                 ? 'bg-[#F3AF00] text-[#F3AF00]'
-                : 'bg-accent text-accent',
+                : 'bg-accent text-accent'
             )}
           />
           {record?.quantity > 0 && record?.quantity < 10 && (

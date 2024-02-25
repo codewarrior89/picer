@@ -43,8 +43,7 @@ class SettingsSeeder extends Seeder
                     'thumbnail' => 'https://pixarlaravel.s3.ap-southeast-1.amazonaws.com/956/conversions/pixer-collapse-logo-thumbnail.jpg',
                     'original' => 'https://pixarlaravel.s3.ap-southeast-1.amazonaws.com/956/pixer-collapse-logo.png',
                     'id' => 2286,
-                    'file_name' => 'pixer.png'
-
+                    'file_name' => 'Pickbazar.png'
                 ],
 
                 "dark_logo" => [
@@ -99,8 +98,6 @@ class SettingsSeeder extends Seeder
                     "formation" => "en-US",
                     "fractions" => 2
                 ],
-                "enableCoupons" => false,
-                "enableReviewPopup" => false,
                 "isProductReview" => false,
                 "useEnableGateway" => false,
                 "useCashOnDelivery" => true,
@@ -109,6 +106,7 @@ class SettingsSeeder extends Seeder
                 "useMustVerifyEmail" => false,
                 "maximumQuestionLimit" => 5,
                 "currencyToWalletRatio" => 3,
+                "defaultPaymentGateway" => "stripe",
                 "StripeCardOnly" => false,
                 // "guestCheckout" => true,
                 "server_info" => server_environment_info(),
@@ -119,13 +117,8 @@ class SettingsSeeder extends Seeder
                 "copyrightText" =>  "Copyright © REDQ. All rights reserved worldwide.",
                 "externalText" =>  "REDQ",
                 "externalLink" =>  "https://redq.io",
-                "reviewSystem" => [
-                    "value" => "review_single_time",
-                    "name" => "Give purchased product a review only for one time. (By default)"
-                ],
                 ...$this->getSmsEmailEvents(),
                 ...$this->maintenanceSettings(),
-                ...$this->promoPopupSettings(),
             ]),
             "language" => DEFAULT_LANGUAGE ?? "en",
             "created_at" => Carbon::now(),
@@ -216,29 +209,6 @@ class SettingsSeeder extends Seeder
                 ],
                 "start"       => Carbon::now(),
                 "until"       => Carbon::now()->addDays(1),
-            ],
-        ];
-    }
-    private function promoPopupSettings(): array
-    {
-        return [
-            "isPromoPopUp" => true,
-            "promoPopup" => [
-                "image" => [
-                    "id" => 972,
-                    "original" => "https://pixarlaravel.s3.ap-southeast-1.amazonaws.com/964/promo-popup.png",
-                    "file_name" => "promo-popup-thumbnail.png",
-                    "thumbnail" => "https://pixarlaravel.s3.ap-southeast-1.amazonaws.com/964/conversions/promo-popup-thumbnail.jpg"
-                ],
-                "title" => "Get 25% Discount",
-                "popUpDelay" => 5000,
-                "description" => "Subscribe to the mailing list to receive updates on new arrivals, special offers and our promotions.",
-                "popUpNotShow" => [
-                    "title" => "Don't show this popup again",
-                    "popUpExpiredIn" => 7
-                ],
-                "isPopUpNotShow" => true,
-                "popUpExpiredIn" => 1
             ],
         ];
     }

@@ -8,7 +8,7 @@ export const PaymongoIcon = ({ ...props }) => {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <g stroke="none" strokeWidth="1" fill="none" fill-rule="evenodd">
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g transform="translate(-256.000000, -359.000000)" fill="#24B47E">
           <g transform="translate(256.000000, 359.000000)">
             <path

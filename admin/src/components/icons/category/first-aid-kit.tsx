@@ -8,7 +8,7 @@ export const FirstAidKit: React.FC<React.SVGAttributes<{}>> = (props) => {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <g clipPath="url(#clip0_1318_231)">
+      <g clip-path="url(#clip0_1318_231)">
         <path
           d="M16.8969 3.13278H16.6893C16.3076 3.13278 15.9982 3.44221 15.9982 3.8239V5.93406H17.588V3.8239C17.588 3.44221 17.2786 3.13278 16.8969 3.13278Z"
           fill="#DA4A54"

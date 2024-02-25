@@ -109,10 +109,6 @@ type PaymentInfo {
 input CreateShopInput {
     name: String!
     description: String
-        @rules(
-            apply: ["max:10000"]
-            messages: { max: "Description should be max 10000 character" }
-        )
     cover_image: AttachmentInput
     logo: AttachmentInput
     address: UserAddressInput
@@ -126,10 +122,6 @@ input UpdateShopInput {
     name: String!
     slug: String!
     description: String
-        @rules(
-            apply: ["max:10000"]
-            messages: { max: "Description should be max 10000 character" }
-        )
     cover_image: AttachmentInput
     logo: AttachmentInput
     address: UserAddressInput

@@ -1,7 +1,6 @@
 import { forwardRef } from 'react';
 import cn from 'classnames';
 import { useTranslation } from 'next-i18next';
-import { twMerge } from 'tailwind-merge';
 
 interface CheckBoxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string | any;
@@ -13,11 +12,9 @@ const CheckBox = forwardRef<HTMLInputElement, CheckBoxProps>(
     const { t } = useTranslation('common');
     return (
       <label
-        className={twMerge(
-          cn(
-            'group flex cursor-pointer items-center justify-between text-13px transition-all',
-            className,
-          ),
+        className={cn(
+          'group flex cursor-pointer items-center justify-between text-13px transition-all',
+          className
         )}
       >
         <input
@@ -32,7 +29,7 @@ const CheckBox = forwardRef<HTMLInputElement, CheckBoxProps>(
         </span>
       </label>
     );
-  },
+  }
 );
 
 CheckBox.displayName = 'CheckBox';

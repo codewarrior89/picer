@@ -1,11 +1,13 @@
 import ActionButtons from '@/components/common/action-buttons';
-import { NoDataFound } from '@/components/icons/no-data-found';
+import { NoShop } from '@/components/icons/no-shop';
+import PriorityColor from '@/components/store-notice/priority-color';
+import Badge from '@/components/ui/badge/badge';
 import LanguageSwitcher from '@/components/ui/lang-action/action';
 import Pagination from '@/components/ui/pagination';
 import { Table } from '@/components/ui/table';
 import TitleWithSort from '@/components/ui/title-with-sort';
 import { Routes } from '@/config/routes';
-import { FAQs, MappedPaginatorInfo, SortOrder } from '@/types';
+import { FAQs, MappedPaginatorInfo, SortOrder, StoreNotice } from '@/types';
 import { useIsRTL } from '@/utils/locals';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -14,7 +16,7 @@ import utc from 'dayjs/plugin/utc';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import ShortDescription from '@/components/shop-single/short-description';
+import { NoDataFound } from '../icons/no-data-found';
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -53,7 +55,7 @@ const FaqsLists = ({
       onSort((currentSortDirection: SortOrder) =>
         currentSortDirection === SortOrder?.Desc
           ? SortOrder?.Asc
-          : SortOrder?.Desc,
+          : SortOrder?.Desc
       );
       onOrder(column!);
 
@@ -127,11 +129,7 @@ const FaqsLists = ({
       ellipsis: true,
       onHeaderCell: () => onHeaderClick('faq_description'),
       render: (text: string) => (
-        <span
-          dangerouslySetInnerHTML={{
-            __html: text?.length < 140 ? text : text?.substring(0, 140) + '...',
-          }}
-        />
+        <span className="whitespace-nowrap">{text}</span>
       ),
     },
 

@@ -39,20 +39,20 @@ const ShopList = dynamic(() => import('@/components/dashboard/shops/shops'));
 
 const Message = dynamic(() => import('@/components/dashboard/shops/message'));
 const StoreNotices = dynamic(
-  () => import('@/components/dashboard/shops/store-notices'),
+  () => import('@/components/dashboard/shops/store-notices')
 );
 const OrderStatusWidget = dynamic(
-  () => import('@/components/dashboard/widgets/box/widget-order-by-status'),
+  () => import('@/components/dashboard/widgets/box/widget-order-by-status')
 );
 const ProductCountByCategory = dynamic(
   () =>
     import(
       '@/components/dashboard/widgets/table/widget-product-count-by-category'
-    ),
+    )
 );
 
 const TopRatedProducts = dynamic(
-  () => import('@/components/dashboard/widgets/box/widget-top-rate-product'),
+  () => import('@/components/dashboard/widgets/box/widget-top-rate-product')
 );
 
 const MAP_PAGE_LIST: Record<string, any> = {
@@ -67,7 +67,7 @@ const OwnerShopLayout = () => {
   const { data, isLoading: loading } = useAnalyticsQuery();
   const [activeTimeFrame, setActiveTimeFrame] = useState(1);
   const [orderDataRange, setOrderDataRange] = useState(
-    data?.todayTotalOrderByStatus,
+    data?.todayTotalOrderByStatus
   );
 
   const {
@@ -85,18 +85,18 @@ const OwnerShopLayout = () => {
   const { price: total_revenue } = usePrice(
     data && {
       amount: data?.totalRevenue!,
-    },
+    }
   );
   const { price: total_refund } = usePrice(
     data && {
       amount: data?.totalRefunds!,
-    },
+    }
   );
 
   const { price: todays_revenue } = usePrice(
     data && {
       amount: data?.todaysRevenue!,
-    },
+    }
   );
   const { query } = router;
 
@@ -109,7 +109,7 @@ const OwnerShopLayout = () => {
   let salesByYear: number[] = Array.from({ length: 12 }, (_) => 0);
   if (!!data?.totalYearSaleByMonth?.length) {
     salesByYear = data.totalYearSaleByMonth.map((item: any) =>
-      item.total.toFixed(2),
+      item.total.toFixed(2)
     );
   }
 
@@ -187,7 +187,7 @@ const OwnerShopLayout = () => {
                     <Button
                       className={cn(
                         '!focus:ring-0  relative z-10 !h-7 rounded-full !px-2.5 text-sm font-medium text-gray-500',
-                        time.day === activeTimeFrame ? 'text-accent' : '',
+                        time.day === activeTimeFrame ? 'text-accent' : ''
                       )}
                       type="button"
                       onClick={() => setActiveTimeFrame(time.day)}

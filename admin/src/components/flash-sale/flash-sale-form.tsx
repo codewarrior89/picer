@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import DatePicker from '@/components/ui/date-picker';
+import { DatePicker } from '@/components/ui/date-picker';
 import Input from '@/components/ui/input';
 import Button from '@/components/ui/button';
 import TextArea from '@/components/ui/text-area';
@@ -11,15 +11,7 @@ import { useRouter } from 'next/router';
 import ValidationError from '@/components/ui/form-validation-error';
 import { useTranslation } from 'next-i18next';
 import { yupResolver } from '@hookform/resolvers/yup';
-import {
-  Author,
-  Category,
-  FlashSale,
-  FlashSaleType,
-  Manufacturer,
-  Shop,
-  Type,
-} from '@/types';
+import { Category, FlashSale, FlashSaleType, Type } from '@/types';
 import { getErrorMessage } from '@/utils/form-error';
 import { Config } from '@/config';
 import { getAuthCredentials } from '@/utils/auth-utils';
@@ -45,8 +37,6 @@ import CategoryTypeFilter from '@/components/filters/category-type-filter';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
 import Alert from '@/components/ui/alert';
 import dayjs from 'dayjs';
-import ShopFilter from '@/components/filters/shop-filter';
-import RichTextEditor from '@/components/ui/wysiwyg-editor/editor';
 
 type FormValues = {
   title: string;
@@ -55,7 +45,7 @@ type FormValues = {
   end_date: string;
   image: any;
   cover_image: any;
-  type: FlashSaleType;
+  type: string;
   rate: string;
   sale_status: boolean;
   products?: any;
@@ -77,9 +67,7 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
   const { t } = useTranslation();
   const [author, setAuthor] = useState('');
   const [type, setType] = useState('');
-  const [shop, setShop] = useState('');
   const [category, setCategory] = useState('');
-  const [manufacturer, setManufacturer] = useState('');
   const { permissions } = getAuthCredentials();
   const { data: user, isLoading: loading, error } = useMeQuery();
   const { currency } = useSettings();
@@ -105,10 +93,6 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
     categories: category,
     flash_sale_builder: true,
     status: 'publish',
-    shop_id: shop,
-    searchedByUser: 'super_admin_builder',
-    author: author,
-    manufacturer: manufacturer,
   });
 
   const {
@@ -135,13 +119,7 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
             ? initialValues?.sale_builder
             : [],
         }
-      : {
-          start_date: new Date(),
-          type: FlashSaleType.PERCENTAGE,
-          sale_builder: {
-            data_type: 'handpicked_products',
-          },
-        },
+      : {},
     //@ts-ignore
     resolver: yupResolver(flashSaleValidationSchema),
   });
@@ -171,37 +149,6 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
   const saleBuilderType = watch('sale_builder');
   const saleBuilderDataType = watch('sale_builder.data_type');
 
-  useEffect(() => {
-    switch (saleBuilderDataType) {
-      case 'handpick_shop':
-        setType('');
-        setCategory('');
-        setAuthor('');
-        setManufacturer('');
-        break;
-
-      case 'handpick_category':
-        setShop('');
-        setAuthor('');
-        setManufacturer('');
-        break;
-
-      case 'handpick_author':
-        setShop('');
-        setType('');
-        setCategory('');
-        setManufacturer('');
-        break;
-
-      case 'handpick_manufacturer':
-        setShop('');
-        setType('');
-        setCategory('');
-        setAuthor('');
-        break;
-    }
-  }, [saleBuilderDataType]);
-
   const isTranslateFlashSale = router.locale !== Config.defaultLanguage;
 
   const onSubmit = async (values: FormValues) => {
@@ -211,8 +158,8 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
       description: values.description,
       image: values.image,
       cover_image: values.cover_image,
-      start_date: new Date(values.start_date).toISOString(),
-      end_date: new Date(values.end_date).toISOString(),
+      start_date: new Date(start_date).toISOString(),
+      end_date: new Date(end_date).toISOString(),
       type: values.type,
       rate: values.rate,
       sale_status: values.sale_status,
@@ -269,22 +216,6 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
         <Description
-          title={t('form:form-title-information')}
-          details={t('form:info-flash-sale-info-help-text')}
-          className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
-        />
-
-        <Card className="w-full sm:w-8/12 md:w-2/3">
-          <div className="my-5">
-            <div className="flex items-center gap-x-4">
-              <SwitchInput name="sale_status" control={control} />
-              <Label className="!mb-0.5">{t('Enable flash deals')}</Label>
-            </div>
-          </div>
-        </Card>
-      </div>
-      <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
-        <Description
           title={t('form:flash-sale-thumb-image-title')}
           details={thumbImageInformation}
           className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
@@ -320,12 +251,11 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
 
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <Input
-            label={`${t('form:input-title')}`}
+            label={`${t('form:input-title')}*`}
             {...register('title')}
             error={t(errors.title?.message!)}
             variant="outline"
             className="mb-5"
-            required
           />
           <div className="relative">
             {/* {options?.useAi && (
@@ -344,12 +274,12 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
               />
             )}
 
-            <RichTextEditor
-              title={t('form:input-label-description')}
-              error={t(errors?.description?.message!)}
-              name="description"
-              control={control}
-              required
+            <TextArea
+              label={`${t('form:input-label-description')}*`}
+              {...register('description')}
+              error={t(errors.description?.message!)}
+              variant="outline"
+              className="mb-5"
             />
           </div>
           <Alert
@@ -360,42 +290,57 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
           />
           <div className="flex flex-col mb-4 sm:flex-row">
             <div className="w-full p-0 mb-5 sm:mb-0 sm:w-1/2 sm:pe-2">
-              <DatePicker
+              <Label>{`${t('form:store-notice-active-from')}*`}</Label>
+
+              <Controller
                 control={control}
                 name="start_date"
-                dateFormat="dd/MM/yyyy"
-                minDate={new Date()}
-                maxDate={new Date(end_date)}
-                startDate={new Date(start_date)}
-                endDate={new Date(end_date)}
-                className="border border-border-base"
-                disabled={isTranslateFlashSale}
-                label={t('form:store-notice-active-from')}
-                error={t(errors.start_date?.message!)}
-                required
+                render={({ field: { onChange, onBlur, value } }) => (
+                  //@ts-ignore
+                  <DatePicker
+                    dateFormat="dd/MM/yyyy"
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    selected={value ?? new Date()}
+                    selectsStart
+                    minDate={new Date()}
+                    maxDate={end_date}
+                    startDate={start_date}
+                    endDate={end_date}
+                    className="border border-border-base"
+                    disabled={isTranslateFlashSale}
+                  />
+                )}
               />
+              <ValidationError message={t(errors.start_date?.message!)} />
             </div>
             <div className="w-full p-0 sm:w-1/2 sm:ps-2">
-              <DatePicker
+              <Label>{`${t('form:store-notice-expire-at')}*`}</Label>
+
+              <Controller
                 control={control}
                 name="end_date"
-                dateFormat="dd/MM/yyyy"
-                startDate={new Date(start_date)}
-                endDate={new Date(end_date)}
-                minDate={new Date(start_date)}
-                className="border border-border-base"
-                disabled={isTranslateFlashSale}
-                required
-                label={t('form:store-notice-expire-at')}
-                error={t(errors.end_date?.message!)}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  //@ts-ignore
+                  <DatePicker
+                    dateFormat="dd/MM/yyyy"
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    selected={value}
+                    selectsEnd
+                    startDate={start_date}
+                    endDate={end_date}
+                    minDate={start_date}
+                    className="border border-border-base"
+                    disabled={isTranslateFlashSale}
+                  />
+                )}
               />
+              <ValidationError message={t(errors.end_date?.message!)} />
             </div>
           </div>
           <div className="mb-5">
-            <Label>
-              {t('form:input-label-offering-campaign')}
-              <span className="ltr:ml-0.5 rtl:mr-0.5 text-red-500">*</span>
-            </Label>
+            <Label>{t('form:input-label-offering-campaign')} *</Label>
             <div className="mt-5 space-y-3.5">
               <Radio
                 label="Fixed rate"
@@ -434,17 +379,22 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
           {flashSaleType && (
             <>
               <Input
-                label={`${t(
-                  flashSaleType,
-                )} amount applicable for this campaign (${currency})`}
+                label={`Amount applicable for this campaign (${currency})`}
                 {...register('rate')}
                 // type="number"
                 error={t(errors.rate?.message!)}
                 variant="outline"
                 className="mb-5"
                 disabled={isTranslateFlashSale}
-                required
               />
+              <div className="flex items-center mt-5 gap-x-4">
+                <SwitchInput
+                  control={control}
+                  {...register('sale_status')}
+                  disabled={isTranslateFlashSale}
+                />
+                <Label className="!mb-0.5">{t('Enable flash deals')}</Label>
+              </div>
             </>
           )}
 
@@ -471,8 +421,7 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <div className="mb-5">
             <Label>
-              {t('form:input-label-offering-campaign-filter-option')}
-              <span className="ml-0.5 text-red-500">*</span>
+              {t('form:input-label-offering-campaign-filter-option')} *
             </Label>
             <div className="mt-5 space-y-3.5">
               <Radio
@@ -487,27 +436,6 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
                 {...register(`sale_builder.data_type` as const)}
                 id="handpick_category"
                 value="handpick_category"
-                disabled={isTranslateFlashSale}
-              />
-              <Radio
-                label="Filter products by shops"
-                {...register(`sale_builder.data_type` as const)}
-                id="handpick_shop"
-                value="handpick_shop"
-                disabled={isTranslateFlashSale}
-              />
-              <Radio
-                label="Filter products by authors"
-                {...register(`sale_builder.data_type` as const)}
-                id="handpick_author"
-                value="handpick_author"
-                disabled={isTranslateFlashSale}
-              />
-              <Radio
-                label="Filter products by manufacturer/publications"
-                {...register(`sale_builder.data_type` as const)}
-                id="handpick_manufacturer"
-                value="handpick_manufacturer"
                 disabled={isTranslateFlashSale}
               />
               {errors?.sale_builder?.data_type?.message && (
@@ -539,60 +467,10 @@ export default function CreateOrUpdateFlashSaleForm({ initialValues }: IProps) {
             ''
           )}
 
-          {saleBuilderType?.data_type === 'handpick_shop' ? (
-            <>
-              <div className="mt-10">
-                <ShopFilter
-                  className="w-full"
-                  shop={shop}
-                  enableShop
-                  onShopFilter={(shop: Shop) => {
-                    setShop(shop?.id!);
-                  }}
-                />
-              </div>
-            </>
-          ) : (
-            ''
-          )}
-
-          {saleBuilderType?.data_type === 'handpick_author' ? (
-            <>
-              <div className="mt-10">
-                <CategoryTypeFilter
-                  className="w-full"
-                  enableAuthor
-                  onAuthorFilter={(author: Author) => {
-                    setAuthor(author?.id!);
-                  }}
-                />
-              </div>
-            </>
-          ) : (
-            ''
-          )}
-
-          {saleBuilderType?.data_type === 'handpick_manufacturer' ? (
-            <>
-              <div className="mt-10">
-                <CategoryTypeFilter
-                  className="w-full"
-                  enableManufacturer
-                  onManufactureFilter={(manufacture: Manufacturer) => {
-                    setManufacturer(manufacture?.id!);
-                  }}
-                />
-              </div>
-            </>
-          ) : (
-            ''
-          )}
-
           {saleBuilderDataType && (
             <div className="mt-10">
               <Label>
-                {t('form:input-label-offering-campaign-choose-products')}{' '}
-                <span className="ml-0.5 text-red-500">*</span>
+                {t('form:input-label-offering-campaign-choose-products')} *
               </Label>
               <SelectInput
                 name="products"

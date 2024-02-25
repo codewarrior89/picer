@@ -29,7 +29,7 @@ class CreateTermsAndConditionsRequest extends FormRequest
     {
         return [
             'title'       => ['required', 'string'],
-            'description' => ['required', 'string', 'max:10000'],
+            'description' => ['required', 'string'],
             'language'    => ['nullable', 'string'],
         ];
     }

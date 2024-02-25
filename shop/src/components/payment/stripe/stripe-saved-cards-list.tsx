@@ -42,7 +42,7 @@ const StripeSavedCardsList = ({
 }: CardViewProps) => {
   const defaultCard = payments?.filter((payment: any) => payment?.default_card);
   const [selected, setSelected] = useState<any>(
-    Object.assign({}, defaultCard.length ? defaultCard[0] : [])
+    Object.assign({}, defaultCard.length ? defaultCard[0] : []),
   );
   const { t } = useTranslation('common');
   const { openModal } = useModalAction();
@@ -69,7 +69,7 @@ const StripeSavedCardsList = ({
         paymentIntentInfo?.client_secret!,
         {
           payment_method: method_key,
-        }
+        },
       );
 
       await createOrderPayment({
@@ -106,7 +106,7 @@ const StripeSavedCardsList = ({
       render: (record: any) => {
         return selected?.id === record?.id ? (
           <div className="w-9 text-brand">
-            <CheckIconWithBg className="h-5 w-5" />
+            <CheckIconWithBg className="w-5 h-5" />
           </div>
         ) : (
           ''
@@ -190,7 +190,7 @@ const StripeSavedCardsList = ({
           onClick: onClickRow.bind(null, record),
         })}
       />
-      <div className="mt-8 flex justify-end space-x-4">
+      <div className="flex justify-end mt-8 space-x-4">
         <Button
           variant="outline"
           onClick={handleAddNewCard}

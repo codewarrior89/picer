@@ -23,8 +23,6 @@ import routes from '@/config/routes';
 import { useTranslation } from 'next-i18next';
 import { PaymentGateway } from '@/types';
 import { useSettings } from '@/data/settings';
-import { REVIEW_POPUP_MODAL_KEY } from '@/lib/constants';
-import Cookies from 'js-cookie';
 
 export default function CartCheckout() {
   const { settings } = useSettings();
@@ -37,7 +35,7 @@ export default function CartCheckout() {
       if (tracking_number) {
         if (
           [PaymentGateway.FULL_WALLET_PAYMENT].includes(
-            payment_gateway as PaymentGateway,
+            payment_gateway as PaymentGateway
           )
         ) {
           return router.push(`${routes.orderUrl(tracking_number)}/payment`);
@@ -45,7 +43,7 @@ export default function CartCheckout() {
 
         if (payment_intent?.payment_intent_info?.is_redirect) {
           return router.push(
-            payment_intent?.payment_intent_info?.redirect_url as string,
+            payment_intent?.payment_intent_info?.redirect_url as string
           );
         } else {
           return router.push(`${routes.orderUrl(tracking_number)}/payment`);
@@ -66,14 +64,14 @@ export default function CartCheckout() {
 
   const available_items = items.filter(
     (item) =>
-      !verifiedResponse?.unavailable_products?.includes(item.id.toString()),
+      !verifiedResponse?.unavailable_products?.includes(item.id.toString())
   );
 
   // Calculate price
   const { price: tax } = usePrice(
     verifiedResponse && {
       amount: verifiedResponse.total_tax ?? 0,
-    },
+    }
   );
 
   const base_amount = calculateTotal(available_items);
@@ -81,7 +79,7 @@ export default function CartCheckout() {
   const { price: sub_total } = usePrice(
     verifiedResponse && {
       amount: base_amount,
-    },
+    }
   );
 
   const totalPrice = verifiedResponse
@@ -91,14 +89,14 @@ export default function CartCheckout() {
           tax: verifiedResponse.total_tax,
           shipping_charge: verifiedResponse.shipping_charge,
         },
-        0,
+        0
       )
     : 0;
 
   const { price: total } = usePrice(
     verifiedResponse && {
       amount: totalPrice,
-    },
+    }
   );
 
   // phone number field
@@ -151,7 +149,6 @@ export default function CartCheckout() {
       sales_tax: verifiedResponse?.total_tax ?? 0,
       customer_contact: phoneNumber ? phoneNumber : '1',
     });
-    Cookies.remove(REVIEW_POPUP_MODAL_KEY);
   }
 
   return (

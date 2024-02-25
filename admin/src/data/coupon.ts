@@ -12,20 +12,20 @@ import { Config } from '@/config';
 export const useCreateCouponMutation = () => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
-  const router = useRouter();
 
   return useMutation(couponClient.create, {
-    onSuccess: async () => {
-      const generateRedirectUrl = router.query.shop
-        ? `/${router.query.shop}${Routes.coupon.list}`
-        : Routes.coupon.list;
-      await Router.push(generateRedirectUrl, undefined, {
+    onSuccess: () => {
+      Router.push(Routes.coupon.list, undefined, {
         locale: Config.defaultLanguage,
       });
       toast.success(t('common:successfully-created'));
     },
     onError: (error: any) => {
-      toast.error(t(`common:${error?.response?.data.message}`));
+      const {data, status} =  error?.response;
+      if (status === 422) {
+        const errorMessage:any = Object.values(data).flat();
+        toast.error(errorMessage[0]);
+      }
     },
     // Always refetch after error or success:
     onSettled: () => {
@@ -52,24 +52,21 @@ export const useDeleteCouponMutation = () => {
 export const useUpdateCouponMutation = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const router = useRouter();
+  const { locale } = useRouter();
   return useMutation(couponClient.update, {
     onSuccess: async (data) => {
-      const generateRedirectUrl = router.query.shop
-        ? `/${router.query.shop}${Routes.coupon.list}`
-        : Routes.coupon.list;
-      await router.push(generateRedirectUrl, undefined, {
-        locale: Config.defaultLanguage,
-      });
-
       toast.success(t('common:successfully-updated'));
+      await Router.replace(
+        `${Routes.coupon.list}/${data?.code}/edit`,
+        undefined,
+        {
+          locale,
+        }
+      );
     },
     // Always refetch after error or success:
     onSettled: () => {
       queryClient.invalidateQueries(API_ENDPOINTS.COUPONS);
-    },
-    onError: (error: any) => {
-      toast.error(t(`common:${error?.response?.data.message}`));
     },
   });
 };
@@ -87,7 +84,7 @@ export const useCouponQuery = ({
 }) => {
   const { data, error, isLoading } = useQuery<Coupon, Error>(
     [API_ENDPOINTS.COUPONS, { code, language }],
-    () => couponClient.get({ code, language }),
+    () => couponClient.get({ code, language })
   );
 
   return {
@@ -104,7 +101,7 @@ export const useCouponsQuery = (options: Partial<CouponQueryOptions>) => {
       couponClient.paginated(Object.assign({}, queryKey[1], pageParam)),
     {
       keepPreviousData: true,
-    },
+    }
   );
 
   return {
@@ -113,31 +110,4 @@ export const useCouponsQuery = (options: Partial<CouponQueryOptions>) => {
     error,
     loading: isLoading,
   };
-};
-
-export const useApproveCouponMutation = () => {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  return useMutation(couponClient.approve, {
-    onSuccess: () => {
-      toast.success(t('common:successfully-updated'));
-    },
-    // Always refetch after error or success:
-    onSettled: () => {
-      queryClient.invalidateQueries(API_ENDPOINTS.COUPONS);
-    },
-  });
-};
-export const useDisApproveCouponMutation = () => {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  return useMutation(couponClient.disapprove, {
-    onSuccess: () => {
-      toast.success(t('common:successfully-updated'));
-    },
-    // Always refetch after error or success:
-    onSettled: () => {
-      queryClient.invalidateQueries(API_ENDPOINTS.COUPONS);
-    },
-  });
 };

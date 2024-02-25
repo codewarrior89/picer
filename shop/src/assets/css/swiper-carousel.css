@@ -99,9 +99,3 @@
     width: calc(25% - 20px) !important;
   }
 }
-.product-video-iframe,
-.product-video-iframe video,
-.product-video-iframe > iframe {
-  width: 100%;
-  height: 100%;
-}

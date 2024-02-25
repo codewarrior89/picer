@@ -1,6 +1,5 @@
 import { ChevronRight } from '@/components/icons/chevron-right';
 import { Disclosure, Transition } from '@headlessui/react';
-import { useSanitizeContent } from '@/lib/sanitize-content';
 
 type CollapseProps = {
   item: any;
@@ -8,7 +7,6 @@ type CollapseProps = {
 
 export const Accordion: React.FC<CollapseProps> = ({ item }) => {
   const { faq_title, faq_description } = item;
-  const content = useSanitizeContent({ description: faq_description });
   return (
     <div className="shadow-category group mx-auto mb-4 w-full rounded">
       <Disclosure>
@@ -40,16 +38,9 @@ export const Accordion: React.FC<CollapseProps> = ({ item }) => {
             >
               {open && (
                 <Disclosure.Panel static>
-                  {content ? (
-                    <div
-                      className="px-5 py-3 leading-7 3xl:px-6 3xl:pt-5 react-editor-description"
-                      dangerouslySetInnerHTML={{
-                        __html: content,
-                      }}
-                    />
-                  ) : (
-                    ''
-                  )}
+                  <div className="px-5 py-3 leading-7 3xl:px-6 3xl:pt-5">
+                    {faq_description}
+                  </div>
                 </Disclosure.Panel>
               )}
             </Transition>

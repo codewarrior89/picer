@@ -1,5 +1,4 @@
 import * as yup from 'yup';
-import { MAXIMUM_WORD_COUNT_FOR_RICH_TEXT_EDITOR } from '@/utils/constants';
 
 export const productValidationSchema = yup.object().shape({
   name: yup.string().required('form:error-name-required'),
@@ -46,66 +45,25 @@ export const productValidationSchema = yup.object().shape({
       is_digital: yup.boolean(),
       digital_file_input: yup.object().when('is_digital', {
         is: true,
-        then: () =>
-          yup
-            .object()
-            .shape({
-              id: yup.string().required(),
-            })
-            .required('Degigtal File is required'),
-        otherwise: () =>
-          yup
-            .object()
-            .shape({
-              id: yup.string().notRequired(),
-              original: yup.string().notRequired(),
-            })
-            .notRequired()
-            .nullable(),
+        then: () => yup.object().shape({
+          id: yup.string().required(),
+        }).required('Degigtal File is required'),
+        otherwise: () => yup.object().shape({
+          id: yup.string().notRequired(),
+          original: yup.string().notRequired()
+        }).notRequired().nullable()
       }),
     }),
   ),
   is_digital: yup.boolean(),
   digital_file_input: yup.object().when('is_digital', {
     is: true,
-    then: () =>
-      yup.object().shape({
-        id: yup.string().required(),
-      }),
-    otherwise: () =>
-      yup
-        .object()
-        .shape({
-          id: yup.string().notRequired(),
-          original: yup.string().notRequired(),
-        })
-        .notRequired()
-        .nullable(),
-  }),
-  video: yup.array().of(
-    yup.object().shape({
-      url: yup.string().required('Video URL is required'),
+    then: () => yup.object().shape({
+      id: yup.string().required(),
     }),
-  ),
-  description: yup
-    .string()
-    .max(
-      MAXIMUM_WORD_COUNT_FOR_RICH_TEXT_EDITOR,
-      'form:error-description-maximum-title',
-    ),
-  // image: yup
-  //   .mixed()
-  //   .nullable()
-  //   .required('A file is required')
-  //   .test(
-  //     'FILE_SIZE',
-  //     'Uploaded file is too big.',
-  //     (value) => !value || (value && value.size <= 1024 * 1024)
-  //   )
-  //   .test(
-  //     'FILE_FORMAT',
-  //     'Uploaded file has unsupported format.',
-  //     (value) =>
-  //       !value || (value && SUPPORTED_IMAGE_FORMATS.includes(value?.type))
-  //   ),
+    otherwise: () => yup.object().shape({
+      id: yup.string().notRequired(),
+      original: yup.string().notRequired()
+    }).notRequired().nullable()
+  }),
 });

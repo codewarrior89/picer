@@ -65,8 +65,8 @@ export default function ReviewCard({ review }: ReviewCardProps) {
   };
 
   return (
-    <div className="flex w-full items-start space-x-3 border-b border-light-500 py-5 last:border-b-0 dark:border-dark-400 sm:space-x-4 md:py-6">
-      <div className="relative inline-flex h-8 w-8 shrink-0 justify-center rounded-full border border-light-400 bg-light-300 dark:border-dark-500 dark:bg-dark-500">
+    <div className="flex items-start w-full py-5 space-x-3 border-b border-light-500 last:border-b-0 dark:border-dark-400 sm:space-x-4 md:py-6">
+      <div className="relative inline-flex justify-center w-8 h-8 border rounded-full shrink-0 border-light-400 bg-light-300 dark:border-dark-500 dark:bg-dark-500">
         <Avatar
           size="sm"
           name={user.name}
@@ -74,9 +74,9 @@ export default function ReviewCard({ review }: ReviewCardProps) {
         />
       </div>
 
-      <div className="flex w-full flex-col">
+      <div className="flex flex-col w-full">
         <div className="flex items-center space-x-3 sm:space-x-4">
-          <span className="text-13px font-semibold capitalize text-dark dark:text-light">
+          <span className="font-semibold capitalize text-13px text-dark dark:text-light">
             {user?.name}
           </span>
           <Rating rating={rating} variant="xs" />
@@ -89,7 +89,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
           <div className="flex flex-wrap items-start gap-2.5 pt-3 pb-0.5 md:gap-3.5">
             {photos?.map((photo, idx) => (
               <div
-                className="relative aspect-square h-20 w-20 cursor-pointer overflow-hidden rounded-md bg-dark bg-opacity-10 dark:bg-light dark:bg-opacity-5"
+                className="relative w-20 h-20 overflow-hidden rounded-md cursor-pointer aspect-square bg-dark bg-opacity-10 dark:bg-light dark:bg-opacity-5"
                 key={photo.id}
                 onClick={() => handleImageClick(idx)}
               >
@@ -104,7 +104,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
           </div>
         )}
 
-        <div className="mt-5 flex list-disc items-center space-x-3 text-13px marker:text-sky-400 sm:space-x-4">
+        <div className="flex items-center mt-5 space-x-3 list-disc text-13px marker:text-sky-400 sm:space-x-4">
           <div className="flex items-center text-dark-800 after:ml-3 after:inline-block after:h-1 after:w-1 after:rounded-full after:bg-dark-900 dark:text-light-900 after:dark:bg-light-900 sm:after:ml-4">
             <span className="hidden sm:block">
               {dayjs(created_at).format('MMMM D, YYYY')}
@@ -115,7 +115,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
           </div>
           <button
             onClick={openAbuseReportModal}
-            className="flex items-center capitalize text-dark-800 transition duration-200 after:ml-3 after:inline-block after:h-1 after:w-1 after:rounded-full after:bg-dark-900 hover:text-brand focus:outline-none dark:text-light-900 after:dark:bg-light-900 dark:hover:text-brand sm:ml-4"
+            className="flex items-center capitalize transition duration-200 text-dark-800 after:ml-3 after:inline-block after:h-1 after:w-1 after:rounded-full after:bg-dark-900 hover:text-brand focus:outline-none dark:text-light-900 after:dark:bg-light-900 dark:hover:text-brand sm:ml-4"
           >
             {t('text-report')}
           </button>
@@ -125,7 +125,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
                 'flex items-center tracking-wider text-dark-800 transition dark:text-dark-900',
                 {
                   'dark:!text-light': my_feedback?.positive,
-                }
+                },
               )}
               disabled={my_feedback?.positive}
               onClick={() => feedback({ positive: true })}
@@ -142,7 +142,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
                 'flex items-center tracking-wider text-dark-800 transition dark:text-dark-900',
                 {
                   'dark:!text-light': my_feedback?.negative,
-                }
+                },
               )}
               onClick={() => feedback({ negative: true })}
               disabled={my_feedback?.negative}

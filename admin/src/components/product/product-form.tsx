@@ -1,11 +1,6 @@
 import Input from '@/components/ui/input';
 import TextArea from '@/components/ui/text-area';
-import {
-  useForm,
-  useFieldArray,
-  FormProvider,
-  Controller,
-} from 'react-hook-form';
+import { useForm, useFieldArray, FormProvider } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import Description from '@/components/ui/description';
 import Card from '@/components/common/card';
@@ -27,8 +22,8 @@ import ProductTagInput from './product-tag-input';
 import { Config } from '@/config';
 import Alert from '@/components/ui/alert';
 import { useMemo, useState } from 'react';
-import ProductAuthorInput from '@/components/product/product-author-input';
-import ProductManufacturerInput from '@/components/product/product-manufacturer-input';
+import ProductAuthorInput from './product-author-input';
+import ProductManufacturerInput from './product-manufacturer-input';
 import { EditIcon } from '@/components/icons/edit';
 import {
   getProductDefaultValues,
@@ -43,18 +38,61 @@ import {
 import { split, join, isEmpty } from 'lodash';
 import { adminOnly, getAuthCredentials, hasAccess } from '@/utils/auth-utils';
 import { useSettingsQuery } from '@/data/settings';
+import Tooltip from '@/components/ui/tooltip';
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import { useCallback } from 'react';
 import OpenAIButton from '@/components/openAI/openAI.button';
 import { ItemProps } from '@/types';
 import { formatSlug } from '@/utils/use-slug';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
-import Link from '@/components/ui/link';
+import Link from '../ui/link';
 import { EyeIcon } from '../icons/category/eyes-icon';
 import { UpdateIcon } from '../icons/update';
-import { ProductDescriptionSuggestion } from '@/components/product/product-ai-prompt';
-import RichTextEditor from '@/components/ui/wysiwyg-editor/editor';
-import TooltipLabel from '@/components/ui/tooltip-label';
+
+export const chatbotAutoSuggestion = ({ name }: { name: string }) => {
+  return [
+    {
+      id: 1,
+      title: `Write a product description about ${name} in 100 words or less that highlights the key benefits of the product.`,
+    },
+    {
+      id: 2,
+      title: `Create a product description about ${name} using HTML tags and include a product ID.`,
+    },
+    {
+      id: 3,
+      title: `Write a product description about ${name} using sensory language to appeal to the reader's senses.`,
+    },
+    {
+      id: 4,
+      title: `Create a product description about ${name} that includes customer reviews and ratings.`,
+    },
+    {
+      id: 5,
+      title: `Write a product description about ${name} using storytelling techniques to create an emotional connection with the reader.`,
+    },
+    {
+      id: 6,
+      title: `Write a product description about ${name} that compares and contrasts the product with similar products on the market.`,
+    },
+    {
+      id: 7,
+      title: `Create a product description about ${name} that highlights the product's sustainability and eco-friendliness.`,
+    },
+    {
+      id: 8,
+      title: `Write a product description about ${name} that includes a list of frequently asked questions and their answers.`,
+    },
+    {
+      id: 9,
+      title: `Create a product description about ${name} that includes a video demonstration of the product in use.`,
+    },
+    {
+      id: 10,
+      title: `Write a product description about ${name} that includes a call-to-action and encourages the reader to make a purchase.`,
+    },
+  ];
+};
 
 type ProductFormProps = {
   initialValues?: Product | null;
@@ -172,7 +210,7 @@ export default function CreateOrUpdateProductForm({
   const productName = watch('name');
 
   const autoSuggestionList = useMemo(() => {
-    return ProductDescriptionSuggestion({ name: productName ?? '' });
+    return chatbotAutoSuggestion({ name: productName ?? '' });
   }, [productName]);
 
   const handleGenerateDescription = useCallback(() => {
@@ -333,7 +371,7 @@ export default function CreateOrUpdateProductForm({
                     {' '}
                     <div className="mb-3 flex gap-1 text-sm font-semibold leading-none text-body-dark">
                       {`${t('form:input-label-video-embed')} ${index + 1}`}
-                      <TooltipLabel toolTipText={'form:text-video-tooltip'} />
+                      <Tooltip content={t('common:text-video-tooltip')} />
                     </div>
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-5">
                       <TextArea
@@ -444,18 +482,19 @@ export default function CreateOrUpdateProductForm({
                 variant="outline"
                 className="mb-5"
               />
-              <div className="relative mb-5">
+              <div className="relative">
                 {options?.useAi && (
                   <OpenAIButton
                     title="Generate Description With AI"
                     onClick={handleGenerateDescription}
                   />
                 )}
-                <RichTextEditor
-                  title={t('form:input-label-description')}
-                  control={control}
-                  name="description"
-                  error={t(errors?.description?.message)}
+                <TextArea
+                  label={t('form:input-label-description')}
+                  {...register('description')}
+                  error={t(errors.description?.message!)}
+                  variant="outline"
+                  className="mb-5"
                 />
               </div>
 

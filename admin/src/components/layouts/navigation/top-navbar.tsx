@@ -30,14 +30,14 @@ import {
   searchModalInitialValues,
 } from '@/utils/constants';
 import cn from 'classnames';
-import { eachDayOfInterval, isTomorrow } from 'date-fns';
 import { motion } from 'framer-motion';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import { useWindowSize } from 'react-use';
 import AuthorizedMenu from './authorized-menu';
+import { useEffect } from 'react';
+import { addDays, eachDayOfInterval, isTomorrow } from 'date-fns';
 
 export const isInArray = (array: Date[], value: Date) => {
   return !!array?.find((item) => {
@@ -55,6 +55,7 @@ const Navbar = () => {
   const { openModal } = useModalAction();
   const [searchModal, setSearchModal] = useAtom(searchModalInitialValues);
   const [miniSidebar, setMiniSidebar] = useAtom(miniSidebarInitialValue);
+
   const [isMaintenanceMode, setUnderMaintenance] = useAtom(
     checkIsMaintenanceModeComing,
   );

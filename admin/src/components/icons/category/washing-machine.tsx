@@ -8,7 +8,7 @@ export const WashingMachine: React.FC<React.SVGAttributes<{}>> = (props) => {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <g clipPath="url(#clip0_1006_1121)">
+      <g clip-path="url(#clip0_1006_1121)">
         <mask
           id="mask0_1006_1121"
           maskUnits="userSpaceOnUse"

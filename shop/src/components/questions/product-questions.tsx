@@ -63,7 +63,7 @@ const ProductQuestions: React.FC<ProductQuestionsProps> = ({
             <QuestionSearch label="Search" />
           </div>
           <button
-            className="grow-0 rounded-md bg-brand px-5 py-3 text-13px font-semibold leading-5 text-light transition-colors hover:bg-brand-dark"
+            className="px-5 py-3 font-semibold leading-5 transition-colors rounded-md grow-0 bg-brand text-13px text-light hover:bg-brand-dark"
             onClick={openQuestionModal}
           >
             {t('text-ask-question')}
@@ -81,7 +81,7 @@ const ProductQuestions: React.FC<ProductQuestionsProps> = ({
             ))}
             {/* Pagination */}
             {paginatorInfo && (
-              <div className="flex flex-col items-center justify-between space-y-1 border-t border-light-500 py-5 dark:border-dark-400 md:flex-row md:space-y-0 md:py-3 md:pb-5 lg:pb-3">
+              <div className="flex flex-col items-center justify-between py-5 space-y-1 border-t border-light-500 dark:border-dark-400 md:flex-row md:space-y-0 md:py-3 md:pb-5 lg:pb-3">
                 <div className="text-13px text-dark-700 dark:text-light-900 md:mt-2">
                   {t('text-page')}{' '}
                   {
@@ -91,11 +91,11 @@ const ProductQuestions: React.FC<ProductQuestionsProps> = ({
                   {t('text-of')}{' '}
                   {Math.ceil(
                     //@ts-ignore
-                    paginatorInfo.total / paginatorInfo.perPage
+                    paginatorInfo.total / paginatorInfo.perPage,
                   )}
                 </div>
 
-                <div className="mb-2 flex items-center">
+                <div className="flex items-center mb-2">
                   <Pagination
                     total={
                       //@ts-ignore
@@ -117,7 +117,7 @@ const ProductQuestions: React.FC<ProductQuestionsProps> = ({
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center border-b border-light-500 px-5 py-16 dark:border-dark-400">
+        <div className="flex flex-col items-center justify-center px-5 py-16 border-b border-light-500 dark:border-dark-400">
           <h3 className="text-lg font-semibold text-dark-600 dark:text-light-600">
             {t('text-no-question-found')}
           </h3>

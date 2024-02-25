@@ -31,11 +31,7 @@ type Faqs {
 
 input CreateFaqInput {
     faq_title: String! @rules(apply: ["required", "max:255"])
-    faq_description: String
-        @rules(
-            apply: ["required", "max:10000"]
-            messages: { max: "Description should be max 10000 character" }
-        )
+    faq_description: String @rules(apply: ["required"])
     slug: String
     user_id: ID
     shop_id: ID
@@ -47,11 +43,7 @@ input CreateFaqInput {
 input UpdateFaqInput {
     id: ID!
     faq_title: String! @rules(apply: ["required", "max:255"])
-    faq_description: String
-        @rules(
-            apply: ["required", "max:10000"]
-            messages: { max: "Description should be max 10000 character" }
-        )
+    faq_description: String @rules(apply: ["required"])
     slug: String
     user_id: ID
     shop_id: ID

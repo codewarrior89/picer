@@ -12,13 +12,13 @@ import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
 import TitleWithSort from '@/components/ui/title-with-sort';
 import { Coupon, MappedPaginatorInfo, Attachment } from '@/types';
+import Link from '@/components/ui/link';
+import { Config } from '@/config';
 import { Routes } from '@/config/routes';
+import { useRouter } from 'next/router';
 import LanguageSwitcher from '@/components/ui/lang-action/action';
 import { NoDataFound } from '@/components/icons/no-data-found';
 import { useIsRTL } from '@/utils/locals';
-import Badge from '../ui/badge/badge';
-import { getAuthCredentials } from '@/utils/auth-utils';
-import { useRouter } from 'next/router';
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -41,11 +41,7 @@ const CouponList = ({
 }: IProps) => {
   const { t } = useTranslation();
   const router = useRouter();
-  const {
-    query: { shop },
-  } = router;
   const { alignLeft } = useIsRTL();
-
   const [sortingObj, setSortingObj] = useState<{
     sort: SortOrder;
     column: string | null;
@@ -57,9 +53,7 @@ const CouponList = ({
   const onHeaderClick = (column: string | null) => ({
     onClick: () => {
       onSort((currentSortDirection: SortOrder) =>
-        currentSortDirection === SortOrder.Desc
-          ? SortOrder.Asc
-          : SortOrder.Desc,
+        currentSortDirection === SortOrder.Desc ? SortOrder.Asc : SortOrder.Desc
       );
       onOrder(column!);
 
@@ -127,7 +121,7 @@ const CouponList = ({
     {
       title: (
         <TitleWithSort
-          title={t('table:table-item-coupon-amount')}
+          title={t('table:table-item-amount')}
           ascending={
             sortingObj.sort === SortOrder.Asc && sortingObj.column === 'amount'
           }
@@ -153,7 +147,7 @@ const CouponList = ({
     {
       title: (
         <TitleWithSort
-          title={t('table:table-item-minimum-cart-amount')}
+          title={t('table:table-item-minimum-amount')}
           ascending={
             sortingObj.sort === SortOrder.Asc &&
             sortingObj.column === 'minimum_cart_amount'
@@ -219,49 +213,16 @@ const CouponList = ({
       ),
     },
     {
-      title: (
-        <TitleWithSort
-          title={t('table:table-item-status')}
-          ascending={
-            sortingObj.sort === SortOrder.Asc &&
-            sortingObj.column === 'is_approve'
-          }
-          isActive={sortingObj.column === 'is_approve'}
-        />
-      ),
-      className: 'cursor-pointer',
-      dataIndex: 'is_approve',
-      key: 'is_approve',
-      align: 'center',
-      width: 150,
-      onHeaderCell: () => onHeaderClick('is_approve'),
-      render: (is_approve: boolean) => (
-        <Badge
-          textKey={is_approve ? 'Approved' : 'Disapprove'}
-          color={
-            is_approve
-              ? 'bg-accent/10 !text-accent'
-              : 'bg-status-failed/10 text-status-failed'
-          }
-        />
-      ),
-    },
-    {
       title: t('table:table-item-actions'),
       dataIndex: 'code',
       key: 'actions',
       align: 'right',
-      width: 260,
       render: (slug: string, record: Coupon) => (
         <LanguageSwitcher
           slug={slug}
           record={record}
           deleteModalView="DELETE_COUPON"
           routes={Routes?.coupon}
-          isShop={Boolean(shop)}
-          shopSlug={(shop as string) ?? ''}
-          couponApproveButton={true}
-          isCouponApprove={record?.is_approve}
         />
       ),
     },
@@ -276,7 +237,7 @@ const CouponList = ({
           emptyText={() => (
             <div className="flex flex-col items-center py-7">
               <NoDataFound className="w-52" />
-              <div className="pt-6 mb-1 text-base font-semibold text-heading">
+              <div className="mb-1 pt-6 text-base font-semibold text-heading">
                 {t('table:empty-table-data')}
               </div>
               <p className="text-[13px]">{t('table:empty-table-sorry-text')}</p>

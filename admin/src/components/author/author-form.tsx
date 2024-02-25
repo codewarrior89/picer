@@ -3,7 +3,7 @@ import { Controller, useForm, useFieldArray } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import TextArea from '@/components/ui/text-area';
 import Label from '@/components/ui/label';
-import DatePicker from '@/components/ui/date-picker';
+import { DatePicker } from '@/components/ui/date-picker';
 import { getErrorMessage } from '@/utils/form-error';
 import Description from '@/components/ui/description';
 import Card from '@/components/common/card';
@@ -233,6 +233,8 @@ export default function CreateOrUpdateAuthorForm({ initialValues }: IProps) {
     }
   };
 
+  console.log('errors.name?.message!', errors.name?.message!);
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
@@ -347,28 +349,45 @@ export default function CreateOrUpdateAuthorForm({ initialValues }: IProps) {
 
           <div className="flex flex-col mb-5 sm:flex-row">
             <div className="w-full p-0 mb-5 sm:mb-0 sm:w-1/2 sm:pe-2">
-              <DatePicker
+              <Label>{t('form:input-label-author-born')}</Label>
+              <Controller
                 control={control}
                 name="born"
-                dateFormat="dd/MM/yyyy"
-                startDate={new Date()}
-                locale={locale}
-                className="border border-border-base"
-                label={t('form:input-label-author-born')}
-                error={t(errors?.born?.message!)}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <DatePicker
+                    dateFormat="dd/MM/yyyy"
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    //@ts-ignore
+                    selected={value}
+                    selectsStart
+                    startDate={new Date()}
+                    className="border border-border-base"
+                  />
+                )}
               />
+              <ValidationError message={t(errors.born?.message!)} />
             </div>
             <div className="w-full p-0 sm:w-1/2 sm:ps-2">
-              <DatePicker
+              <Label>{t('form:input-label-author-death')}</Label>
+
+              <Controller
                 control={control}
                 name="death"
-                dateFormat="dd/MM/yyyy"
-                startDate={new Date()}
-                locale={locale}
-                className="border border-border-base"
-                label={t('form:input-label-author-death')}
-                error={t(errors?.death?.message!)}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <DatePicker
+                    dateFormat="dd/MM/yyyy"
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    //@ts-ignore
+                    selected={value}
+                    selectsEnd
+                    startDate={new Date()}
+                    className="border border-border-base"
+                  />
+                )}
               />
+              <ValidationError message={t(errors.death?.message!)} />
             </div>
           </div>
           {/* Social and Icon picker */}

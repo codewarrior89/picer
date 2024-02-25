@@ -5,7 +5,6 @@ namespace Marvel\Database\Models;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Cviebrock\EloquentSluggable\Sluggable;
-use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -294,34 +293,6 @@ class Product extends Model
      */
     public function flash_sales(): BelongsToMany
     {
-        return $this->belongsToMany(FlashSale::class, 'flash_sale_products')->withPivot('flash_sale_id', 'product_id');
-    }
-
-    /**
-     * flash_sale_requests
-     *
-     * @return BelongsToMany
-     */
-    public function flash_sale_requests(): BelongsToMany
-    {
-        return $this->belongsToMany(FlashSaleRequests::class, "flash_sale_requests_products");
-    }
-
-    public function loadRelated($slug, $limit = 10, $language = DEFAULT_LANGUAGE)
-    {
-        $relatedProducts = [];
-        try {
-            $product    = $this->where('slug', $slug)->firstOrFail();
-            $categories = $product->categories()->pluck('id');
-
-            $relatedProducts = $this->where('language', $language)
-                ->whereHas('categories', function ($query) use ($categories) {
-                    $query->whereIn('categories.id', $categories);
-                })->with('type')->limit($limit)->get();
-        } catch (Exception $e) {
-            logger($e->getMessage()); // logging the error
-        }
-        $this->setRelation('related_products', $relatedProducts);
-        return $this;
+        return $this->belongsToMany(FlashSale::class, 'flash_sale_products');
     }
 }

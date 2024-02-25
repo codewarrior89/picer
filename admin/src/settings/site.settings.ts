@@ -429,21 +429,9 @@ export const siteSettings = {
       //   icon: 'SettingsIcon',
       //   childMenu: [
       //     {
-      //       href: '',
+      //       href: Routes.coupon.list,
       //       label: 'sidebar-nav-item-coupons',
       //       icon: 'CouponsIcon',
-      //       childMenu: [
-      //         {
-      //           href: Routes.coupon.list,
-      //           label: 'text-all-coupons',
-      //           icon: 'CouponsIcon',
-      //         },
-      //         {
-      //           href: Routes.coupon.create,
-      //           label: 'text-new-coupon',
-      //           icon: 'CouponsIcon',
-      //         },
-      //       ],
       //     },
       //     {
       //       href: '',
@@ -458,13 +446,13 @@ export const siteSettings = {
       //         {
       //           href: Routes.flashSale.create,
       //           label: 'text-new-campaigns',
-      //           icon: 'FlashDealsIcon',
-      //         },
-      //         {
-      //           href: Routes.vendorRequestForFlashSale.list,
-      //           label: 'Vendor requests',
       //           icon: 'CouponsIcon',
       //         },
+      //         // {
+      //         //   href: '',
+      //         //   label: 'Requested products',
+      //         //   icon: 'CouponsIcon',
+      //         // },
       //       ],
       //     },
       //     {
@@ -536,11 +524,6 @@ export const siteSettings = {
               {
                 href: Routes?.companyInformation,
                 label: 'text-company-settings',
-                icon: 'InformationIcon',
-              },
-              {
-                href: Routes?.promotionPopup,
-                label: 'text-popup-settings',
                 icon: 'InformationIcon',
               },
               // {
@@ -790,12 +773,6 @@ export const siteSettings = {
       //   icon: 'SettingsIcon',
       //   childMenu: [
       //     {
-      //       href: (shop: string) => `/${shop}${Routes.coupon.list}`,
-      //       label: 'Coupons',
-      //       icon: 'CouponsIcon',
-      //       permissions: adminAndOwnerOnly,
-      //     },
-      //     {
       //       href: (shop: string) => `/${shop}${Routes.flashSale.list}`,
       //       label: 'text-flash-sale',
       //       icon: 'UsersIcon',
@@ -810,13 +787,6 @@ export const siteSettings = {
       //           href: (shop: string) =>
       //             `/${shop}${Routes.myProductsInFlashSale}`,
       //           label: 'text-my-products-in-deals',
-      //           icon: 'ProductsIcon',
-      //           permissions: adminOwnerAndStaffOnly,
-      //         },
-      //         {
-      //           href: (shop: string) =>
-      //             `/${shop}${Routes.vendorRequestForFlashSale.list}`,
-      //           label: 'Ask for enrollment',
       //           icon: 'ProductsIcon',
       //           permissions: adminOwnerAndStaffOnly,
       //         },
@@ -1059,12 +1029,6 @@ export const siteSettings = {
       //   icon: 'SettingsIcon',
       //   childMenu: [
       //     {
-      //       href: (shop: string) => `/${shop}${Routes.coupon.list}`,
-      //       label: 'Coupons',
-      //       icon: 'CouponsIcon',
-      //       permissions: adminOwnerAndStaffOnly,
-      //     },
-      //     {
       //       href: (shop: string) => `/${shop}${Routes.flashSale.list}`,
       //       label: 'text-flash-sale',
       //       icon: 'UsersIcon',
@@ -1079,13 +1043,6 @@ export const siteSettings = {
       //           href: (shop: string) =>
       //             `/${shop}${Routes.myProductsInFlashSale}`,
       //           label: 'text-my-products-in-deals',
-      //           icon: 'ProductsIcon',
-      //           permissions: adminOwnerAndStaffOnly,
-      //         },
-      //         {
-      //           href: (shop: string) =>
-      //             `/${shop}${Routes.vendorRequestForFlashSale.list}`,
-      //           label: 'See all enrollment request',
       //           icon: 'ProductsIcon',
       //           permissions: adminOwnerAndStaffOnly,
       //         },

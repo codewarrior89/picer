@@ -58,7 +58,7 @@ export const useUpdateProductMutation = () => {
         undefined,
         {
           locale: Config.defaultLanguage,
-        },
+        }
       );
       toast.success(t('common:successfully-updated'));
     },
@@ -92,7 +92,7 @@ export const useDeleteProductMutation = () => {
 export const useProductQuery = ({ slug, language }: GetParams) => {
   const { data, error, isLoading } = useQuery<Product, Error>(
     [API_ENDPOINTS.PRODUCTS, { slug, language }],
-    () => productClient.get({ slug, language }),
+    () => productClient.get({ slug, language })
   );
 
   return {
@@ -104,7 +104,7 @@ export const useProductQuery = ({ slug, language }: GetParams) => {
 
 export const useProductsQuery = (
   params: Partial<ProductQueryOptions>,
-  options: any = {},
+  options: any = {}
 ) => {
   const { data, error, isLoading } = useQuery<ProductPaginator, Error>(
     [API_ENDPOINTS.PRODUCTS, params],
@@ -113,7 +113,7 @@ export const useProductsQuery = (
     {
       keepPreviousData: true,
       ...options,
-    },
+    }
   );
 
   return {
@@ -140,17 +140,17 @@ export const useGenerateDescriptionMutation = () => {
 };
 
 export const useInActiveProductsQuery = (
-  options: Partial<ProductQueryOptions>,
+  options: Partial<ProductQueryOptions>
 ) => {
   const { data, error, isLoading } = useQuery<ProductPaginator, Error>(
     [API_ENDPOINTS.NEW_OR_INACTIVE_PRODUCTS, options],
     ({ queryKey, pageParam }) =>
       productClient.newOrInActiveProducts(
-        Object.assign({}, queryKey[1], pageParam),
+        Object.assign({}, queryKey[1], pageParam)
       ),
     {
       keepPreviousData: true,
-    },
+    }
   );
 
   return {
@@ -166,11 +166,11 @@ export const useProductStockQuery = (options: Partial<ProductQueryOptions>) => {
     [API_ENDPOINTS.LOW_OR_OUT_OF_STOCK_PRODUCTS, options],
     ({ queryKey, pageParam }) =>
       productClient.lowOrOutOfStockProducts(
-        Object.assign({}, queryKey[1], pageParam),
+        Object.assign({}, queryKey[1], pageParam)
       ),
     {
       keepPreviousData: true,
-    },
+    }
   );
 
   return {
@@ -188,11 +188,11 @@ export const useProductsByFlashSaleQuery = (options: any) => {
     [API_ENDPOINTS.PRODUCTS_BY_FLASH_SALE, options],
     ({ queryKey, pageParam }) =>
       productClient.getProductsByFlashSale(
-        Object.assign({}, queryKey[1], pageParam),
+        Object.assign({}, queryKey[1], pageParam)
       ),
     {
       keepPreviousData: true,
-    },
+    }
   );
 
   return {

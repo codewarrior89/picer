@@ -16,8 +16,6 @@ import { useForm } from 'react-hook-form';
 import { seoValidationSchema } from '@/components/settings/seo/seo-validation-schema';
 import { SaveIcon } from '@/components/icons/save';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
-import TooltipLabel from '@/components/ui/tooltip-label';
-import { useConfirmRedirectIfDirty } from '@/utils/confirmed-redirect-if-dirty';
 
 type SeoFormValues = {
   seo: {
@@ -49,8 +47,9 @@ export default function SeoSettingsForm({ settings }: IProps) {
     register,
     handleSubmit,
     control,
-    reset,
-    formState: { isDirty },
+    getValues,
+    watch,
+    formState: { errors },
   } = useForm<SeoFormValues>({
     shouldUnregister: true,
     //@ts-ignore
@@ -60,40 +59,10 @@ export default function SeoSettingsForm({ settings }: IProps) {
     },
   });
 
-  // const { openModal } = useModalAction();
-  // const generateName = watch('siteTitle');
-  // const autoSuggestionList = useMemo(() => {
-  //   return chatbotAutoSuggestion({ name: generateName ?? '' });
-  // }, [generateName]);
-
-  // const handleGenerateDescription = useCallback(() => {
-  //   openModal('GENERATE_DESCRIPTION', {
-  //     control,
-  //     name: generateName,
-  //     set_value: setValue,
-  //     key: 'seo.metaDescription',
-  //     suggestion: autoSuggestionList as ItemProps[],
-  //   });
-  // }, [generateName]);
-
-  // const autoSuggestionList1 = useMemo(() => {
-  //   return chatbotAutoSuggestion1({ name: generateName ?? '' });
-  // }, [generateName]);
-
-  // const handleGenerateDescription1 = useCallback(() => {
-  //   openModal('GENERATE_DESCRIPTION', {
-  //     control,
-  //     name: generateName,
-  //     set_value: setValue,
-  //     key: 'seo.ogDescription',
-  //     suggestion: autoSuggestionList1 as ItemProps[],
-  //   });
-  // }, [generateName]);
-
   async function onSubmit(values: SeoFormValues) {
     updateSettingsMutation({
       language: locale,
-      // @ts-ignore //
+      // @ts-ignore // // FIXME
       options: {
         ...values,
         ...options,
@@ -104,9 +73,7 @@ export default function SeoSettingsForm({ settings }: IProps) {
         },
       },
     });
-    reset(values, { keepValues: true });
   }
-  useConfirmRedirectIfDirty({ isDirty });
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:mt-8 sm:mb-3">
@@ -119,58 +86,46 @@ export default function SeoSettingsForm({ settings }: IProps) {
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <Input
             label={t('form:input-label-meta-title')}
-            toolTipText={t('form:input-tooltip-meta-title')}
             {...register('seo.metaTitle')}
             variant="outline"
             className="mb-5"
           />
           <TextArea
             label={t('form:input-label-meta-description')}
-            toolTipText={t('form:input-tooltip-meta-description')}
             {...register('seo.metaDescription')}
             variant="outline"
             className="mb-5"
           />
           <Input
             label={t('form:input-label-meta-tags')}
-            toolTipText={t('form:input-tooltip-meta-tags')}
             {...register('seo.metaTags')}
             variant="outline"
             className="mb-5"
           />
           <Input
             label={t('form:input-label-canonical-url')}
-            toolTipText={t('form:input-tooltip-canonical-url')}
             {...register('seo.canonicalUrl')}
             variant="outline"
             className="mb-5"
           />
           <Input
             label={t('form:input-label-og-title')}
-            toolTipText={t('form:input-tooltip-og-title')}
             {...register('seo.ogTitle')}
             variant="outline"
             className="mb-5"
           />
           <TextArea
             label={t('form:input-label-og-description')}
-            toolTipText={t('form:input-tooltip-og-description')}
             {...register('seo.ogDescription')}
             variant="outline"
             className="mb-5"
           />
           <div className="mb-5">
-            <FileInput
-              label={t('form:input-label-og-image')}
-              toolTipText={t('form:input-tooltip-og-image')}
-              name="seo.ogImage"
-              control={control}
-              multiple={false}
-            />
+            <Label>{t('form:input-label-og-image')}</Label>
+            <FileInput name="seo.ogImage" control={control} multiple={false} />
           </div>
           <Input
             label={t('form:input-label-twitter-handle')}
-            toolTipText={t('form:input-tooltip-twitter-handle')}
             {...register('seo.twitterHandle')}
             variant="outline"
             className="mb-5"
@@ -178,7 +133,6 @@ export default function SeoSettingsForm({ settings }: IProps) {
           />
           <Input
             label={t('form:input-label-twitter-card-type')}
-            toolTipText={t('form:input-tooltip-twitter-card-type')}
             {...register('seo.twitterCardType')}
             variant="outline"
             className="mb-5"
@@ -189,7 +143,7 @@ export default function SeoSettingsForm({ settings }: IProps) {
       <StickyFooterPanel className="z-0">
         <Button
           loading={loading}
-          disabled={loading || !Boolean(isDirty)}
+          disabled={loading}
           className="text-sm md:text-base"
         >
           <SaveIcon className="relative w-6 h-6 top-px shrink-0 ltr:mr-2 rtl:pl-2" />

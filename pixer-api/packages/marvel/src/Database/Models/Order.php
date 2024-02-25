@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Marvel\Traits\TranslationTrait;
 
@@ -27,7 +26,7 @@ class Order extends Model
     ];
 
     protected $hidden = [
-        //        'created_at',
+//        'created_at',
         'updated_at',
         'deleted_at'
     ];
@@ -114,13 +113,5 @@ class Order extends Model
     public function payment_intent()
     {
         return $this->hasMany(PaymentIntent::class);
-    }
-    
-    /**
-     * @return HasMany
-     */
-    public function reviews(): HasMany
-    {
-        return $this->hasMany(Review::class);
     }
 }

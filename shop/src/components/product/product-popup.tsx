@@ -18,7 +18,6 @@ import isEmpty from 'lodash/isEmpty';
 import FavoriteButton from '@/components/favorite/favorite-button';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
-import { useSanitizeContent } from '@/lib/sanitize-content';
 
 function getPreviews(gallery: any[], image: any) {
   if (!isEmpty(gallery) && Array.isArray(gallery)) return gallery;
@@ -30,9 +29,6 @@ export default function ProductPopupDetails() {
   const { data } = useModalState();
   const { t } = useTranslation('common');
   const { product, isLoading } = useProduct(data.slug);
-  const content = useSanitizeContent({
-    description: product?.description as string,
-  });
   if (!product && isLoading) return <ProductPopupLoader />;
   if (!product) return <div>{t('text-not-found')}</div>;
   const {
@@ -103,19 +99,9 @@ export default function ProductPopupDetails() {
         </div>
         <div className="flex shrink-0 flex-col justify-between text-13px lg:w-[400px] xl:w-[520px] 3xl:w-[555px]">
           <div className="pb-7 xs:pb-8 lg:pb-10">
-            {content ? (
-              <div
-                className="react-editor-description pb-5 leading-[1.9em] rtl:text-right dark:text-light-600 xl:pb-6 3xl:pb-8"
-                dangerouslySetInnerHTML={{
-                  __html:
-                    content?.length > 200
-                      ? content?.substring(0, 200) + '...'
-                      : content,
-                }}
-              />
-            ) : (
-              ''
-            )}
+            <div className="pb-5 leading-[1.9em] rtl:text-right dark:text-light-600 xl:pb-6 3xl:pb-8">
+              {description}
+            </div>
             {!is_external && (
               <div className="flex space-x-6 border-t border-light-500 py-3 rtl:space-x-reverse dark:border-dark-500 md:py-4 3xl:py-5">
                 {!isFreeItem && (

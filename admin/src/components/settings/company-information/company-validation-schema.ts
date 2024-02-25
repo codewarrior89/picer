@@ -19,14 +19,11 @@ export const companyValidationSchema = yup.object().shape({
       yup.object().shape({
         url: yup.string().when('icon', (data) => {
           if (data) {
-            return yup
-              .string()
-              .url('form:error-invalid-url')
-              .required('form:error-url-required');
+            return yup.string().url('form:error-invalid-url').required('form:error-url-required');
           }
           return yup.string().nullable();
         }),
-      }),
+      })
     ),
   }),
 });

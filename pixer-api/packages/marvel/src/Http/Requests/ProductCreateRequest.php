@@ -21,7 +21,7 @@ class ProductCreateRequest extends FormRequest
         return true;
     }
 
-
+    
     /**
      * Get the validation rules that apply to the request.
      *
@@ -63,7 +63,7 @@ class ProductCreateRequest extends FormRequest
             'variation_options'            => ['array'],
             'quantity'                     => ['nullable', 'integer'],
             'unit'                         => ['required', 'string'],
-            'description'                  => ['nullable', 'string', 'max:10000'],
+            'description'                  => ['nullable', 'string'],
             'sku'                          => ['string', 'unique:variation_options,sku'],
             'image'                        => ['array'],
             'gallery'                      => ['array'],

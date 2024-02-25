@@ -3,13 +3,6 @@ import useAuth from '@/components/auth/use-auth';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import client from './client';
 import { API_ENDPOINTS } from './client/endpoints';
-import Cookies from 'js-cookie';
-import {
-  AUTH_CRED,
-  NEWSLETTER_POPUP_MODAL_KEY,
-  REVIEW_POPUP_MODAL_KEY,
-  TOKEN,
-} from '@/lib/constants';
 
 export function useMe() {
   const { isAuthorized } = useAuth();
@@ -18,7 +11,7 @@ export function useMe() {
     client.users.me,
     {
       enabled: isAuthorized,
-    },
+    }
   );
   return {
     me: data,
@@ -32,15 +25,9 @@ export function useLogout() {
   const { unauthorize } = useAuth();
   const queryClient = useQueryClient();
   return useMutation(client.users.logout, {
-    onSuccess: (data) => {
+    onSuccess: () => {
       unauthorize();
       queryClient.resetQueries(API_ENDPOINTS.USERS_ME);
-      if (data) {
-        Cookies.remove(NEWSLETTER_POPUP_MODAL_KEY);
-        Cookies.remove(REVIEW_POPUP_MODAL_KEY);
-        Cookies.remove(AUTH_CRED);
-        Cookies.remove(TOKEN);
-      }
     },
   });
 }

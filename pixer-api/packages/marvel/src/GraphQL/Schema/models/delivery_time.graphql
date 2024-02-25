@@ -24,10 +24,6 @@ input CreateDeliveryTimeInput {
     title: String!
     language: String
     description: String
-        @rules(
-            apply: ["max:10000"]
-            messages: { max: "Description should be max 10000 character" }
-        )
     icon: String
 }
 input UpdateDeliveryTimeInput {

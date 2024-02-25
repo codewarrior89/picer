@@ -13,24 +13,28 @@ class CouponMutator
 
     public function verify($rootValue, array $args, GraphQLContext $context)
     {
-        return Shop::call('Marvel\Http\Controllers\CouponController@verify', $args);
+        try {
+            return Shop::call('Marvel\Http\Controllers\CouponController@verify', $args);
+        } catch (\Exception $e) {
+            throw new MarvelException(SOMETHING_WENT_WRONG);
+        }
     }
 
     public function store($rootValue, array $args, GraphQLContext $context)
     {
-        return Shop::call('Marvel\Http\Controllers\CouponController@store', $args);
+        try {
+            return Shop::call('Marvel\Http\Controllers\CouponController@store', $args);
+        } catch (\Exception $e) {
+            throw new MarvelException(SOMETHING_WENT_WRONG);
+        }
     }
 
     public function update($rootValue, array $args, GraphQLContext $context)
     {
-        return Shop::call('Marvel\Http\Controllers\CouponController@updateCoupon', $args);
-    }
-    public function approveCoupon($rootValue, array $args, GraphQLContext $context)
-    {
-        return Shop::call('Marvel\Http\Controllers\CouponController@approveCoupon', $args);
-    }
-    public function disApproveCoupon($rootValue, array $args, GraphQLContext $context)
-    {
-        return Shop::call('Marvel\Http\Controllers\CouponController@disApproveCoupon', $args);
+        try {
+            return Shop::call('Marvel\Http\Controllers\CouponController@updateCoupon', $args);
+        } catch (\Exception $e) {
+            throw new MarvelException(SOMETHING_WENT_WRONG);
+        }
     }
 }

@@ -15,7 +15,9 @@ use Marvel\Exceptions\MarvelException;
 use Marvel\Http\Requests\CreateFlashSaleRequest;
 use Marvel\Http\Requests\UpdateFlashSaleRequest;
 use Prettus\Validator\Exceptions\ValidatorException;
+use Illuminate\Support\Facades\DB;
 use Marvel\Database\Repositories\ProductRepository;
+use Marvel\Http\Resources\FlashSaleResource;
 
 class FlashSaleController extends CoreController
 {
@@ -52,13 +54,7 @@ class FlashSaleController extends CoreController
     {
         $language = $request->language ?? DEFAULT_LANGUAGE;
         event(new FlashSaleProcessed('index', $language));
-
-        $flash_sales_query = $this->repository->where('language', $language)
-            ->when($request->request_from === 'vendor', function ($flash_sales_query) {
-                return $flash_sales_query->whereDate('start_date', '>', now()->toDateString());
-            });
-
-        return $flash_sales_query;
+        return $this->repository->where('language', $language);
     }
 
     /**
@@ -188,13 +184,6 @@ class FlashSaleController extends CoreController
         $limit = $request->limit ? $request->limit : 10;
         return $this->fetchProductsByFlashSale($request)->paginate($limit)->withQueryString();
     }
-
-    /**
-     * fetchProductsByFlashSale
-     *
-     * @param  Request $request
-     * @return object
-     */
     public function fetchProductsByFlashSale(Request $request)
     {
         $language = $request->language ?? DEFAULT_LANGUAGE;
