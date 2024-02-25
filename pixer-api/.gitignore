@@ -1,6 +1,7 @@
 /node_modules
 /public/hot
 /public/storage
+/public/license
 /storage/*.key
 /storage/framework/cache
 /storage/debugbar
@@ -15,6 +16,7 @@ npm-debug.log
 yarn-error.log
 .DS_Store
 docker-compose.yml
-
 # IDE
-.idea/
+.idea
+.vscode
+

@@ -5,7 +5,7 @@ import invariant from 'tiny-invariant';
 
 invariant(
   process.env.NEXT_PUBLIC_REST_API_ENDPOINT,
-  'NEXT_PUBLIC_REST_API_ENDPOINT is not defined, please define it in your .env file'
+  'NEXT_PUBLIC_REST_API_ENDPOINT is not defined, please define it in your .env file',
 );
 const Axios = axios.create({
   baseURL: process.env.NEXT_PUBLIC_REST_API_ENDPOINT,
@@ -22,7 +22,7 @@ Axios.interceptors.request.use((config) => {
   if (cookies) {
     token = JSON.parse(cookies)['token'];
   }
-// @ts-ignore
+  // @ts-ignore
   config.headers = {
     ...config.headers,
     Authorization: `Bearer ${token}`,
@@ -44,7 +44,7 @@ Axios.interceptors.response.use(
       Router.reload();
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 function formatBooleanSearchParam(key: string, value: boolean) {
@@ -60,6 +60,18 @@ interface SearchParamOptions {
   is_approved: boolean;
   tracking_number: string;
   notice: string;
+  notify_type: string;
+  faq_title: string;
+  is_active: boolean;
+  title: string;
+  status: string;
+  user_id: string;
+  target: string;
+  refund_reason: string;
+  shops: string;
+  'users.id': string;
+  product_type: string;
+  is_read: boolean;
 }
 
 export class HttpClient {
@@ -87,11 +99,19 @@ export class HttpClient {
     return Object.entries(params)
       .filter(([, value]) => Boolean(value))
       .map(([k, v]) =>
-        ['type', 'categories', 'tags', 'author', 'manufacturer'].includes(k)
+        [
+          'type',
+          'categories',
+          'tags',
+          'author',
+          'manufacturer',
+          'shops',
+          'refund_reason',
+        ].includes(k)
           ? `${k}.slug:${v}`
           : ['is_approved'].includes(k)
           ? formatBooleanSearchParam(k, v as boolean)
-          : `${k}:${v}`
+          : `${k}:${v}`,
       )
       .join(';');
   }

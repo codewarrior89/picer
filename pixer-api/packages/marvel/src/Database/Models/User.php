@@ -13,7 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
+use Marvel\Enums\OrderStatus;
+use Marvel\Enums\PaymentStatus;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -57,7 +58,6 @@ class User extends Authenticatable implements MustVerifyEmail
         });
     }
 
-
     public function getEmailVerifiedAttribute(): bool
     {
         return $this->hasVerifiedEmail();
@@ -85,7 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function orders(): HasMany
     {
-        return $this->hasMany(Order::class, 'customer_id')->with(['products.variation_options', 'status']);
+        return $this->hasMany(Order::class, 'customer_id')->with(['products.variation_options', 'reviews']);
     }
 
     /**
@@ -157,7 +157,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function ordered_files(): HasMany
     {
-        return $this->hasMany(OrderedFiles::class, 'customer_id');
+        return $this->hasMany(OrderedFile::class, 'customer_id');
     }
 
     /**
@@ -179,5 +179,45 @@ class User extends Authenticatable implements MustVerifyEmail
     public function payment_gateways(): HasMany
     {
         return $this->HasMany(PaymentGateway::class, 'user_id');
+    }
+
+    /**
+     * faqs
+     *
+     * @return HasMany
+     */
+    public function faqs(): HasMany
+    {
+        return $this->HasMany(Faqs::class);
+    }
+
+    /**
+     * terms and conditions
+     *
+     * @return HasMany
+     */
+    public function terms_and_conditions(): HasMany
+    {
+        return $this->HasMany(TermsAndConditions::class);
+    }
+
+    /**
+     * coupons
+     *
+     * @return HasMany
+     */
+    public function coupon(): HasMany
+    {
+        return $this->HasMany(Coupon::class);
+    }
+
+    public function loadLastOrder()
+    {
+        $data = $this->orders()->whereNull('parent_id')
+            ->where('order_status', OrderStatus::COMPLETED)
+            ->latest()->first();
+        $this->setRelation('last_order', $data);
+
+        return $this;
     }
 }

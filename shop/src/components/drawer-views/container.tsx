@@ -8,11 +8,16 @@ const CartDrawerView = dynamic(
   () => import('@/components/cart/cart-drawer-view')
 );
 const SidebarDrawerView = dynamic(() => import('@/layouts/_layout-sidebar'));
+const MaintenanceMoreInfo = dynamic(
+  () => import('@/components/maintenance/more-info')
+);
 
 function renderDrawerContent(view: DRAWER_VIEW | string) {
   switch (view) {
     case 'MOBILE_MENU':
       return <SidebarDrawerView />;
+    case 'MAINTENANCE_MORE_INFO':
+      return <MaintenanceMoreInfo />;
     default:
       return <CartDrawerView />;
   }
@@ -33,7 +38,7 @@ export default function DrawersContainer() {
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
         as="div"
-        className="fixed inset-0 z-40 overflow-hidden"
+        className="fixed inset-0 z-[51] overflow-hidden"
         onClose={closeDrawer}
       >
         <Transition.Child
@@ -57,7 +62,13 @@ export default function DrawersContainer() {
           leaveTo="translate-x-full"
         >
           <div className="fixed inset-y-0 right-0 flex max-w-full">
-            <div className="w-screen max-w-md">
+            <div
+              className={
+                ['MAINTENANCE_MORE_INFO']?.includes(view)
+                  ? 'max-w-sm md:max-w-xl'
+                  : 'w-screen max-w-md'
+              }
+            >
               <div className="flex h-full flex-col bg-light shadow-xl dark:bg-dark-300">
                 {view && renderDrawerContent(view)}
               </div>

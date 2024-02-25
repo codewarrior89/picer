@@ -1,22 +1,29 @@
-import cn from 'classnames';
-import routes from '@/config/routes';
-import Logo from '@/components/ui/logo';
-import ActiveLink from '@/components/ui/links/active-link';
+import { useDrawer } from '@/components/drawer-views/context';
+import { CloseIcon } from '@/components/icons/close-icon';
 import { DiscoverIcon } from '@/components/icons/discover-icon';
+import { FeedIcon } from '@/components/icons/feed-icon';
 import { HelpIcon } from '@/components/icons/help-icon';
 import { HomeIcon } from '@/components/icons/home-icon';
-import { SettingIcon } from '@/components/icons/setting-icon';
-import { CloseIcon } from '@/components/icons/close-icon';
-import { useDrawer } from '@/components/drawer-views/context';
-import { ProductIcon } from '@/components/icons/product-icon';
-import { PeopleIcon } from '@/components/icons/people-icon';
 import { PaperPlaneIcon } from '@/components/icons/paper-plane-icon';
+import { PeopleIcon } from '@/components/icons/people-icon';
+import { ProductIcon } from '@/components/icons/product-icon';
+import { SettingIcon } from '@/components/icons/setting-icon';
+import ActiveLink from '@/components/ui/links/active-link';
+import Logo from '@/components/ui/logo';
 import Scrollbar from '@/components/ui/scrollbar';
+import routes from '@/config/routes';
 import Copyright from '@/layouts/_copyright';
-import { UserFollowingIcon } from '@/components/icons/user-following-icon';
-import { useMe } from '@/data/user';
-import { FeedIcon } from '@/components/icons/feed-icon';
+import cn from 'classnames';
 import { useTranslation } from 'next-i18next';
+import { useWindowSize } from 'react-use';
+import {
+  isMultiLangEnable,
+  checkIsMaintenanceModeComing,
+  checkIsScrollingStart,
+  RESPONSIVE_WIDTH,
+} from '@/lib/constants';
+import { useAtom } from 'jotai';
+import { twMerge } from 'tailwind-merge';
 
 interface NavLinkProps {
   href: string;
@@ -54,19 +61,26 @@ function NavLink({ href, icon, title, isCollapse }: NavLinkProps) {
 
 export function Sidebar({
   isCollapse,
-  className = 'hidden sm:flex fixed bottom-0 z-20 pt-[82px]',
+  className = 'hidden sm:flex fixed bottom-0 z-20',
 }: {
   isCollapse?: boolean;
   className?: string;
 }) {
   const { t } = useTranslation('common');
-
+  const { width } = useWindowSize();
+  const [underMaintenanceIsComing] = useAtom(checkIsMaintenanceModeComing);
+  const [isScrolling] = useAtom(checkIsScrollingStart);
   return (
     <aside
-      className={cn(
-        'h-full flex-col justify-between overflow-y-auto border-r border-light-400 bg-light-100 text-dark-900 dark:border-0 dark:bg-dark-200',
-        isCollapse ? 'sm:w-60 xl:w-[75px]' : 'sm:w-[75px] xl:w-60',
-        className
+      className={twMerge(
+        cn(
+          'h-full flex-col justify-between overflow-y-auto border-r border-light-400 bg-light-100 pt-[82px] text-dark-900 dark:border-0 dark:bg-dark-200',
+          isCollapse ? 'sm:w-60 xl:w-[75px]' : 'sm:w-[75px] xl:w-60',
+          width >= RESPONSIVE_WIDTH && underMaintenanceIsComing && !isScrolling
+            ? 'pt-[9.625rem]'
+            : '',
+          className
+        )
       )}
     >
       <Scrollbar className="relative h-full w-full">
@@ -157,7 +171,7 @@ export function Sidebar({
             {t('text-help-page-title')}
           </ActiveLink>
         </nav>
-        <Copyright className="text-xs font-medium text-dark-800/80 dark:text-dark-700" />
+        <Copyright className="px-1 text-xs font-medium text-dark-800/80 dark:text-dark-700" />
       </footer>
     </aside>
   );

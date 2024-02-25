@@ -117,6 +117,10 @@ export interface Settings {
   id: string;
   options: {
     siteTitle: string;
+    copyrightText: string;
+    siteLink: string;
+    externalText: string;
+    externalLink: string;
     siteSubtitle: string;
     currency: string;
     logo: Attachment;
@@ -166,6 +170,8 @@ export interface Shop {
   logo: Attachment;
   cover_image: Attachment;
   settings: {
+    contact: string;
+    website: string;
     socials: {
       icon: string;
       url: string;
@@ -194,6 +200,9 @@ export interface User {
     contact: string;
     avatar: Attachment;
   };
+  permissions?: {
+    name: string;
+  }[];
   wallet?: {
     available_points: number;
     created_at: string;
@@ -207,6 +216,7 @@ export interface User {
   role: string;
   created_at: string;
   updated_at: string;
+  last_order: Order;
 }
 
 export interface UpdateProfileInput {
@@ -438,6 +448,7 @@ export interface Product {
   is_external: boolean;
   external_product_url: string;
   external_product_button_text: string;
+  video?: string[];
 }
 
 export interface ProductPaginator extends PaginatorInfo<Product> {}
@@ -486,6 +497,7 @@ export interface Order {
     amount?: number;
   };
   sales_tax: number;
+  reviews?: Review[];
 }
 
 export interface DigitalFile {
@@ -558,6 +570,45 @@ export interface Wishlist {
   user: User[];
   user_id: string;
 }
+export interface TermsAndConditionsQueryOptions extends QueryOptions {
+  title: string;
+  issued_by: string;
+  type: string;
+  orderBy: string;
+  sortedBy: string;
+  shop_id: string;
+  is_approved: boolean;
+}
+export interface TermsAndConditions {
+  id: string;
+  translated_languages: string[];
+  title: string;
+  description: string;
+  shop_id?: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string;
+  is_approved?: boolean;
+  issued_by?: string;
+  type?: string;
+  shop?: Shop;
+}
+
+export interface FAQS {
+  id: string;
+  faq_title: string;
+  faq_description: string;
+  slug: string;
+  faq_type: string;
+  issued_by: string;
+  language: string;
+  shop_id?: Shop;
+  user_id: User;
+  translated_languages: string[];
+  created_at: string;
+  updated_at: string;
+}
 
 export interface TagPaginator extends PaginatorInfo<Tag> {}
 
@@ -570,6 +621,9 @@ export interface ReviewPaginator extends PaginatorInfo<Review> {}
 export interface WishlistPaginator extends PaginatorInfo<Wishlist> {}
 
 export interface QuestionPaginator extends PaginatorInfo<Question> {}
+
+export interface TermsAndConditionsPaginator
+  extends PaginatorInfo<TermsAndConditions> {}
 
 export interface SettingsQueryOptions extends QueryOptions {
   language?: string;
@@ -679,3 +733,43 @@ export interface DownloadableFile {
 
 export interface DownloadableFilePaginator
   extends PaginatorInfo<DownloadableFile> {}
+
+export interface FaqsQueryOptions extends QueryOptions {
+  faq_title?: string;
+  issued_by?: string;
+  faq_type?: string;
+  orderBy?: string;
+  sortedBy?: string;
+  shop_id?: string;
+}
+
+export interface FAQS {
+  id: string;
+  faq_title: string;
+  faq_description: string;
+  slug: string;
+  faq_type: string;
+  issued_by: string;
+  language: string;
+  shop_id?: Shop;
+  user_id: User;
+  translated_languages: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FaqsPaginator extends PaginatorInfo<FAQS> {}
+
+export interface GoogleMapLocation {
+  lat?: number | string;
+  lng?: number | string;
+  street_number?: string;
+  route?: string;
+  street_address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  zip?: string;
+  formattedAddress?: string;
+  formatted_address?: string;
+}

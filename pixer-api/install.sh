@@ -10,8 +10,9 @@ docker build -t="redq/php81-composer" .
 
 echo "Installing composer dependencies..."
 docker run --rm \
-    -v $(pwd):/opt \
-    -w /opt \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
     redq/php81-composer:latest \
     composer install
 

@@ -102,7 +102,6 @@ class Paymongo extends Base implements PaymentInterface
      */
     public function handleWebHooks($request): void
     {
-        logger($request);
         try {
             $payload = @file_get_contents('php://input');
             $signatureHeader = $_SERVER['HTTP_PAYMONGO_SIGNATURE'];

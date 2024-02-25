@@ -59,7 +59,7 @@ class StoreNoticeRequest extends FormRequest
         return [
             'priority'       => ['required', 'string', Rule::in($this->priorityArr)],
             'notice'         => ['required', 'string'],
-            'description'    => ['nullable', 'string'],
+            'description'    => ['nullable', 'string', 'max:10000'],
             'effective_from' => ['nullable', 'date'],
             'expired_at'     => ['required', 'date','after:effective_from'],
             'type'           => ['required', 'string', Rule::in($this->typeArr)],

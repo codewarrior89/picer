@@ -59,6 +59,7 @@ type Order {
     billing_address: UserAddress
     shipping_address: UserAddress
     note: String
+    reviews: [Review]
 }
 
 type WalletPoint {

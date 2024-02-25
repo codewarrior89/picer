@@ -1,5 +1,6 @@
 import cn from 'classnames';
 import { CloseIcon } from '@/components/icons/close-icon';
+import { twMerge } from 'tailwind-merge';
 
 type AlertProps = {
   message: string | null;
@@ -15,6 +16,8 @@ type AlertProps = {
   closeable?: boolean;
   onClose?: React.Dispatch<React.SetStateAction<any>>;
   className?: string;
+  children?: React.ReactNode;
+  childClassName?: string;
 };
 
 const variantClasses = {
@@ -34,18 +37,25 @@ const Alert: React.FC<AlertProps> = ({
   variant = 'info',
   className,
   onClose,
+  children,
+  childClassName,
 }) => {
   if (!message) return null;
   return (
     <div
-      className={cn(
-        'relative flex items-center justify-between rounded py-4 px-5 shadow-sm',
-        variantClasses[variant],
-        className
+      className={twMerge(
+        cn(
+          'relative flex items-center justify-between rounded py-4 px-5 shadow-sm',
+          variantClasses[variant],
+          className
+        )
       )}
       role="alert"
     >
-      <p className="text-sm">{message}</p>
+      <div className={twMerge(cn(childClassName))}>
+        <p className="text-sm">{message}</p>
+        {children}
+      </div>
       {closeable && (
         <button
           data-dismiss="alert"

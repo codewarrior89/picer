@@ -345,5 +345,12 @@
   "text-stripe-card-desc-three": "لا يوجد حد للمعاملات اليومية.",
   "text-no-payment-configure": "لم يتم تفعيل الدفع بعد !!",
   "profile-sidebar-my-cards": "بطاقاتي",
-  "profile-add-cards": "إضافة بطاقة"
+  "profile-add-cards": "إضافة بطاقة",
+  "text-title-days": "أيام",
+  "text-title-hours": "ساعات",
+  "text-title-minutes": "دقائق",
+  "text-title-seconds": "ثواني",
+  "text-title-change-language": "تغيير اللغة",
+  "text-title-language": "لغة",
+  "text-maintenance-mode-title": "يبدأ وضع الصيانة في"
 }

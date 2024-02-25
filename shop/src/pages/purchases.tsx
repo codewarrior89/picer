@@ -210,8 +210,6 @@ const Purchases: NextPageWithLayout = () => {
   //   sortedBy: 'desc',
   // });
 
-  // console.log(downloadableFiles, 'downloadableFiles');
-
   return (
     <motion.div
       variants={fadeInBottom()}

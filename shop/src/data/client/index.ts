@@ -1,66 +1,69 @@
 import type {
+  Attachment,
   AuthResponse,
+  Card,
   CategoryPaginator,
   CategoryQueryOptions,
+  ChangePasswordInput,
+  CheckoutVerificationInput,
+  CreateAbuseReportInput,
+  CreateContactUsInput,
+  CreateFeedbackInput,
+  CreateOrderInput,
+  CreateOrderPaymentInput,
+  CreateQuestionInput,
+  CreateReviewInput,
+  FAQS,
+  FaqsPaginator,
+  FaqsQueryOptions,
+  Feedback,
   ForgetPasswordInput,
+  GetParams,
   LoginUserInput,
+  MyQuestionQueryOptions,
+  MyReportsQueryOptions,
   Order,
-  OrderedFilePaginator,
   OrderPaginator,
   OrderQueryOptions,
+  OrderedFilePaginator,
   PasswordChangeResponse,
+  PaymentIntentCollection,
+  PopularProductsQueryOptions,
   Product,
   ProductPaginator,
   ProductQueryOptions,
+  QueryOptions,
+  QuestionPaginator,
+  QuestionQueryOptions,
   RegisterUserInput,
   ResetPasswordInput,
+  Review,
+  ReviewPaginator,
+  ReviewQueryOptions,
+  ReviewResponse,
   Settings,
+  SettingsQueryOptions,
   Shop,
   ShopPaginator,
   ShopQueryOptions,
   Tag,
   TagPaginator,
-  UpdateProfileInput,
-  User,
-  QueryOptions,
-  CreateContactUsInput,
-  VerifyForgetPasswordTokenInput,
-  ChangePasswordInput,
-  PopularProductsQueryOptions,
-  CreateOrderInput,
-  CheckoutVerificationInput,
-  VerifiedCheckoutResponse,
+  TermsAndConditionsPaginator,
+  TermsAndConditionsQueryOptions,
   TopShopQueryOptions,
-  Attachment,
-  WishlistQueryOption,
-  WishlistPaginator,
-  Wishlist,
-  ReviewQueryOptions,
-  Review,
-  CreateReviewInput,
-  ReviewResponse,
-  UpdateReviewInput,
-  ReviewPaginator,
-  QuestionQueryOptions,
-  QuestionPaginator,
-  CreateQuestionInput,
-  CreateFeedbackInput,
-  Feedback,
-  CreateAbuseReportInput,
-  WishlistQueryOptions,
-  MyReportsQueryOptions,
-  MyQuestionQueryOptions,
-  GetParams,
-  SettingsQueryOptions,
-  TypeQueryOptions,
   Type,
-  PaymentIntentCollection,
-  CreateOrderPaymentInput,
-  Card,
+  TypeQueryOptions,
+  UpdateProfileInput,
+  UpdateReviewInput,
+  User,
+  VerifiedCheckoutResponse,
+  VerifyForgetPasswordTokenInput,
+  Wishlist,
+  WishlistQueryOptions,
 } from '@/types';
+import { FollowedShopsQueryOptions } from '@/types';
 import { API_ENDPOINTS } from './endpoints';
 import { HttpClient } from './http-client';
-import { FollowedShopsQueryOptions } from '@/types';
 
 class Client {
   products = {
@@ -176,7 +179,10 @@ class Client {
       HttpClient.post<any>(API_ENDPOINTS.SAVE_PAYMENT_METHOD, input),
   };
   users = {
-    me: () => HttpClient.get<User>(API_ENDPOINTS.USERS_ME),
+    me: () =>
+      HttpClient.get<User>(API_ENDPOINTS.USERS_ME, {
+        with: 'permissions',
+      }),
     update: (user: UpdateProfileInput) =>
       HttpClient.put<User>(`${API_ENDPOINTS.USERS}/${user.id}`, user),
     login: (input: LoginUserInput) =>
@@ -295,7 +301,6 @@ class Client {
     toggle: (input: { shop_id: string }) =>
       HttpClient.post<boolean>(API_ENDPOINTS.FOLLOW_SHOP, input),
     followedShopProducts: (params: Partial<FollowedShopsQueryOptions>) => {
-      console.log(params);
       return HttpClient.get<Product[]>(API_ENDPOINTS.FOLLOWED_SHOPS_PRODUCTS, {
         ...params,
       });
@@ -317,6 +322,8 @@ class Client {
         },
       });
     },
+    subscribe: (input: { email: string }) =>
+      HttpClient.post<any>(API_ENDPOINTS.USERS_SUBSCRIBE_TO_NEWSLETTER, input),
   };
   cards = {
     all: (params?: any) =>
@@ -327,6 +334,45 @@ class Client {
       HttpClient.post<any>(API_ENDPOINTS.CARDS, method_key),
     makeDefaultPaymentMethod: (input: any) =>
       HttpClient.post<any>(API_ENDPOINTS.SET_DEFAULT_CARD, input),
+  };
+  termsAndConditions = {
+    // all: (params?: any) =>
+    //   HttpClient.get<FAQS[]>(API_ENDPOINTS.FAQS, { ...params }),
+    all: ({
+      type,
+      issued_by,
+      ...params
+    }: Partial<TermsAndConditionsQueryOptions>) =>
+      HttpClient.get<TermsAndConditionsPaginator>(
+        API_ENDPOINTS.TERMS_AND_CONDITIONS,
+        {
+          searchJoin: 'and',
+          ...params,
+          search: HttpClient.formatSearchParams({
+            type,
+            issued_by,
+          }),
+          with: 'shop',
+        }
+      ),
+    get: (id: string) =>
+      HttpClient.get<FAQS>(`${API_ENDPOINTS.TERMS_AND_CONDITIONS}/${id}`),
+  };
+  faqs = {
+    all: ({
+      faq_type,
+      issued_by,
+      shop_id,
+      ...params
+    }: Partial<FaqsQueryOptions>) =>
+      HttpClient.get<FaqsPaginator>(API_ENDPOINTS.FAQS, {
+        ...params,
+        search: HttpClient.formatSearchParams({
+          // faq_type,
+          issued_by,
+          shop_id,
+        }),
+      }),
   };
 }
 

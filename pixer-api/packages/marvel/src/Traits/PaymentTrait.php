@@ -10,14 +10,16 @@ use Marvel\Database\Models\Settings;
 use Marvel\Exceptions\MarvelException;
 use Marvel\Database\Models\PaymentMethod;
 use Marvel\Database\Models\PaymentIntent;
+use Marvel\Enums\OrderStatus;
 use Marvel\Enums\PaymentGatewayType;
+use Marvel\Enums\PaymentStatus;
 use Marvel\Events\PaymentMethods;
 use Marvel\Facades\Payment;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 trait PaymentTrait
 {
-
+    use OrderStatusManagerWithPaymentTrait;
     /**
      * attachPaymentIntent
      *
@@ -353,6 +355,9 @@ trait PaymentTrait
      */
     public function webhookSuccessResponse($order, $order_status, $payment_status)
     {
+        $isFinal = $this->checkOrderStatusIsFinal($order);
+        if ($isFinal) return;
+
         $order->order_status = $order_status;
         $order->payment_status = $payment_status;
         $order->save();
@@ -368,5 +373,6 @@ trait PaymentTrait
                 $child_order->save();
             }
         }
+        $this->orderStatusManagementOnPayment($order, OrderStatus::PROCESSING, $payment_status);
     }
 }

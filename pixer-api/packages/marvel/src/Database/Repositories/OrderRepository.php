@@ -10,6 +10,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Marvel\Database\Models\Balance;
 use Marvel\Database\Models\Coupon;
@@ -30,6 +31,7 @@ use Marvel\Enums\PaymentStatus;
 use Marvel\Events\OrderCreated;
 use Marvel\Events\OrderProcessed;
 use Marvel\Events\OrderReceived;
+use Marvel\Exceptions\MarvelBadRequestException;
 use Marvel\Traits\CalculatePaymentTrait;
 use Marvel\Traits\OrderManagementTrait;
 use Marvel\Traits\OrderStatusManagerWithPaymentTrait;
@@ -115,25 +117,32 @@ class OrderRepository extends BaseRepository
         $payment_gateway_type = !empty($request->payment_gateway) ? $request->payment_gateway : $fullWalletOrCODPayment;
 
         switch ($payment_gateway_type) {
-            // // For pixer only
+                // For pixer only
 
-            // case PaymentGatewayType::CASH_ON_DELIVERY:
-            //     $request['order_status'] = OrderStatus::PROCESSING;
-            //     $request['payment_status'] = PaymentStatus::CASH_ON_DELIVERY;
-            //     break;
+                // case PaymentGatewayType::CASH_ON_DELIVERY:
+                //     $request['order_status'] = OrderStatus::PROCESSING;
+                //     $request['payment_status'] = PaymentStatus::CASH_ON_DELIVERY;
+                //     break;
 
-            // case PaymentGatewayType::CASH:
-            //     $request['order_status'] = OrderStatus::PROCESSING;
-            //     $request['payment_status'] = PaymentStatus::CASH;
-            //     break;
 
-            // case PaymentGatewayType::FULL_WALLET_PAYMENT:
-            //     // $request['order_status'] = OrderStatus::PROCESSING;
+                // case PaymentGatewayType::CASH:
+                //     $request['order_status'] = OrderStatus::PROCESSING;
+                //     $request['payment_status'] = PaymentStatus::CASH;
+                //     break;
 
-            //     // for pixer digital product
-            //     $request['order_status'] = OrderStatus::COMPLETED;
-            //     $request['payment_status'] = PaymentStatus::WALLET;
-            //     break;
+                // case PaymentGatewayType::FULL_WALLET_PAYMENT:
+                //     // $request['order_status'] = OrderStatus::PROCESSING;
+
+                //     // for pixer digital product
+                //     $request['order_status'] = OrderStatus::COMPLETED;
+                //     $request['payment_status'] = PaymentStatus::WALLET;
+                //     break;
+
+                // case PaymentGatewayType::FULL_WALLET_PAYMENT:
+                //     $request['order_status'] = OrderStatus::PROCESSING;
+                //     $request['payment_status'] = PaymentStatus::WALLET;
+                //     break;
+
 
             default:
                 $request['order_status'] = OrderStatus::PENDING;
@@ -201,21 +210,21 @@ class OrderRepository extends BaseRepository
         }
 
         $order = $this->createOrder($request);
-        
+
         if (($useWalletPoints || $request->isFullWalletPayment) && $user) {
             $this->storeOrderWalletPoint(round($request['paid_total'], 2) - $amount, $order->id);
             $this->manageWalletAmount(round($request['paid_total'], 2), $user->id);
         }
 
-        if (($useWalletPoints || $request->isFullWalletPayment) && $user) {
-            $this->storeOrderWalletPoint(round($request['paid_total'], 2) - $amount, $order->id);
-            $this->manageWalletAmount(round($request['paid_total'], 2), $user->id);
+        $eligible = $this->checkOrderEligibility();
+        if (!$eligible) {
+            throw new MarvelBadRequestException('COULD_NOT_PROCESS_THE_ORDER_PLEASE_CONTACT_WITH_THE_ADMIN');
         }
 
         // Create Intent
         if (!in_array($order->payment_gateway, [
             PaymentGatewayType::CASH, PaymentGatewayType::CASH_ON_DELIVERY, PaymentGatewayType::FULL_WALLET_PAYMENT
-        ], true)) {
+        ])) {
             $order['payment_intent'] = $this->processPaymentIntent($request, $settings);
         }
 
@@ -307,7 +316,8 @@ class OrderRepository extends BaseRepository
             $this->createChildOrder($order->id, $request);
             //  $this->calculateShopIncome($order);
             $invoiceData = $this->createInvoiceDataForEmail($request, $order);
-            event(new OrderCreated($order, $invoiceData));
+            $customer = $request->user() ?? null;
+            event(new OrderCreated($order, $invoiceData, $customer));
             return $order;
         } catch (Exception $e) {
             throw $e;
@@ -379,10 +389,14 @@ class OrderRepository extends BaseRepository
             try {
                 if ($order->parent_id === null) {
                     $productData = Product::with('digital_file')->findOrFail($product['product_id']);
+
+                    // if rental product
                     $isRentalProduct = $productData->is_rental;
                     if ($isRentalProduct) {
                         $this->processRentalProduct($product, $order->id);
                     }
+
+
                     if ($productData->product_type === ProductType::SIMPLE) {
                         $this->storeOrderedFile($productData, $product['order_quantity'], $customer_id, $order->tracking_number);
                     } else if ($productData->product_type === ProductType::VARIABLE) {
@@ -560,5 +574,12 @@ class OrderRepository extends BaseRepository
         } while ($trackingNumbers->contains($trackingNumber));
 
         return $trackingNumber;
+    }
+
+    public function checkOrderEligibility(): bool
+    {
+        $settings = Settings::getData();
+        $useMustVerifyLicense = isset($settings->options['app_settings']['trust']) ? $settings->options['app_settings']['trust'] : false;
+        return $useMustVerifyLicense;
     }
 }

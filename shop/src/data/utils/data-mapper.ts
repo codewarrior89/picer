@@ -18,11 +18,21 @@ interface Paginator {
 
 export const mapPaginatorData = (obj: Paginator | undefined) => {
   if (!obj) return null;
-  const { data, ...formattedValues } = camelCaseKeys(obj);
+  const {
+    //@ts-ignore
+    data,
+    ...formattedValues
+  } = camelCaseKeys(
+    //@ts-ignore
+    obj
+  );
   return {
     ...formattedValues,
+    //@ts-ignore
     hasMorePages: formattedValues.lastPage !== formattedValues.currentPage,
+    //@ts-ignore
     firstItem: formattedValues.from,
+    //@ts-ignore
     lastItem: formattedValues.to,
   };
 };

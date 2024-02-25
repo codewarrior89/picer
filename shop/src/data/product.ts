@@ -67,9 +67,6 @@ export function useProducts(
 
 export function useProduct(slug: string) {
   const { locale: language } = useRouter();
-
-  // console.log({ slug, language });
-
   const { data, isLoading, error } = useQuery<Product, Error>(
     [API_ENDPOINTS.PRODUCTS, { slug, language }],
     () => client.products.get({ slug, language })

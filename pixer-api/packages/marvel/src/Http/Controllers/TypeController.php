@@ -9,6 +9,7 @@ use Marvel\Database\Models\Type;
 use Marvel\Database\Repositories\TypeRepository;
 use Marvel\Exceptions\MarvelException;
 use Marvel\Http\Requests\TypeRequest;
+use Marvel\Http\Resources\TypeResource;
 use Prettus\Validator\Exceptions\ValidatorException;
 
 class TypeController extends CoreController
@@ -30,7 +31,8 @@ class TypeController extends CoreController
     public function index(Request $request)
     {
         $language = $request->language ?? DEFAULT_LANGUAGE;
-        return $this->repository->where('language', $language)->get();
+        $types = $this->repository->where('language', $language)->get();
+        return TypeResource::collection($types);
     }
 
     /**
@@ -62,9 +64,11 @@ class TypeController extends CoreController
             $language = $request->language ?? DEFAULT_LANGUAGE;
             if (is_numeric($params)) {
                 $params = (int) $params;
-                return $this->repository->where('id', $params)->with('banners')->firstOrFail();
+                $type = $this->repository->where('id', $params)->with('banners')->firstOrFail();
+                return new TypeResource($type);
             }
-            return $this->repository->where('slug', $params)->where('language', $language)->with('banners')->firstOrFail();
+            $type = $this->repository->where('slug', $params)->where('language', $language)->with('banners')->firstOrFail();
+            return new TypeResource($type);
         } catch (MarvelException $e) {
             throw new MarvelException(NOT_FOUND);
         }

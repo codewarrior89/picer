@@ -1,8 +1,12 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 use Marvel\Database\Models\User;
 use Marvel\Enums\Permission;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 
 if (!function_exists('gateway_path')) {
     /**
@@ -44,23 +48,28 @@ if (!function_exists('gateway_path')) {
          * 
          * @return string slug is being returned.
          */
-        function globalSlugify(string $slugText, string $model, string $key = '', string $divider = '-'): string
+        function globalSlugify(string $slugText, string $model, string $key = '', string $divider = '-', ?int $update = null): string
         {
             try {
+                if ($update) {
+                    $query = $model::where('id', '!=', $update);
+                } else {
+                    $query = $model::query();
+                }
                 $cleanString      = preg_replace("/[~`{}.'\"\!\@\#\$\%\^\&\*\(\)\_\=\+\/\?\>\<\,\[\]\:\;\|\\\]/", "", $slugText);
                 $cleanString = preg_replace("/[\/_|+ -]+/", '-', $slugText);
                 $slug = strtolower($cleanString);
                 if ($key) {
-                    $slugCount = $model::where($key, $slug)->orWhere($key, 'like',  $slug . '%')->count();
+                    $slugCount = $query->where($key, $slug)->count();
                 } else {
-                    $slugCount = $model::where('slug', $slug)->orWhere('slug', 'like',  $slug . '%')->count();
+                    $slugCount = $query->where('slug', $slug)->count();
                 }
+                $randomString = Str::random(3);
 
                 if (empty($slugCount)) {
+                    $slug = is_numeric($slug) ? "{$slug}{$divider}{$randomString}" : $slug;
                     return $slug;
                 }
-                // return $slug . $divider . $slugCount;
-                $randomString = Str::random(3);
                 return "{$slug}{$divider}{$randomString}";
             } catch (\Throwable $th) {
                 throw $th;
@@ -95,6 +104,44 @@ if (!function_exists('gateway_path')) {
         }
     }
 
+    if (!function_exists('formatAPIResourcePaginate')) {
+        function formatAPIResourcePaginate($data)
+        {
+            return response()->json([
+                "data"           => $data['data'] ?? [],
+                "current_page"   => $data['meta']['current_page'] ?? 0,
+                "from"           => $data['meta']['from'] ?? 0,
+                "to"             => $data['meta']['to'] ?? 0,
+                "last_page"      => $data['meta']['last_page'] ?? 0,
+                "path"           => $data['meta']['path'] ?? "",
+                "per_page"       => $data['meta']['per_page'] ?? 0,
+                "total"          => $data['meta']['total'] ?? 0,
+                "next_page_url"  => $data['links']['next'] ?? "",
+                "prev_page_url"  => $data['links']['prev'] ?? "",
+                "last_page_url"  => $data['links']['last'] ?? "",
+                "first_page_url" => $data['links']['first'] ?? "",
+            ]);
+        }
+    }
+    if (!function_exists('formatLicenseAPIResourcePaginate')) {
+        function formatLicenseAPIResourcePaginate($data)
+        {
+            return [
+                "data"           => $data['data'] ?? [],
+                "current_page"   => $data['meta']['current_page'] ?? 0,
+                "from"           => $data['meta']['from'] ?? 0,
+                "to"             => $data['meta']['to'] ?? 0,
+                "last_page"      => $data['meta']['last_page'] ?? 0,
+                "path"           => $data['meta']['path'] ?? "",
+                "per_page"       => $data['meta']['per_page'] ?? 0,
+                "total"          => $data['meta']['total'] ?? 0,
+                "next_page_url"  => $data['links']['next'] ?? "",
+                "prev_page_url"  => $data['links']['prev'] ?? "",
+                "last_page_url"  => $data['links']['last'] ?? "",
+                "first_page_url" => $data['links']['first'] ?? "",
+            ];
+        }
+    }
     if (!function_exists("Role")) {
 
         function Role(User $user): string
@@ -108,6 +155,39 @@ if (!function_exists('gateway_path')) {
             } else {
                 return Permission::CUSTOMER;
             }
+        }
+    }
+
+
+
+
+    if (!function_exists("getConfig")) {
+        function getConfig(): array | bool
+        {
+            try {
+                $folderPath =  storage_path('app/shop/');
+                if (!File::exists($folderPath)) {
+                    File::makeDirectory($folderPath, 0777, true, true);
+                }
+                $fileName = $folderPath . "shop.config.json";
+                if (file_exists($fileName)) {
+                    $json_data = file_get_contents($fileName);
+                    $data = Crypt::decrypt($json_data);
+                    $json_data_to_array = json_decode($data, true);
+                    return $json_data_to_array;
+                }
+                return false;
+            } catch (Exception $e) {
+                return false;
+            }
+        }
+    }
+
+    if (!function_exists("formatCurrency")) {
+        function formatCurrency(float $amount, string $currency = "USD", string $locale = "en_US")
+        {
+            $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
+            return $formatter->formatCurrency($amount, $currency);
         }
     }
 }

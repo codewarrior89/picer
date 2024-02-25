@@ -25,7 +25,7 @@ import '@/assets/css/globals.css';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { getDirection } from '@/lib/constants';
-
+import Maintenance from '@/components/maintenance/layout';
 const PrivateRoute = dynamic(() => import('@/layouts/_private-route'), {
   ssr: false,
 });
@@ -63,13 +63,15 @@ function CustomApp({ Component, pageProps }: AppPropsWithLayout) {
                 >
                   <>
                     <DefaultSeo />
-                    {authenticationRequired ? (
-                      <PrivateRoute>
-                        {getLayout(<Component {...pageProps} />)}
-                      </PrivateRoute>
-                    ) : (
-                      getLayout(<Component {...pageProps} />)
-                    )}
+                    <Maintenance>
+                      {authenticationRequired ? (
+                        <PrivateRoute>
+                          {getLayout(<Component {...pageProps} />)}
+                        </PrivateRoute>
+                      ) : (
+                        getLayout(<Component {...pageProps} />)
+                      )}
+                    </Maintenance>
                     <SearchView />
                     <ModalsContainer />
                     <DrawersContainer />

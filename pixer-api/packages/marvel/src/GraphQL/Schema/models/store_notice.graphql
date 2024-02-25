@@ -6,6 +6,8 @@ extend type Query {
         id: ID @where(operator: "=", key: "id")
         orderBy: String
         sortedBy: String
+        search: String
+        searchJoin: String = "AND"
     ): [StoreNotice]
         @paginate(
             builder: "Marvel\\GraphQL\\Queries\\StoreNoticeQuery@fetchStoreNotices"
@@ -61,6 +63,10 @@ input CreateStoreNoticeInput {
     priority: String!
     notice: String!
     description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     effective_from: String
     expired_at: String!
     type: String!
@@ -71,6 +77,10 @@ input UpdateStoreNoticeInput {
     priority: String!
     notice: String!
     description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     effective_from: String
     expired_at: String!
     type: String!

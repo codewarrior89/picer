@@ -9,7 +9,9 @@ import { useUploadMutation } from '@/data/upload';
 import Image from 'next/image';
 import { zipPlaceholder } from '@/utils/placeholders';
 import { ACCEPTED_FILE_TYPES } from '@/utils/constants';
+import classNames from 'classnames';
 // import { processFileWithName } from '../product/form-utils';
+import cn from 'classnames';
 
 const getPreviewImage = (value: any) => {
   let images: any[] = [];
@@ -24,7 +26,9 @@ export default function Uploader({
   multiple,
   acceptFile,
   helperText,
-  maxSize
+  maxSize,
+  maxFiles,
+  disabled,
 }: any) {
   const { t } = useTranslation();
   const [files, setFiles] = useState<Attachment[]>(getPreviewImage(value));
@@ -33,10 +37,10 @@ export default function Uploader({
   const { getRootProps, getInputProps } = useDropzone({
     ...(!acceptFile
       ? {
-        accept: {
-          'image/*': ['.jpg', '.jpeg', '.png', '.webp',],
-        },
-      }
+          accept: {
+            'image/*': ['.jpg', '.jpeg', '.png', '.webp'],
+          },
+        }
       : { ...ACCEPTED_FILE_TYPES }),
     multiple,
     onDrop: async (acceptedFiles) => {
@@ -68,12 +72,12 @@ export default function Uploader({
                 onChange(mergedData);
               }
             },
-          }
+          },
         );
       }
     },
+    // maxFiles: 2,
     maxSize: maxSize,
-
     onDropRejected: (fileRejections) => {
       fileRejections.forEach((file) => {
         file?.errors?.forEach((error) => {
@@ -110,7 +114,9 @@ export default function Uploader({
     // let filename, fileType, isImage;
     if (file && file.id) {
       // const processedFile = processFileWithName(file);
-      const splitArray = file?.file_name ? file?.file_name.split('.') : file?.thumbnail?.split('.');
+      const splitArray = file?.file_name
+        ? file?.file_name.split('.')
+        : file?.thumbnail?.split('.');
       const fileType = splitArray?.pop(); // it will pop the last item from the fileSplitName arr which is the file ext
       const filename = splitArray?.join('.'); // it will join the array with dot, which restore the original filename
       const isImage = file?.thumbnail && imgTypes.includes(fileType); // check if the original filename has the img ext
@@ -125,9 +131,11 @@ export default function Uploader({
 
       return (
         <div
-          className={`relative mt-2 inline-flex flex-col overflow-hidden rounded me-2 ${
-            isImage ? 'border border-border-200' : ''
-          }`}
+          className={cn(
+            'relative mt-2 inline-flex flex-col overflow-hidden rounded me-2',
+            isImage ? 'border border-border-200' : '',
+            disabled ? 'cursor-not-allowed border-[#D4D8DD] bg-[#EEF1F4]' : '',
+          )}
           key={idx}
         >
           {/* {file?.thumbnail && isImage ? ( */}
@@ -140,13 +148,13 @@ export default function Uploader({
             //     alt="uploaded image"
             //   />
             // </div>
-            <figure className="relative h-16 w-28">
+            <figure className="relative flex items-center justify-center h-16 w-28 aspect-square">
               <Image
                 src={file.thumbnail}
                 alt={filename}
                 fill
                 sizes="(max-width: 768px) 100vw"
-                className="object-contain"
+                className="object-cover"
               />
             </figure>
           ) : (
@@ -170,14 +178,30 @@ export default function Uploader({
               </p>
             </div>
           )}
+
+          {/* // TODO : this uploader component needs to be checked in pixer */}
+
           {multiple ? (
+            <button
+              className="absolute top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs text-light shadow-xl outline-none end-1"
+              onClick={() => handleDelete(file.thumbnail)}
+            >
+              <CloseIcon width={10} height={10} />
+            </button>
+          ) : null}
+
+          {/* {multiple ? (
+          ) : null} */}
+          {!disabled ? (
             <button
               className="absolute flex items-center justify-center w-4 h-4 text-xs bg-red-600 rounded-full shadow-xl outline-none top-1 text-light end-1"
               onClick={() => handleDelete(file.thumbnail)}
             >
               <CloseIcon width={10} height={10} />
             </button>
-          ) : null}
+          ) : (
+            ''
+          )}
         </div>
       );
     }
@@ -191,18 +215,22 @@ export default function Uploader({
       // Make sure to revoke the data uris to avoid memory leaks
       files.forEach((file: any) => URL.revokeObjectURL(file.thumbnail));
     },
-    [files]
+    [files],
   );
 
   return (
     <section className="upload">
       <div
         {...getRootProps({
-          className:
-            'border-dashed border-2 border-border-base h-36 rounded flex flex-col justify-center items-center cursor-pointer focus:border-accent-400 focus:outline-none',
+          className: classNames(
+            'border-dashed border-2 border-border-base h-36 rounded flex flex-col justify-center items-center cursor-pointer focus:border-accent-400 focus:outline-none relative',
+            disabled
+              ? 'pointer-events-none select-none opacity-80 bg-[#EEF1F4]'
+              : 'cursor-pointer',
+          ),
         })}
       >
-        <input {...getInputProps()} />
+        {!disabled ? <input {...getInputProps()} /> : ''}
         <UploadIcon className="text-muted-light" />
         <p className="mt-4 text-sm text-center text-body">
           {helperText ? (
@@ -218,9 +246,7 @@ export default function Uploader({
           )}
         </p>
         {error && (
-          <p className="mt-4 text-sm text-center text-red-600 text-body">
-            {error}
-          </p>
+          <p className="mt-4 text-sm text-center text-red-600">{error}</p>
         )}
       </div>
 

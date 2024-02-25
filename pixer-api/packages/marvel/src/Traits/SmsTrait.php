@@ -11,6 +11,7 @@ use Marvel\Database\Models\Settings;
 use Marvel\Database\Models\User;
 use Marvel\Enums\EventType;
 use Marvel\Enums\Permission;
+use Marvel\Exceptions\MarvelException;
 use Marvel\Otp\Gateways\OtpGateway;
 
 trait SmsTrait
@@ -99,7 +100,6 @@ trait SmsTrait
         } catch (Exception $e) {
             // do nothing
             info('This exception info is from SmsTrait sendSmsOnOrderEvent method');
-            logger($e);
         }
     }
 
@@ -134,18 +134,16 @@ trait SmsTrait
      */
     public function adminList(): Collection
     {
-        $query = DB::table('users')
-            ->join('model_has_permissions', 'users.id', '=', 'model_has_permissions.model_id')
-            ->join('permissions', 'model_has_permissions.permission_id', '=', 'permissions.id')
-            ->select('users.*', 'permissions.name as permission_name')
-            ->get();
-        $adminIds = $query->where('permission_name', Permission::SUPER_ADMIN)->pluck('id');
-        return User::with('profile')->whereIn('id', $adminIds)->get();
+        return User::permission(Permission::SUPER_ADMIN)->get();
     }
 
     public function getWhichUserWillGetEmail($emailEventName, $language): array
     {
-        return $this->getWhichUserWillGetEventSmsOrEmail($emailEventName, 'emailEvent', $language);
+        try {
+            return $this->getWhichUserWillGetEventSmsOrEmail($emailEventName, 'emailEvent', $language);
+        } catch (Exception $th) {
+            \Log::debug($th);
+        }
     }
 
     public function getWhichUserWillGetEventSmsOrEmail(string $eventName, string $eventType, string $language): array

@@ -9,11 +9,19 @@ export const Routes = {
   profile: '/profile',
   verifyCoupons: '/coupons/verify',
   settings: '/settings',
+  paymentSettings: '/settings/payment',
+  seoSettings: '/settings/seo',
+  eventSettings: '/settings/events',
+  shopSettings: '/settings/shop',
+  companyInformation: '/settings/company-information',
+  maintenance: '/settings/maintenance',
+  promotionPopup: '/settings/promotion-popup',
   storeSettings: '/vendor/settings',
   storeKeepers: '/vendor/store_keepers',
   profileUpdate: '/profile-update',
   checkout: '/orders/checkout',
   verifyEmail: '/verify-email',
+  verifyLicense: '/verify-license',
   user: {
     ...routesFactory('/users'),
   },
@@ -92,6 +100,65 @@ export const Routes = {
   conversations: {
     ...routesFactory('/message/conversations'),
   },
+  storeNotice: {
+    ...routesFactory('/store-notices'),
+  },
+  storeNoticeRead: {
+    ...routesFactory('/store-notices/read'),
+  },
+  notifyLogs: {
+    ...routesFactory('/notify-logs'),
+  },
+  faqs: {
+    ...routesFactory('/faqs'),
+  },
+  refundPolicies: {
+    ...routesFactory('/refund-policies'),
+  },
+  refundReasons: {
+    ...routesFactory('/refund-reasons'),
+  },
+  newShops: '/new-shops',
+  draftProducts: '/products/draft',
+  outOfStockOrLowProducts: '/products/product-stock',
+  productInventory: '/products/inventory',
+  transaction: '/orders/transaction',
+  termsAndCondition: {
+    ...routesFactory('/terms-and-conditions'),
+  },
+  adminList: '/users/admins',
+  vendorList: '/users/vendors',
+  pendingVendorList: '/users/vendors/pending',
+  customerList: '/users/customer',
+  myStaffs: '/users/my-staffs',
+  vendorStaffs: '/users/vendor-staffs',
+  flashSale: {
+    ...routesFactory('/flash-sale'),
+  },
+  ownerDashboardNotice: '/notice',
+  ownerDashboardMessage: '/owner-message',
+  ownerDashboardMyShop: '/my-shop',
+  myProductsInFlashSale: '/flash-sale/my-products',
+  ownerDashboardNotifyLogs: '/notify-logs',
+  inventory: {
+    editWithoutLang: (slug: string, shop?: string) => {
+      return shop ? `/${shop}/products/${slug}/edit` : `/products/${slug}/edit`;
+    },
+    edit: (slug: string, language: string, shop?: string) => {
+      return shop
+        ? `/${language}/${shop}/products/${slug}/edit`
+        : `/${language}/products/${slug}/edit`;
+    },
+    translate: (slug: string, language: string, shop?: string) => {
+      return shop
+        ? `/${language}/${shop}/products/${slug}/translate`
+        : `/${language}/products/${slug}/translate`;
+    },
+  },
+  visitStore: (slug: string) => `${process.env.NEXT_PUBLIC_SHOP_URL}/${slug}`,
+  vendorRequestForFlashSale: {
+    ...routesFactory('/flash-sale/vendor-request'),
+  },
 };
 
 function routesFactory(endpoint: string) {
@@ -114,5 +181,8 @@ function routesFactory(endpoint: string) {
         : `${language}${endpoint}/${slug}/translate`;
     },
     details: (slug: string) => `${endpoint}/${slug}`,
+    editByIdWithoutLang: (id: string, shop?: string) => {
+      return shop ? `/${shop}${endpoint}/${id}/edit` : `${endpoint}/${id}/edit`;
+    },
   };
 }

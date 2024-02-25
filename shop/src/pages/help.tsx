@@ -1,17 +1,29 @@
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import Help from '@/components/authors/help';
+import ErrorMessage from '@/components/ui/error-message';
+import PageHeading from '@/components/ui/page-heading';
+import routes from '@/config/routes';
+import { useFAQs } from '@/data/faq';
+import GeneralContainer from '@/layouts/_general-container';
+import GeneralLayout from '@/layouts/_general-layout';
+import Seo from '@/layouts/_seo';
+import type { NextPageWithLayout } from '@/types';
 import type { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
-import type { NextPageWithLayout } from '@/types';
-import GeneralLayout from '@/layouts/_general-layout';
-import PageHeading from '@/components/ui/page-heading';
-import GeneralContainer from '@/layouts/_general-container';
-import Accordion from '@/components/ui/accordion';
-import Seo from '@/layouts/_seo';
-import { helpData } from '@/data/static/help-setting';
-import routes from '@/config/routes';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 const HelpPage: NextPageWithLayout = () => {
   const { t } = useTranslation('common');
+  const { faqs, isLoading, error, loadMore, hasNextPage, isLoadingMore } =
+    useFAQs({
+      faq_type: 'global',
+      issued_by: 'Super Admin',
+      limit: 10,
+      orderBy: 'created_at',
+      sortedBy: 'DESC',
+    });
+
+  if (error) return <ErrorMessage message={error?.message} />;
+
   return (
     <>
       <Seo
@@ -25,9 +37,13 @@ const HelpPage: NextPageWithLayout = () => {
           subtitle={t('text-help-page-subtitle')}
         />
         <GeneralContainer>
-          {helpData?.map((item) => (
-            <Accordion key={`${item.title}-${item.id}`} item={item} />
-          ))}
+          <Help
+            faqs={faqs}
+            hasMore={Boolean(hasNextPage)}
+            isLoading={isLoading}
+            isLoadingMore={isLoadingMore}
+            loadMore={loadMore}
+          />
         </GeneralContainer>
       </div>
     </>

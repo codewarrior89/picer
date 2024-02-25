@@ -8,6 +8,11 @@ input ContactInput {
     email: String!
     name: String!
     description: String!
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
+    emailTo: String
 }
 
 extend type Mutation {

@@ -7,7 +7,7 @@ import type {
   UnpackNestedValue,
   DeepPartial,
 } from 'react-hook-form';
-import type { SchemaOf } from 'yup';
+import type { Schema } from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect } from 'react';
@@ -19,7 +19,7 @@ type FormProps<TFormValues extends FieldValues> = {
   onSubmit: SubmitHandler<TFormValues>;
   children: (methods: UseFormReturn<TFormValues>) => React.ReactNode;
   useFormProps?: UseFormProps<TFormValues>;
-  validationSchema?: SchemaOf<TFormValues>;
+  validationSchema?: Schema<TFormValues> | any;
   serverError?: ServerErrors<Partial<TFormValues>> | null;
   resetFields?: any | null;
   [key: string]: unknown;

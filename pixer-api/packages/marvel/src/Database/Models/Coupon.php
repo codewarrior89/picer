@@ -5,6 +5,7 @@ namespace Marvel\Database\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Marvel\Traits\TranslationTrait;
@@ -19,7 +20,6 @@ class Coupon extends Model
     public $guarded = [];
 
     // protected $appends = ['is_valid'];
-    // TODO: use it latter
     protected $appends = ['is_valid', 'translated_languages'];
 
     protected $casts = [
@@ -49,5 +49,20 @@ class Coupon extends Model
     public function getIsValidAttribute()
     {
         return Carbon::now()->between($this->active_from, $this->expire_at);
+    }
+        /**
+     * @return BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function shop(): BelongsTo
+    {
+        return $this->belongsTo(Shop::class);
     }
 }

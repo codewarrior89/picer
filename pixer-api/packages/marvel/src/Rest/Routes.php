@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use Marvel\Enums\Permission;
 use Marvel\Http\Controllers\AbusiveReportController;
@@ -17,7 +18,10 @@ use Marvel\Http\Controllers\ConversationController;
 use Marvel\Http\Controllers\CouponController;
 use Marvel\Http\Controllers\DeliveryTimeController;
 use Marvel\Http\Controllers\DownloadController;
+use Marvel\Http\Controllers\FaqsController;
 use Marvel\Http\Controllers\FeedbackController;
+use Marvel\Http\Controllers\FlashSaleController;
+use Marvel\Http\Controllers\FlashSaleVendorRequestController;
 use Marvel\Http\Controllers\ManufacturerController;
 use Marvel\Http\Controllers\MessageController;
 use Marvel\Http\Controllers\OrderController;
@@ -39,13 +43,22 @@ use Marvel\Http\Controllers\WebHookController;
 use Marvel\Http\Controllers\WishlistController;
 use Marvel\Http\Controllers\WithdrawController;
 use Marvel\Http\Controllers\LanguageController;
+use Marvel\Http\Controllers\NotifyLogsController;
+use Marvel\Http\Controllers\RefundPolicyController;
+use Marvel\Http\Controllers\RefundReasonController;
 use Marvel\Http\Controllers\StoreNoticeController;
+use Marvel\Http\Controllers\TermsAndConditionsController;
+
+// use Illuminate\Support\Facades\Auth;
 
 /**
  * ******************************************
  * Available Public Routes
  * ******************************************
  */
+
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
+
 Route::get('/email/verify/{id}/{hash}', [UserController::class, 'verifyEmail'])->name('verification.verify');
 
 Route::post('/register', [UserController::class, 'register']);
@@ -91,6 +104,8 @@ Route::post('webhooks/coinbase', [WebHookController::class, 'coinbase']);
 Route::post('webhooks/bkash', [WebHookController::class, 'bkash']);
 Route::post('webhooks/flutterwave', [WebHookController::class, 'flutterwave']);
 
+Route::post('license-key/verify', [UserController::class, 'verifyLicenseKey']);
+
 Route::get('callback/flutterwave', [WebHookController::class, 'callback'])->name('callback.flutterwave');
 
 Route::get('near-by-shop/{lat}/{lng}', [ShopController::class, 'nearByShop']);
@@ -116,6 +131,9 @@ Route::apiResource('languages', LanguageController::class, [
     'only' => ['index', 'show']
 ]);
 Route::apiResource('tags', TagController::class, [
+    'only' => ['index', 'show'],
+]);
+Route::apiResource('refund-reasons', RefundReasonController::class, [
     'only' => ['index', 'show'],
 ]);
 Route::apiResource('resources', ResourceController::class, [
@@ -161,6 +179,22 @@ Route::post('/email/verification-notification', [UserController::class, 'sendVer
 Route::post('orders/payment', [OrderController::class, 'submitPayment']);
 Route::post('generate-descriptions', [AiController::class, 'generateDescription']);
 Route::get('/payment-intent', [PaymentIntentController::class, 'getPaymentIntent']);
+
+Route::apiResource('faqs', FaqsController::class, [
+    'only' => ['index', 'show'],
+]);
+
+Route::apiResource('terms-and-conditions', TermsAndConditionsController::class, [
+    'only' => ['index', 'show'],
+]);
+
+Route::apiResource('flash-sale', FlashSaleController::class, [
+    'only' => ['index', 'show'],
+]);
+
+Route::resource('refund-policies', RefundPolicyController::class, [
+    'only' => ['index', 'show'],
+]);
 
 /**
  * ******************************************
@@ -234,6 +268,10 @@ Route::group(['middleware' => ['can:' . Permission::CUSTOMER, 'auth:sanctum', 'e
     ]);
     Route::post('/set-default-card', [PaymentMethodController::class, 'setDefaultCard']);
     Route::post('/save-payment-method', [PaymentMethodController::class, 'savePaymentMethod']);
+    // Route::apiResource('faqs', FaqsController::class, [
+    //     'only' => ['index', 'show'],
+    // ]);
+
 });
 
 /**
@@ -284,6 +322,25 @@ Route::group(
 
         Route::get('export-order-url/{shop_id?}', 'Marvel\Http\Controllers\OrderController@exportOrderUrl');
         Route::post('download-invoice-url', 'Marvel\Http\Controllers\OrderController@downloadInvoiceUrl');
+        Route::apiResource('faqs', FaqsController::class, [
+            'only' => ['store', 'update', 'destroy'],
+        ]);
+        Route::get('analytics', [AnalyticsController::class, 'analytics']);
+        Route::get('low-stock-products', [AnalyticsController::class, 'lowStockProducts']);
+        Route::get('category-wise-product', [AnalyticsController::class, 'categoryWiseProduct']);
+        Route::get('category-wise-product-sale', [AnalyticsController::class, 'categoryWiseProductSale']);
+        Route::get('draft-products', [ProductController::class, 'draftedProducts']);
+        Route::get('products-stock', [ProductController::class, 'productStock']);
+        Route::get('products-by-flash-sale', [FlashSaleController::class, 'getProductsByFlashSale']);
+        Route::get('top-rate-product', [AnalyticsController::class, 'topRatedProducts']);
+        Route::apiResource('coupons', CouponController::class, [
+            'only' => ['update'],
+        ]);
+        // Route::get('products-requested-for-flash-sale-by-vendor', [FlashSaleVendorRequestController::class, 'getProductsByFlashSaleVendorRequest']);
+        Route::get('requested-products-for-flash-sale', [FlashSaleVendorRequestController::class, 'getRequestedProductsForFlashSale']);
+        Route::apiResource('vendor-requests-for-flash-sale', FlashSaleVendorRequestController::class, [
+            'only' => ['index', 'show', 'store', 'destroy'],
+        ]);
     }
 );
 
@@ -300,6 +357,7 @@ Route::group(
         Route::apiResource('shops', ShopController::class, [
             'only' => ['store', 'update', 'destroy'],
         ]);
+        // Route::get('analytics', [AnalyticsController::class, 'analytics']);
         Route::apiResource('withdraws', WithdrawController::class, [
             'only' => ['store', 'index', 'show'],
         ]);
@@ -307,7 +365,36 @@ Route::group(
         Route::delete('staffs/{id}', [ShopController::class, 'deleteStaff']);
         Route::get('staffs', [UserController::class, 'staffs']);
         Route::get('my-shops', [ShopController::class, 'myShops']);
-        Route::get('/admin/list', [UserController::class, 'admins']);
+        // Route::get('/admin/list', [UserController::class, 'admins']);
+        Route::apiResource('notify-logs', NotifyLogsController::class, [
+            'only' => ['index'],
+        ]);
+
+        Route::post('notify-log-seen', [NotifyLogsController::class, 'readNotifyLogs']);
+        Route::post('notify-log-read-all', [NotifyLogsController::class, 'readAllNotifyLogs']);
+
+        // Route::apiResource('faqs', FaqsController::class, [
+        //     'only' => ['store', 'update', 'destroy'],
+        // ]);
+
+        Route::apiResource('flash-sale', FlashSaleController::class, [
+            'only' => ['store', 'update', 'destroy'],
+        ]);
+
+        Route::get('product-flash-sale-info', [FlashSaleController::class, 'getFlashSaleInfoByProductID']);
+
+        Route::apiResource('terms-and-conditions', TermsAndConditionsController::class, [
+            'only' => ['store', 'update', 'destroy'],
+        ]);
+
+        Route::apiResource('coupons', CouponController::class, [
+            'only' => ['store', 'destroy'],
+        ]);
+
+        Route::apiResource('terms-and-conditions', TermsAndConditionsController::class, [
+            'only' => ['store', 'update', 'destroy'],
+        ]);
+        // Route::post('products-request-for-flash-sale', [FlashSaleVendorRequestController::class, 'productsRequestForFlashSale']);
     }
 );
 
@@ -319,7 +406,7 @@ Route::group(
 
 Route::group(['middleware' => ['permission:' . Permission::SUPER_ADMIN, 'auth:sanctum']], function () {
     // Route::get('messages/get-conversations/{shop_id}', [ConversationController::class, 'getConversationByShopId']);
-    Route::get('analytics', [AnalyticsController::class, 'analytics']);
+    // Route::get('analytics', [AnalyticsController::class, 'analytics']);
     Route::apiResource('types', TypeController::class, [
         'only' => ['store', 'update', 'destroy'],
     ]);
@@ -338,12 +425,15 @@ Route::group(['middleware' => ['permission:' . Permission::SUPER_ADMIN, 'auth:sa
     Route::apiResource('tags', TagController::class, [
         'only' => ['store', 'update', 'destroy'],
     ]);
+    Route::apiResource('refund-reasons', RefundReasonController::class, [
+        'only' => ['store', 'update', 'destroy'],
+    ]);
     Route::apiResource('resources', ResourceController::class, [
         'only' => ['update', 'destroy']
     ]);
-    Route::apiResource('coupons', CouponController::class, [
-        'only' => ['store', 'update', 'destroy'],
-    ]);
+    // Route::apiResource('coupons', CouponController::class, [
+    //     'only' => ['store', 'update', 'destroy'],
+    // ]);
     // Route::apiResource('order-status', OrderStatusController::class, [
     //     'only' => ['store', 'update', 'destroy'],
     // ]);
@@ -353,7 +443,7 @@ Route::group(['middleware' => ['permission:' . Permission::SUPER_ADMIN, 'auth:sa
     Route::apiResource('questions', QuestionController::class, [
         'only' => ['destroy'],
     ]);
-    Route::apiResource('feedbacks', QuestionController::class, [
+    Route::apiResource('feedbacks', FeedbackController::class, [
         'only' => ['update', 'destroy'],
     ]);
     Route::apiResource('abusive_reports', AbusiveReportController::class, [
@@ -387,4 +477,29 @@ Route::group(['middleware' => ['permission:' . Permission::SUPER_ADMIN, 'auth:sa
             'only' => ['destroy', 'update'],
         ]
     );
+    Route::apiResource('notify-logs', NotifyLogsController::class, [
+        'only' => ['destroy'],
+    ]);
+    // Route::apiResource('faqs', FaqsController::class, [
+    //     'only' => ['store', 'update', 'destroy'],
+    // ]);
+    Route::get('new-shops', [ShopController::class, 'newOrInActiveShops']);
+    Route::post('approve-terms-and-conditions', [TermsAndConditionsController::class, 'approveTerm']);
+    Route::post('disapprove-terms-and-conditions', [TermsAndConditionsController::class, 'disApproveTerm']);
+    Route::get('/admin/list', [UserController::class, 'admins']);
+    Route::get('/vendors/list', [UserController::class, 'vendors']);
+    Route::get('/customers/list', [UserController::class, 'customers']);
+    Route::get('my-staffs', [UserController::class, 'myStaffs']);
+    Route::get('all-staffs', [UserController::class, 'allStaffs']);
+    Route::resource('refund-policies', RefundPolicyController::class, [
+        'only' => ['store', 'update', 'destroy'],
+    ]);
+    Route::post('approve-coupon', [CouponController::class, 'approveCoupon']);
+    Route::post('disapprove-coupon', [CouponController::class, 'disApproveCoupon']);
+    // Route::get('requested-products-for-flash-sale', [FlashSaleVendorRequestController::class, 'getRequestedProductsForFlashSale']);
+    Route::post('approve-flash-sale-requested-products', [FlashSaleVendorRequestController::class, 'approveFlashSaleProductsRequest']);
+    Route::post('disapprove-flash-sale-requested-products', [FlashSaleVendorRequestController::class, 'disapproveFlashSaleProductsRequest']);
+    Route::apiResource('vendor-requests-for-flash-sale', FlashSaleVendorRequestController::class, [
+        'only' => ['update'],
+    ]);
 });

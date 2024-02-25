@@ -81,7 +81,7 @@ class DownloadController extends CoreController
                 $newToken = DownloadToken::create($dataArray);
                 return route('download_url.token', ['token' => $newToken->token]);
             }
-            throw new AuthorizationException(NOT_AUTHORIZED);
+            // throw new AuthorizationException(NOT_AUTHORIZED);
         } catch (MarvelException $e) {
             throw new MarvelException(NOT_AUTHORIZED);
         }
@@ -128,24 +128,33 @@ class DownloadController extends CoreController
     public function downloadFile($token)
     {
         try {
-            $downloadToken = DownloadToken::with('file')->where('token', $token)->where('downloaded', 0)->first();
-            if ($downloadToken) {
-                $downloadToken->downloaded = 1;
-                $downloadToken->save();
-            } else {
-                return ['message' => TOKEN_NOT_FOUND];
+            try {
+                $downloadToken = DownloadToken::with('file')->where('token', $token)->where('downloaded', 0)->first();
+                if ($downloadToken) {
+                    $downloadToken->downloaded = 1;
+                    $downloadToken->save();
+                } else {
+                    return ['message' => TOKEN_NOT_FOUND];
+                }
+            } catch (Exception $e) {
+                throw new MarvelException(TOKEN_NOT_FOUND);
             }
-        } catch (Exception $e) {
-            throw new MarvelException(TOKEN_NOT_FOUND);
+            try {
+                $mediaItem = Media::where('model_id', '=', $downloadToken->file->attachment_id)->firstOrFail();
+            } catch (Exception $e) {
+                return ['message' => NOT_FOUND];
+            }
+
+            // from marvel root (PB)
+            // return $mediaItem;
+
+            // original
+            return response()->streamDownload(function () use ($downloadToken) {
+                echo file_get_contents($downloadToken->file->url);
+            }, $mediaItem->file_name);
+        } catch (MarvelException $e) {
+            throw new MarvelException(NOT_FOUND);
         }
-        try {
-            $mediaItem = Media::where('model_id', $downloadToken->file->attachment_id)->firstOrFail();
-        } catch (Exception $e) {
-            return ['message' => NOT_FOUND];
-        }
-        return response()->streamDownload(function () use ($downloadToken) {
-            echo file_get_contents($downloadToken->file->url);
-        }, $mediaItem->file_name);
     }
 
 

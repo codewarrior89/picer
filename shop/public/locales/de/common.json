@@ -345,5 +345,12 @@
   "text-stripe-card-desc-three": "Keine Begrenzung für tägliche Transaktionen.",
   "text-no-payment-configure": "Noch keine Zahlungsfreigabe!!",
   "profile-sidebar-my-cards": "Meine Karten",
-  "profile-add-cards": "Karte hinzufügen"
+  "profile-add-cards": "Karte hinzufügen",
+  "text-title-days": "tage",
+  "text-title-hours": "std.",
+  "text-title-minutes": "protokoll",
+  "text-title-seconds": "sekunden",
+  "text-title-change-language": "Sprache ändern",
+  "text-title-language": "Sprache",
+  "text-maintenance-mode-title": "Der Wartungsmodus beginnt in"
 }

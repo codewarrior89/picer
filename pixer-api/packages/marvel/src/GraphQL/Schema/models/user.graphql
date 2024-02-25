@@ -2,13 +2,37 @@ extend type Query {
     users(
         text: String @where(operator: "like", key: "name")
         orderBy: _
-            @orderBy(columns: ["updated_at", "created_at", "name", "is_active"])
+            @orderBy(
+                columns: ["updated_at", "created_at", "name", "is_active", "id"]
+            )
     ): [User!]! @paginate(defaultCount: 10) @can(ability: "super_admin")
     user(id: ID @eq): User @find @can(ability: "super_admin")
     me: User @ensureEmailIsVerified @field(resolver: "UserQuery@me")
     downloads: [OrderedFile]
         @paginate(
             builder: "Marvel\\GraphQL\\Queries\\UserQuery@fetchDownloadableFiles"
+            defaultCount: 15
+        )
+    usersByPermission(
+        searchJoin: String = "AND"
+        orderBy: String
+        sortedBy: String
+        search: String
+        is_active: Boolean
+        permission: String!
+    ): [User]!
+        @paginate(
+            builder: "Marvel\\GraphQL\\Queries\\UserQuery@fetchUsersByPermission"
+            defaultCount: 15
+        )
+    myStaffs(
+        searchJoin: String
+        orderBy: String
+        sortedBy: String
+        search: String
+    ): [User]!
+        @paginate(
+            builder: "Marvel\\GraphQL\\Queries\\UserQuery@fetchMyStaffs"
             defaultCount: 15
         )
 }
@@ -29,6 +53,7 @@ type User {
     is_active: Boolean
     address: [Address] @hasMany
     orders: [Order] @hasMany @lazyLoad(relations: ["products", "status"])
+    last_order: Order
 }
 
 type UserPermission @model(class: "Spatie\\Permission\\Models\\Permission") {
@@ -94,6 +119,7 @@ input RegisterInput {
 type AuthResponse {
     token: String
     permissions: [String]
+    role: String
 }
 
 type OtpResponse {
@@ -258,4 +284,6 @@ extend type Mutation {
         @field(resolver: "AuthMutator@updateUserEmail")
     resendVerificationEmail: SuccessResponse!
         @field(resolver: "AuthMutator@resendVerificationEmail")
+    licenseKeyValidation(license_key: String!): Boolean
+        @field(resolver: "AuthMutator@licenseVerification")
 }

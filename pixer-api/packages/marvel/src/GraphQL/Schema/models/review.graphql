@@ -3,7 +3,7 @@ extend type Query {
         product_id: ID @eq
         shop_id: ID @eq
         rating: Int @eq
-        orderBy: _ @orderBy(columns: ["created_at", "rating"])
+        orderBy: _ @orderBy(columns: ["created_at", "rating", "id"])
     ): [Review!]! @paginate(defaultCount: 15)
     review(id: ID @eq): Review @find @can(ability: "super_admin")
 }
@@ -52,7 +52,6 @@ input UpdateReviewInput {
 extend type Mutation {
     createReview(input: CreateReviewInput! @spread): Review
         @field(resolver: "ReviewMutator@store")
-    updateReview(id: ID!, input: UpdateReviewInput! @spread): Review
-        @update
+    updateReview(id: ID!, input: UpdateReviewInput! @spread): Review @update
     deleteReview(id: ID!): Review @delete @can(ability: "super_admin")
 }

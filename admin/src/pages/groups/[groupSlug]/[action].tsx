@@ -7,7 +7,7 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTypeQuery } from '@/data/type';
 import { Config } from '@/config';
-
+import { adminOnly } from '@/utils/auth-utils';
 export default function UpdateTypePage() {
   const { query, locale } = useRouter();
   const { t } = useTranslation();
@@ -24,7 +24,7 @@ export default function UpdateTypePage() {
   if (error) return <ErrorMessage message={error.message} />;
   return (
     <>
-      <div className="flex border-b border-dashed border-border-base py-5 sm:py-8">
+      <div className="flex border-b border-dashed border-border-base pb-5 md:pb-7">
         <h1 className="text-lg font-semibold text-heading">
           {t('form:form-title-edit-type')}
         </h1>
@@ -34,6 +34,10 @@ export default function UpdateTypePage() {
   );
 }
 UpdateTypePage.Layout = Layout;
+
+UpdateTypePage.authenticate = {
+  permissions: adminOnly,
+};
 
 export const getServerSideProps = async ({ locale }: any) => ({
   props: {

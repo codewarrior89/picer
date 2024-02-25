@@ -20,10 +20,9 @@ export const settingsValidationSchema = yup.object().shape({
     .number()
     .transform((value) => (isNaN(value) ? undefined : value))
     .moreThan(-1, 'form:error-sale-price-must-positive'),
-
   /**
    * Commenting for Pixer only
-   * 
+   *
    * */
   //   freeShippingAmount: yup
   //   .number()
@@ -42,7 +41,4 @@ export const settingsValidationSchema = yup.object().shape({
   //       title: yup.string().required('form:error-title-required'),
   //     })
   //   ),
-
-
-
 });

@@ -11,10 +11,11 @@ import Button from '@/components/ui/button';
 import placeholder from '@/assets/images/placeholders/product.svg';
 import { useFollowedShops } from '@/data/shop';
 import FollowButton from '@/components/follow/follow-button';
+import ItemNotFound from '@/components/ui/item-not-found';
+import Link from 'next/link';
 
 function FollowedShop({ shop }: { shop: Shop }) {
-  const { name, logo } = shop ?? {};
-
+  const { name, logo, slug } = shop ?? {};
   return (
     <div className="flex items-center gap-4 border-b border-light-400 py-5 last:border-b-0 dark:border-dark-400 sm:gap-5">
       <div className="relative aspect-square w-16 flex-shrink-0 border border-light-300 dark:border-0">
@@ -29,7 +30,7 @@ function FollowedShop({ shop }: { shop: Shop }) {
       <div className="flex flex-1 flex-col items-start sm:flex-row sm:items-center sm:justify-between">
         <div className="pb-2 sm:pb-0">
           <h3 className="my-1.5 font-medium text-dark dark:text-light">
-            {name}
+            <Link href={`/authors/${slug}`}> {name}</Link>
           </h3>
         </div>
         <FollowButton shop_id={shop.id} />
@@ -72,8 +73,18 @@ const FollowedAuthorsPage: NextPageWithLayout = () => {
       </h1>
 
       {isLoading &&
-        !shops.length &&
+        !shops?.length &&
         rangeMap(LIMIT, (i) => <FollowedShopLoader key={`shop-loader-${i}`} />)}
+
+      {!shops?.length && !isLoading ? (
+        <ItemNotFound
+          title="No Follow Authors Found"
+          className="mx-auto w-full md:w-7/12"
+          message=""
+        />
+      ) : (
+        ''
+      )}
 
       {!isLoading &&
         shops &&

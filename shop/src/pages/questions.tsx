@@ -17,6 +17,9 @@ import productPlaceholder from '@/assets/images/placeholders/product.svg';
 import usePrice from '@/lib/hooks/use-price';
 import { NextPageWithLayout } from '@/types';
 import DashboardLayout from '@/layouts/_dashboard';
+import { motion } from 'framer-motion';
+import { fadeInBottom } from '@/lib/framer-motion/fade-in-bottom';
+import { isEmpty } from 'lodash';
 
 function QuestionItem({ question }: { question: Question }) {
   const {
@@ -129,52 +132,72 @@ const MyQuestionsPage: NextPageWithLayout = () => {
   if (error) return <ErrorMessage message={error.message} />;
 
   // loader
-  if (!questions.length && isLoading) {
-    return (
-      <div className="flex w-full flex-col">
-        <div className="flex items-center ">
-          <h1 className="text-15px font-medium text-dark dark:text-light">
-            {t('text-my-question-title')}
-          </h1>
-        </div>
-        {isLoading &&
-          !questions.length &&
-          rangeMap(LIMIT, (i) => <QuestionItemLoader key={`question-${i}`} />)}
-      </div>
-    );
-  }
+  // if (!questions.length && isLoading) {
+  //   return (
+  //     <div className="flex w-full flex-col">
+  //       <div className="mb-8 flex items-center sm:mb-10">
+  //         <h1 className="text-15px font-medium text-dark dark:text-light">
+  //           {t('text-my-question-title')}
+  //         </h1>
+  //       </div>
+  //       {isLoading &&
+  //         !questions.length &&
+  //         rangeMap(LIMIT, (i) => <QuestionItemLoader key={`question-${i}`} />)}
+  //     </div>
+  //   );
+  // }
 
-  if (!questions.length && !isLoading) {
-    return (
-      <div className="flex w-full flex-col">
-        <div className="flex items-center ">
-          <h1 className="text-15px font-medium text-dark dark:text-light">
-            {t('text-my-question-title')}
-          </h1>
-        </div>
-        <ItemNotFound
-          title="No Download"
-          className="mx-auto w-full md:w-7/12"
-          message="No Download"
-        />
-      </div>
-    );
-  }
+  // if (!questions.length && !isLoading) {
+  //   return (
+  //     <div className="flex w-full flex-col">
+  //       <div className="mb-8 flex items-center sm:mb-10">
+  //         <h1 className="text-15px font-medium text-dark dark:text-light">
+  //           {t('text-my-question-title')}
+  //         </h1>
+  //       </div>
+  //       <ItemNotFound
+  //         title="No Question Found"
+  //         className="mx-auto w-full md:w-7/12"
+  //         message=""
+  //       />
+  //     </div>
+  //   );
+  // }
 
   return (
-    <>
-      <div className="flex w-full flex-col">
-        <div className="flex items-center ">
-          <h1 className="text-15px font-medium text-dark dark:text-light">
-            {t('text-my-question-title')}
-          </h1>
-        </div>
+    <motion.div
+      variants={fadeInBottom()}
+      className="flex min-h-full w-full flex-grow flex-col"
+    >
+      <div className="flex items-center ">
+        <h1 className="text-15px font-medium text-dark dark:text-light">
+          {t('text-my-question-title')}
+        </h1>
+      </div>
+
+      {isLoading && !questions.length
+        ? rangeMap(LIMIT, (i) => <QuestionItemLoader key={`question-${i}`} />)
+        : ''}
+
+      {!isLoading && isEmpty(questions) ? (
+        <ItemNotFound
+          title="No Question Found"
+          className="mx-auto w-full md:w-7/12"
+          message=""
+        />
+      ) : (
+        ''
+      )}
+
+      {!isEmpty(questions) ? (
         <div>
           {questions?.map((item) => (
             <QuestionItem key={item.id} question={item} />
           ))}
         </div>
-      </div>
+      ) : (
+        ''
+      )}
 
       {hasMore && (
         <div className="mt-8 flex w-full justify-center">
@@ -187,7 +210,7 @@ const MyQuestionsPage: NextPageWithLayout = () => {
           </Button>
         </div>
       )}
-    </>
+    </motion.div>
   );
 };
 

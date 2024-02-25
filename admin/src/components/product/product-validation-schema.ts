@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { MAXIMUM_WORD_COUNT_FOR_RICH_TEXT_EDITOR } from '@/utils/constants';
 
 export const productValidationSchema = yup.object().shape({
   name: yup.string().required('form:error-name-required'),
@@ -8,34 +9,103 @@ export const productValidationSchema = yup.object().shape({
     .typeError('form:error-price-must-number')
     .min(0)
     .required('form:error-price-required'),
-  quantity: yup
-    .number()
-    .transform((value) => (isNaN(value) ? undefined : value))
-    .typeError('form:error-quantity-must-number')
-    .positive('form:error-quantity-must-positive')
-    .integer('form:error-quantity-must-integer')
-    .when('is_external', {
-      is: true,
-      then: yup.number().notRequired(),
-      otherwise: yup.number().required('form:error-quantity-required'),
-    }),
+  quantity: yup.number().when('boundary', {
+    is: (value: boolean) => value,
+    then: (schema) => schema.notRequired(),
+    otherwise: (schema) =>
+      schema
+        .transform((value) => (isNaN(value) ? undefined : value))
+        .typeError('form:error-quantity-must-number')
+        .positive('form:error-quantity-must-positive')
+        .integer('form:error-quantity-must-integer')
+        .required('form:error-quantity-required'),
+  }),
   unit: yup.string().required('form:error-unit-required'),
   type: yup.object().nullable().required('form:error-type-required'),
-  digital_file_input: yup.mixed().when('is_external', (isExternal) => {
-    if (!isExternal) {
-      return yup
+  status: yup.string().nullable().required('form:error-status-required'),
+  variation_options: yup.array().of(
+    yup.object().shape({
+      price: yup
+        .number()
+        .typeError('form:error-price-must-number')
+        .positive('form:error-price-must-positive')
+        .required('form:error-price-required'),
+      sale_price: yup
+        .number()
+        .transform((value) => (isNaN(value) ? undefined : value))
+        .lessThan(yup.ref('price'), 'Sale Price should be less than ${less}')
+        .positive('form:error-sale-price-must-positive')
+        .nullable(),
+      quantity: yup
+        .number()
+        .typeError('form:error-quantity-must-number')
+        .positive('form:error-quantity-must-positive')
+        .integer('form:error-quantity-must-integer')
+        .required('form:error-quantity-required'),
+      sku: yup.string().required('form:error-sku-required'),
+      is_digital: yup.boolean(),
+      digital_file_input: yup.object().when('is_digital', {
+        is: true,
+        then: () =>
+          yup
+            .object()
+            .shape({
+              id: yup.string().required(),
+            })
+            .required('Degigtal File is required'),
+        otherwise: () =>
+          yup
+            .object()
+            .shape({
+              id: yup.string().notRequired(),
+              original: yup.string().notRequired(),
+            })
+            .notRequired()
+            .nullable(),
+      }),
+    }),
+  ),
+  is_digital: yup.boolean(),
+  digital_file_input: yup.object().when('is_digital', {
+    is: true,
+    then: () =>
+      yup.object().shape({
+        id: yup.string().required(),
+      }),
+    otherwise: () =>
+      yup
         .object()
-        .test(
-          'check-digital-file',
-          'form:error-digital-file-input-required',
-          (file) => file && file?.original
-        );
-    }
-    return yup.string().nullable();
+        .shape({
+          id: yup.string().notRequired(),
+          original: yup.string().notRequired(),
+        })
+        .notRequired()
+        .nullable(),
   }),
-  status: yup.string().required('form:error-status-required'),
-  external_product_button_text: yup.string().when('is_external', {
-    is: (isExternal: boolean) => isExternal,
-    then: yup.string().max(20, "External text must be at most 20 characters").required('form:error-external-product-button-text'),
-  }),
+  video: yup.array().of(
+    yup.object().shape({
+      url: yup.string().required('Video URL is required'),
+    }),
+  ),
+  description: yup
+    .string()
+    .max(
+      MAXIMUM_WORD_COUNT_FOR_RICH_TEXT_EDITOR,
+      'form:error-description-maximum-title',
+    ),
+  // image: yup
+  //   .mixed()
+  //   .nullable()
+  //   .required('A file is required')
+  //   .test(
+  //     'FILE_SIZE',
+  //     'Uploaded file is too big.',
+  //     (value) => !value || (value && value.size <= 1024 * 1024)
+  //   )
+  //   .test(
+  //     'FILE_FORMAT',
+  //     'Uploaded file has unsupported format.',
+  //     (value) =>
+  //       !value || (value && SUPPORTED_IMAGE_FORMATS.includes(value?.type))
+  //   ),
 });

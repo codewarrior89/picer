@@ -193,7 +193,7 @@ const CardsView = ({
       data={payments}
       className="card-view-table w-full shadow-none"
       scroll={{ x: 800 }}
-      rowClassName={(record, i) =>
+      rowClassName={(record: any) =>
         record?.default_card ? 'row-highlight' : ''
       }
       emptyText={t('text-no-card-found')}

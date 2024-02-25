@@ -26,7 +26,9 @@ const MyCardsPage: NextPageWithLayout = () => {
 
   // Make it dynamic
   const isStripeGatewayAvailable = isStripeAvailable(settings);
-  if (!isStripeGatewayAvailable) {
+  const isPaymentEnable = settings?.useEnableGateway ?? true;
+
+  if (!isStripeGatewayAvailable || !isPaymentEnable) {
     return <FeatureNotAvailable />;
   }
 

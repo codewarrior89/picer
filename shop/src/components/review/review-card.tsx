@@ -5,13 +5,13 @@ import Image from '@/components/ui/image';
 import { LikeIcon } from '@/components/icons/like-icon';
 import { DislikeIcon } from '@/components/icons/dislike-icon';
 import placeholder from '@/assets/images/placeholders/product.svg';
-import Avatar from 'react-avatar';
 import isEmpty from 'lodash/isEmpty';
 import { useModalAction } from '@/components/modal-views/context';
 import type { Review } from '@/types';
 import { useMe } from '@/data/user';
 import { useCreateFeedback } from '@/data/product';
 import { useTranslation } from 'next-i18next';
+import Avatar from '@/components/ui/avatar';
 
 type ReviewCardProps = {
   review: Review;
@@ -68,10 +68,8 @@ export default function ReviewCard({ review }: ReviewCardProps) {
     <div className="flex w-full items-start space-x-3 border-b border-light-500 py-5 last:border-b-0 dark:border-dark-400 sm:space-x-4 md:py-6">
       <div className="relative inline-flex h-8 w-8 shrink-0 justify-center rounded-full border border-light-400 bg-light-300 dark:border-dark-500 dark:bg-dark-500">
         <Avatar
-          size="32"
-          round={true}
+          size="sm"
           name={user.name}
-          textSizeRatio={2}
           src={user?.profile?.avatar?.thumbnail}
         />
       </div>

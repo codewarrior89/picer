@@ -1,5 +1,5 @@
 import Input from '@/components/ui/input';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import Description from '@/components/ui/description';
 import Card from '@/components/common/card';
@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import { getIcon } from '@/utils/get-icon';
 import Label from '@/components/ui/label';
 import * as typeIcons from '@/components/icons/type';
-import { AttachmentInput, Type, TypeSettingsInput } from '@/types';
+import { AttachmentInput, Category, Type, TypeSettingsInput } from '@/types';
 import { typeIconList } from './group-icons';
 import { useTranslation } from 'next-i18next';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -25,6 +25,12 @@ import { Config } from '@/config';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { join, split } from 'lodash';
 import { formatSlug } from '@/utils/use-slug';
+import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
+import ValidationError from '@/components/ui/form-validation-error';
+import classNames from 'classnames';
+import CategoryTypeFilter from '@/components/filters/category-type-filter';
+import SwitchInput from '@/components/ui/switch-input';
+import { useProductsQuery } from '@/data/product';
 
 export const updatedIcons = typeIconList.map((item: any) => {
   item.label = (
@@ -55,6 +61,8 @@ type IProps = {
 export default function CreateOrUpdateTypeForm({ initialValues }: IProps) {
   const router = useRouter();
   const { t } = useTranslation();
+  const [type, setType] = useState('');
+  const [category, setCategory] = useState('');
   const [isSlugDisable, setIsSlugDisable] = useState<boolean>(true);
   const isSlugEditable =
     router?.query?.action === 'edit' &&
@@ -67,12 +75,13 @@ export default function CreateOrUpdateTypeForm({ initialValues }: IProps) {
     formState: { errors },
   } = useForm<FormValues>({
     shouldUnregister: true,
+    // @ts-ignore
     resolver: yupResolver(typeValidationSchema),
     defaultValues: {
       ...initialValues,
       icon: initialValues?.icon
         ? typeIconList.find(
-            (singleIcon) => singleIcon.value === initialValues?.icon
+            (singleIcon) => singleIcon.value === initialValues?.icon,
           )
         : '',
     },
@@ -98,19 +107,26 @@ export default function CreateOrUpdateTypeForm({ initialValues }: IProps) {
       !initialValues ||
       !initialValues.translated_languages?.includes(router.locale!)
     ) {
-      console.log("create");
+      console.log('create');
       createType({
         ...input,
         ...(initialValues?.slug && { slug: initialValues.slug }),
       });
     } else {
-      console.log("update");
+      console.log('update');
       updateType({
         ...input,
         id: initialValues.id!,
       });
     }
   };
+  const { products, loading: loadingProduct } = useProductsQuery({
+    limit: 999,
+    language: router?.locale,
+    type,
+    categories: category,
+    status: 'publish',
+  });
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="my-5 flex flex-wrap sm:my-8">
@@ -189,25 +205,26 @@ export default function CreateOrUpdateTypeForm({ initialValues }: IProps) {
           />
         </Card>
       </div>
+      <StickyFooterPanel>
+        <div className="mb-4 text-end">
+          {initialValues && (
+            <Button
+              variant="outline"
+              onClick={router.back}
+              className="me-4"
+              type="button"
+            >
+              {t('form:button-label-back')}
+            </Button>
+          )}
 
-      <div className="mb-4 text-end">
-        {initialValues && (
-          <Button
-            variant="outline"
-            onClick={router.back}
-            className="me-4"
-            type="button"
-          >
-            {t('form:button-label-back')}
+          <Button loading={creating || updating}>
+            {initialValues
+              ? t('form:button-label-update-group')
+              : t('form:button-label-add-group')}
           </Button>
-        )}
-
-        <Button loading={creating || updating}>
-          {initialValues
-            ? t('form:button-label-update-group')
-            : t('form:button-label-add-group')}
-        </Button>
-      </div>
+        </div>
+      </StickyFooterPanel>
     </form>
   );
 }

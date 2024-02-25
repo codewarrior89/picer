@@ -1,18 +1,19 @@
-import * as yup from 'yup';
-import type { SubmitHandler } from 'react-hook-form';
-import { useMutation } from 'react-query';
-import toast from 'react-hot-toast';
-import type { LoginUserInput } from '@/types';
-import { Form } from '@/components/ui/forms/form';
-import Password from '@/components/ui/forms/password';
-import Input from '@/components/ui/forms/input';
-import Button from '@/components/ui/button';
-import { useModalAction } from '@/components/modal-views/context';
-import useAuth from '@/components/auth/use-auth';
-import CheckBox from '@/components/ui/forms/checkbox';
 import { RegisterBgPattern } from '@/components/auth/register-bg-pattern';
+import useAuth from '@/components/auth/use-auth';
+import { useModalAction } from '@/components/modal-views/context';
+import Button from '@/components/ui/button';
+import CheckBox from '@/components/ui/forms/checkbox';
+import { Form } from '@/components/ui/forms/form';
+import Input from '@/components/ui/forms/input';
+import Password from '@/components/ui/forms/password';
 import client from '@/data/client';
+import { setAuthCredentials } from '@/data/client/token.utils';
+import type { LoginUserInput } from '@/types';
 import { useTranslation } from 'next-i18next';
+import type { SubmitHandler } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import { useMutation } from 'react-query';
+import * as yup from 'yup';
 
 const loginValidationSchema = yup.object().shape({
   email: yup.string().email().required(),
@@ -23,7 +24,7 @@ export default function LoginUserForm() {
   const { t } = useTranslation('common');
   const { openModal, closeModal } = useModalAction();
   const { authorize } = useAuth();
-  const { mutate: login } = useMutation(client.users.login, {
+  const { mutate: login, isLoading } = useMutation(client.users.login, {
     onSuccess: (data) => {
       if (!data.token) {
         toast.error(<b>{t('text-wrong-user-name-and-pass')}</b>, {
@@ -32,6 +33,7 @@ export default function LoginUserForm() {
         return;
       }
       authorize(data.token);
+      setAuthCredentials(data.token, data.permissions);
       closeModal();
     },
   });
@@ -93,6 +95,8 @@ export default function LoginUserForm() {
                 <Button
                   type="submit"
                   className="!mt-5 w-full text-sm tracking-[0.2px] lg:!mt-7"
+                  isLoading={isLoading}
+                  disabled={isLoading}
                 >
                   {t('text-get-login')}
                 </Button>

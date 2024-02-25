@@ -2,33 +2,36 @@
 
 namespace Marvel\Http\Controllers;
 
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
+use Dompdf\Options;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Support\Facades\DB;
-use Marvel\Traits\WalletsTrait;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Marvel\Enums\Permission;
-use Marvel\Exports\OrderExport;
-use Illuminate\Http\JsonResponse;
-use Marvel\Database\Models\Order;
-use Maatwebsite\Excel\Facades\Excel;
-use Marvel\Database\Models\Settings;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Marvel\Database\Repositories\OrderRepository;
-use Marvel\Exceptions\MarvelException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use Marvel\Database\Models\DownloadToken;
+use Marvel\Database\Models\Order;
+use Marvel\Database\Models\Settings;
+use Marvel\Database\Repositories\OrderRepository;
+use Marvel\Enums\PaymentGatewayType;
+use Marvel\Enums\Permission;
+use Marvel\Exceptions\MarvelException;
+use Marvel\Exports\OrderExport;
 use Marvel\Http\Requests\OrderCreateRequest;
 use Marvel\Http\Requests\OrderUpdateRequest;
-use niklasravnsborg\LaravelPdf\Facades\Pdf as PDF;
-use Marvel\Enums\PaymentGatewayType;
 use Marvel\Traits\OrderManagementTrait;
 use Marvel\Traits\PaymentStatusManagerWithOrderTrait;
 use Marvel\Traits\PaymentTrait;
 use Marvel\Traits\TranslationTrait;
+use Marvel\Traits\WalletsTrait;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 
 class OrderController extends CoreController
 {
@@ -73,18 +76,49 @@ class OrderController extends CoreController
             throw new AuthorizationException(NOT_AUTHORIZED);
         }
 
-        if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN) && (!isset($request->shop_id) || $request->shop_id === 'undefined')) {
-            return $this->repository->with('children')->where('id', '!=', null)->where('parent_id', '=', null); //->paginate($limit);
-        } else if ($this->repository->hasPermission($user, $request->shop_id)) {
-            // if ($user && $user->hasPermissionTo(Permission::STORE_OWNER)) {
-            return $this->repository->with('children')->where('shop_id', '=', $request->shop_id)->where('parent_id', '!=', null); //->paginate($limit);
-            // } elseif ($user && $user->hasPermissionTo(Permission::STAFF)) {
-            //     return $this->repository->with('children')->where('shop_id', '=', $request->shop_id)->where('parent_id', '!=', null); //->paginate($limit);
-            // }
-        } else {
-            return $this->repository->with('children')->where('customer_id', '=', $user->id)->where('parent_id', '=', null); //->paginate($limit);
+        switch ($user) {
+            case $user->hasPermissionTo(Permission::SUPER_ADMIN):
+                return $this->repository->with('children')->where('id', '!=', null)->where('parent_id', '=', null);
+                break;
+
+            case $user->hasPermissionTo(Permission::STORE_OWNER):
+                if ($this->repository->hasPermission($user, $request->shop_id)) {
+                    return $this->repository->with('children')->where('shop_id', '=', $request->shop_id)->where('parent_id', '!=', null);
+                } else {
+                    $orders = $this->repository->with('children')->where('parent_id', '!=', null)->whereIn('shop_id', $user->shops->pluck('id'));
+                    return $orders;
+                }
+                break;
+
+            case $user->hasPermissionTo(Permission::STAFF):
+                if ($this->repository->hasPermission($user, $request->shop_id)) {
+                    return $this->repository->with('children')->where('shop_id', '=', $request->shop_id)->where('parent_id', '!=', null);
+                } else {
+                    $orders = $this->repository->with('children')->where('parent_id', '!=', null)->where('shop_id', '=', $user->shop_id);
+                    return $orders;
+                }
+                break;
+
+            default:
+                return $this->repository->with('children')->where('customer_id', '=', $user->id)->where('parent_id', '=', null);
+                break;
         }
+
+        // ********************* Old code *********************
+
+        // if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN) && (!isset($request->shop_id) || $request->shop_id === 'undefined')) {
+        //     return $this->repository->with('children')->where('id', '!=', null)->where('parent_id', '=', null); //->paginate($limit);
+        // } else if ($this->repository->hasPermission($user, $request->shop_id)) {
+        //     // if ($user && $user->hasPermissionTo(Permission::STORE_OWNER)) {
+        //     return $this->repository->with('children')->where('shop_id', '=', $request->shop_id)->where('parent_id', '!=', null); //->paginate($limit);
+        //     // } elseif ($user && $user->hasPermissionTo(Permission::STAFF)) {
+        //     //     return $this->repository->with('children')->where('shop_id', '=', $request->shop_id)->where('parent_id', '!=', null); //->paginate($limit);
+        //     // }
+        // } else {
+        //     return $this->repository->with('children')->where('customer_id', '=', $user->id)->where('parent_id', '=', null); //->paginate($limit);
+        // }
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -96,6 +130,11 @@ class OrderController extends CoreController
     public function store(OrderCreateRequest $request)
     {
         try {
+            // decision need
+            // if(!($this->settings->options['useCashOnDelivery'] && $this->settings->options['useEnableGateway'])){
+            //     throw new HttpException(400, PLEASE_ENABLE_PAYMENT_OPTION_FROM_THE_SETTINGS);
+            // }
+
             return DB::transaction(fn () => $this->repository->storeOrder($request, $this->settings));
         } catch (MarvelException $th) {
             throw new MarvelException(SOMETHING_WENT_WRONG, $th->getMessage());
@@ -135,6 +174,7 @@ class OrderController extends CoreController
         try {
             $order = $this->repository->where('language', $language)->with([
                 'products',
+                'shop',
                 'children.shop',
                 'wallet_point',
             ])->where('id', $orderParam)->orWhere('tracking_number', $orderParam)->firstOrFail();
@@ -358,6 +398,11 @@ class OrderController extends CoreController
                 'language' => $payloads['language'],
             ];
             $pdf = PDF::loadView('pdf.order-invoice', $invoiceData);
+            $options = new Options();
+            $options->setIsPhpEnabled(true);
+            $options->setIsJavascriptEnabled(true);
+            $pdf->getDomPDF()->setOptions($options);
+
             $filename = 'invoice-order-' . $payloads['order_id'] . '.pdf';
 
             return $pdf->download($filename);
@@ -380,6 +425,9 @@ class OrderController extends CoreController
             $order = $this->repository->with(['products', 'children.shop', 'wallet_point', 'payment_intent'])
                 ->findOneByFieldOrFail('tracking_number', $tracking_number);
 
+            $isFinal = $this->checkOrderStatusIsFinal($order);
+            if ($isFinal) return;
+
             switch ($order->payment_gateway) {
 
                 case PaymentGatewayType::STRIPE:
@@ -397,27 +445,38 @@ class OrderController extends CoreController
                 case PaymentGatewayType::RAZORPAY:
                     $this->razorpay($order, $request, $this->settings);
                     break;
+
                 case PaymentGatewayType::SSLCOMMERZ:
                     $this->sslcommerz($order, $request, $this->settings);
                     break;
+
                 case PaymentGatewayType::PAYSTACK:
                     $this->paystack($order, $request, $this->settings);
                     break;
+
                 case PaymentGatewayType::PAYMONGO:
                     $this->paymongo($order, $request, $this->settings);
+                    break;
+
                 case PaymentGatewayType::XENDIT:
                     $this->xendit($order, $request, $this->settings);
+                    break;
+
                 case PaymentGatewayType::IYZICO:
                     $this->iyzico($order, $request, $this->settings);
                     break;
+
                 case PaymentGatewayType::COINBASE:
                     $this->coinbase($order, $request, $this->settings);
                     break;
+
                 case PaymentGatewayType::BITPAY:
                     $this->bitpay($order, $request, $this->settings);
+
                 case PaymentGatewayType::BKASH:
                     $this->bkash($order, $request, $this->settings);
                     break;
+
                 case PaymentGatewayType::FLUTTERWAVE:
                     $this->flutterwave($order, $request, $this->settings);
                     break;

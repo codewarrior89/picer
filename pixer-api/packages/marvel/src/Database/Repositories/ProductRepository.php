@@ -5,9 +5,12 @@ namespace Marvel\Database\Repositories;
 
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Marvel\Database\Models\Availability;
+use Marvel\Database\Models\DigitalFile;
 use Marvel\Database\Models\Product;
 use Marvel\Database\Models\Resource;
 use Marvel\Database\Models\Type;
@@ -51,7 +54,7 @@ class ProductRepository extends BaseRepository
         'language',
         'metas.key',
         'metas.value',
-
+        'product_type'
     ];
 
     protected $dataArray = [
@@ -85,7 +88,12 @@ class ProductRepository extends BaseRepository
         'in_stock',
         'is_taxable',
         'shop_id',
+        'sold_quantity'
     ];
+    public function getProductDataArray(): array
+    {
+        return $this->dataArray;
+    }
 
     public function boot()
     {
@@ -102,6 +110,84 @@ class ProductRepository extends BaseRepository
     public function model()
     {
         return Product::class;
+    }
+
+
+    /**
+     * processFlashSaleProducts
+     *
+     * @param  Request $request
+     * @return object
+     */
+    public function processFlashSaleProducts(Request $request, $products_query)
+    {
+        $user = $request->user();
+        switch ($user) {
+            case $user->hasPermissionTo(Permission::SUPER_ADMIN):
+
+                // if condition : during deal data build
+                // else condition : when he entered into vendor shop & check
+                if ($request->searchedByUser === 'super_admin_builder') {
+
+                    $shop_id = $request->shop_id ?? null;
+                    $author_id = $request->author ?? null;
+                    $manufacturer_id = $request->manufacturer ?? null;
+
+                    $products_query = $products_query->where('in_flash_sale', '=', false)
+                        ->where('sale_price', '=', null)
+                        ->whereNotIn('id', function ($query) {
+                            $query->select('product_id')->from('flash_sale_requests_products');
+                        })
+                        ->when($shop_id, function ($products_query) use ($shop_id) {
+                            return $products_query->where('shop_id', '=',  $shop_id);
+                        })
+                        ->when($author_id, function ($products_query) use ($author_id) {
+                            return $products_query->where('author_id', '=',  $author_id);
+                        })
+                        ->when($manufacturer_id, function ($products_query) use ($manufacturer_id) {
+                            return $products_query->where('manufacturer_id', '=',  $manufacturer_id);
+                        });
+                } else {
+                    $products_query = $products_query->where('in_flash_sale', '=', true)->where('shop_id', '=', $request->shop_id);
+                }
+
+                break;
+
+            case $user->hasPermissionTo(Permission::STORE_OWNER):
+
+                // if condition : when he want to see shop specific products
+                // else condition : fetched all deal products of vendor's listed all shops. This can be used in vendor root page route
+                if ($request->shop_id) {
+                    // if : fetching shop product for building flash sale request
+                    // else : just seeing which products are selected for flash sale of this shop
+                    if ($request->searchedByUser === 'vendor') {
+                        $products_query = $products_query->where('in_flash_sale', '=', false)
+                            ->where('shop_id', '=', $request->shop_id)
+                            ->where('sale_price', '=', null);
+                    } else {
+                        $products_query = $products_query->where('in_flash_sale', '=', true);
+                    }
+                } else {
+                    $products_query = $products_query->where('in_flash_sale', '=', true)->whereIn('shop_id', $user->shops->pluck('id'));
+                }
+
+                break;
+
+            case $user->hasPermissionTo(Permission::STAFF):
+
+                // staff can see only his assigned shop's deals product
+                $products_query = $products_query->where('in_flash_sale', '=', true);
+                break;
+
+
+            case $user->hasPermissionTo(Permission::CUSTOMER):
+
+                // customer can see all the products of a deal
+                $products_query = $products_query->where('in_flash_sale', '=', true);
+                break;
+        }
+
+        return $products_query;
     }
 
 
@@ -132,6 +218,7 @@ class ProductRepository extends BaseRepository
                 $data['max_price'] = $data['price'];
                 $data['min_price'] = $data['price'];
             }
+
             $product = $this->create($data);
 
             if (empty($product->slug) || is_numeric($product->slug)) {
@@ -170,22 +257,29 @@ class ProductRepository extends BaseRepository
                 $product->variations()->attach($request['variations']);
             }
             if (isset($request['variation_options'])) {
+
                 foreach ($request['variation_options']['upsert'] as $variation_option) {
+
                     if (isset($variation_option['is_digital']) && $variation_option['is_digital']) {
                         $file = $variation_option['digital_file'];
                         unset($variation_option['digital_file']);
                     }
+
                     $new_variation_option = $product->variation_options()->create($variation_option);
+
                     if (isset($variation_option['is_digital']) && $variation_option['is_digital']) {
-                        $new_variation_option->digital_file()->create($file);
+                        $digital_file = $new_variation_option->digital_file()->create($file);
+                        $new_variation_option->update([
+                            'digital_file_tracker' => $digital_file->id
+                        ]);
                     }
                 }
             }
             if (isset($request['is_digital']) && $request['is_digital'] && !empty($request['digital_file'])) {
-
+                // if (isset($request['is_digital']) && ($request['is_digital'] === true || $request['is_digital'] === 1) && isset($request['digital_file'])) {
                 $digitalFileArray['attachment_id'] = $request['digital_file']['attachment_id'];
                 $digitalFileArray['url'] = $request['digital_file']['url'];
-                
+
                 $product->digital_file()->create($digitalFileArray);
             }
 
@@ -296,15 +390,19 @@ class ProductRepository extends BaseRepository
                         $variation['sale_price'] = isset($variation['sale_price']) ? $variation['sale_price'] : null;
 
                         if (isset($variation['is_digital']) && $variation['is_digital']) {
+
                             $file = $variation['digital_file'];
                             unset($variation['digital_file']);
+
                             if (isset($variation['id'])) {
                                 $product->variation_options()->where('id', $variation['id'])->update($variation);
+
                                 try {
                                     $updated_variation = Variation::findOrFail($variation['id']);
                                 } catch (Exception $e) {
                                     throw new ModelNotFoundException(NOT_FOUND);
                                 }
+
                                 if (TRANSLATION_ENABLED) {
                                     Variation::where('sku', $updated_variation->sku)->where('id', '=', $updated_variation->id)->update([
                                         'price' => $updated_variation->price,
@@ -312,14 +410,28 @@ class ProductRepository extends BaseRepository
                                         'quantity' => $updated_variation->quantity,
                                     ]);
                                 }
-                                if (isset($file['id'])) {
-                                    $updated_variation->digital_file()->where('id', $file['id'])->update($file);
+
+
+                                if (isset($updated_variation->digital_file_tracker)) {
+                                    if (isset($file['attachment_id'])) {
+                                        $updated_variation->digital_file()->where('fileable_id', $updated_variation->id)->update($file);
+                                        $updated_digital_file = DigitalFile::where('fileable_id', $updated_variation->id)->first();
+                                        $updated_variation->update([
+                                            'digital_file_tracker' => $updated_digital_file->id,
+                                        ]);
+                                    }
                                 } else {
-                                    $updated_variation->digital_file()->create($file);
+                                    $created_digital_file = $updated_variation->digital_file()->create($file);
+                                    $updated_variation->update([
+                                        'digital_file_tracker' => $created_digital_file->id,
+                                    ]);
                                 }
                             } else {
                                 $new_variation = $product->variation_options()->create($variation);
-                                $new_variation->digital_file()->create($file);
+                                $digital_file = $new_variation->digital_file()->create($file);
+                                $new_variation->update([
+                                    'digital_file_tracker' => $digital_file->id
+                                ]);
                             }
                         } else {
                             if (isset($variation['id'])) {

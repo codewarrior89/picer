@@ -156,8 +156,6 @@ const PaymentGateways: React.FC<IProps> = ({
     settings?.defaultPaymentGateway?.toUpperCase() || ''
   );
 
-  console.log('gateway', gateway, defaultGateway);
-
   const [availableGateway, setAvailableGateway] = useState(
     settings?.paymentGateway || []
   );

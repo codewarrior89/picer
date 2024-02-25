@@ -12,6 +12,9 @@ import { Table } from '@/components/ui/table';
 import TableLoader from '@/components/ui/loader/table-loader';
 import ItemNotFound from '@/components/ui/item-not-found';
 import ErrorMessage from '@/components/ui/error-message';
+import { isEmpty } from 'lodash';
+import { motion } from 'framer-motion';
+import { fadeInBottom } from '@/lib/framer-motion/fade-in-bottom';
 
 const MyReportsPage: NextPageWithLayout = () => {
   const { t } = useTranslation('common');
@@ -59,47 +62,60 @@ const MyReportsPage: NextPageWithLayout = () => {
   ];
 
   // loader
-  if (!reports.length && isLoading) {
-    return (
-      <div className="flex w-full flex-col">
-        <div className="mb-8 flex items-center justify-center sm:mb-10">
-          <h1 className="text-heading text-center text-lg font-semibold sm:text-xl">
-            {t('text-my-reports-title')}
-          </h1>
-        </div>
+  // if (!reports.length && isLoading) {
+  //   return (
+  //     <div className="flex w-full flex-col">
+  //       <div className="mb-8 flex items-center justify-center sm:mb-10">
+  //         <h1 className="text-heading text-center text-lg font-semibold sm:text-xl">
+  //           {t('text-my-reports-title')}
+  //         </h1>
+  //       </div>
 
-        <TableLoader uniqueKey={`table-loader`} />
-      </div>
-    );
-  }
+  //       <TableLoader uniqueKey={`table-loader`} />
+  //     </div>
+  //   );
+  // }
 
-  if (!reports.length && !isLoading) {
-    return (
-      <div className="flex w-full flex-col">
-        <div className="mb-8 flex items-center justify-between sm:mb-10">
-          <h1 className="mb-3 text-15px font-medium text-dark dark:text-light">
-            {t('text-my-reports-title')}
-          </h1>
-        </div>
-        <ItemNotFound title={t('text-no-reports-found')} message="" />
-      </div>
-    );
-  }
+  // if (!reports.length && !isLoading) {
+  //   return (
+  //     <div className="flex w-full flex-col">
+  //       <div className="mb-8 flex items-center justify-between sm:mb-10">
+  //         <h1 className="mb-3 text-15px font-medium text-dark dark:text-light">
+  //           {t('text-my-reports-title')}
+  //         </h1>
+  //       </div>
+  //       <ItemNotFound title={t('text-no-reports-found')} message="" />
+  //     </div>
+  //   );
+  // }
 
   return (
-    <div className="flex w-full flex-col">
+    <motion.div
+      variants={fadeInBottom()}
+      className="flex min-h-full w-full flex-grow flex-col"
+    >
       <h1 className="mb-8 text-15px font-medium text-dark dark:text-light">
         {t('text-my-reports-title')}
       </h1>
-      <Table
-        //@ts-ignore
-        columns={orderTableColumns}
-        data={reports}
-        rowKey={(record: any) => record.created_at}
-        className="shadow-none"
-        rowClassName="!cursor-auto"
-      />
-    </div>
+      {!reports && isLoading ? <TableLoader uniqueKey={`table-loader`} /> : ''}
+      {isEmpty(reports) && !isLoading ? (
+        <ItemNotFound title={t('text-no-reports-found')} message="" />
+      ) : (
+        ''
+      )}
+      {!isEmpty(reports) ? (
+        <Table
+          //@ts-ignore
+          columns={orderTableColumns}
+          data={reports}
+          rowKey={(record: any) => record.created_at}
+          className="shadow-none"
+          rowClassName="!cursor-auto"
+        />
+      ) : (
+        ''
+      )}
+    </motion.div>
   );
 };
 

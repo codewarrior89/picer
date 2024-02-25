@@ -30,7 +30,7 @@ class TagUpdateRequest extends FormRequest
         return [
             'name'        => ['required', 'string', 'max:255'],
             'slug'        => ['nullable', 'string', 'max:255'],
-            'type_id'     => ['nullable', 'integer'],
+            // 'type_id'     => ['nullable', 'integer'],
             'icon'        => ['nullable', 'string'],
             'image'       => ['array'],
             'details'     => ['nullable', 'string'],
@@ -46,10 +46,10 @@ class TagUpdateRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.string'           => 'Name is not a valid string',
-            'name.max:255'          => 'Name can not be more than 255 character',
-            'image.string'          => 'image is not a valid string',
-            'parent.integer'        => 'Parent is not a valid integer',
+            'name.string'    => 'Name is not a valid string',
+            'name.max:255'   => 'Name can not be more than 255 character',
+            'image.string'   => 'image is not a valid string',
+            'parent.integer' => 'Parent is not a valid integer',
         ];
     }
 

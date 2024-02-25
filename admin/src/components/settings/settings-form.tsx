@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Card from '@/components/common/card';
 import GooglePlacesAutocomplete from '@/components/form/google-places-autocomplete';
 import * as socialIcons from '@/components/icons/social';
@@ -285,7 +286,7 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
 
       defaultPaymentGateway: options?.defaultPaymentGateway
         ? PAYMENT_GATEWAY.find(
-            (item) => item.name == options?.defaultPaymentGateway
+            (item) => item.name == options?.defaultPaymentGateway,
           )
         : PAYMENT_GATEWAY[0],
 
@@ -293,7 +294,7 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
         ...options?.currencyOptions,
         formation: options?.currencyOptions?.formation
           ? COUNTRY_LOCALE.find(
-              (item) => item.code == options?.currencyOptions?.formation
+              (item) => item.code == options?.currencyOptions?.formation,
             )
           : COUNTRY_LOCALE[0],
       },
@@ -457,11 +458,11 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
 
   // @ts-ignore
   let checkAvailableDefaultGateway = paymentGateway?.some(
-    (item: any) => item?.name === defaultPaymentGateway?.name
+    (item: any) => item?.name === defaultPaymentGateway?.name,
   );
 
   const isStripeActive = paymentGateway?.some(
-    (payment) => payment?.name === 'stripe'
+    (payment) => payment?.name === 'stripe',
   );
 
   return (
@@ -1060,7 +1061,7 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
                       label={t('form:input-label-social-url')}
                       variant="outline"
                       {...register(
-                        `contactDetails.socials.${index}.url` as const
+                        `contactDetails.socials.${index}.url` as const,
                       )}
                       defaultValue={item.url!} // make sure to set up defaultValue
                       disabled={isNotDefaultSettingsPage}
@@ -1079,7 +1080,7 @@ export default function SettingsForm({ settings, taxClasses }: IProps) {
                     )}
                   </div>
                 </div>
-              )
+              ),
             )}
           </div>
 

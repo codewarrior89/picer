@@ -375,5 +375,19 @@
   "profile-add-cards": "Add Card",
   "text-used": "Used",
   "text-available": "Available",
-  "text-balance": "Balance"
+  "text-balance": "Balance",
+  "text-access-denied": "Access Denied",
+  "text-access-denied-message": "You don't have the permission to access this page.",
+  "text-return-home": "Return to home",
+  "text-contact-us": "Contact US",
+  "text-help": "Help",
+  "text-address": "Address",
+  "text-title-days": "days",
+  "text-title-hours": "hours",
+  "text-title-minutes": "minutes",
+  "text-title-seconds": "seconds",
+  "text-title-change-language": "Change Language",
+  "text-title-language": "Language",
+  "text-maintenance-mode-title": "Maintenance Mode Begins In",
+  "error-email-required": "Email is required."
 }

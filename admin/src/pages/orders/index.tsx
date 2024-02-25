@@ -17,6 +17,7 @@ import { useShopQuery } from '@/data/shop';
 import { Menu, Transition } from '@headlessui/react';
 import classNames from 'classnames';
 import { DownloadIcon } from '@/components/icons/download-icon';
+import PageHeading from '@/components/common/page-heading';
 
 export default function Orders() {
   const router = useRouter();
@@ -79,25 +80,21 @@ export default function Orders() {
     }
   }
 
+  // TODO : this area need to be checked in Pixer
+
   return (
     <>
       <Card className="mb-8 flex flex-col items-center justify-between md:flex-row">
-        <div className="mb-4 shrink-0 md:mb-0 md:w-1/4">
-          <h1 className="text-lg font-semibold text-heading">
-            {t('form:input-label-orders')}
-          </h1>
+        <div className="mb-4 md:mb-0 md:w-1/4">
+          <PageHeading title={t('form:input-label-orders')} />
         </div>
 
-        <div className="flex w-full flex-1 items-center">
-          <div className="flex w-full flex-col items-center ms-auto md:w-1/2 md:flex-row">
-            <Search
-              onSearch={handleSearch}
-              placeholderText={t(
-                'form:input-placeholder-search-tracking-number'
-              )}
-            />
-          </div>
-
+        <div className="flex w-full flex-row items-center md:w-1/2">
+          <Search
+            onSearch={handleSearch}
+            className="w-full"
+            placeholderText={t('form:input-placeholder-search-tracking-number')}
+          />
           <Menu
             as="div"
             className="relative inline-block ltr:text-left rtl:text-right"

@@ -1,6 +1,6 @@
 import { atom, useAtom } from 'jotai';
 
-export type DRAWER_VIEW = 'CART_VIEW' | 'MOBILE_MENU';
+export type DRAWER_VIEW = 'CART_VIEW' | 'MOBILE_MENU' | 'MAINTENANCE_MORE_INFO';
 const drawerAtom = atom({ isOpen: false, view: 'CART_VIEW' });
 
 export function useDrawer() {

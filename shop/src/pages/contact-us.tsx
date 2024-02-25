@@ -1,80 +1,45 @@
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import type { GetStaticProps } from 'next';
-import { useTranslation } from 'next-i18next';
-import type { CreateContactUsInput, NextPageWithLayout } from '@/types';
-import React, { useState } from 'react';
-import { useMutation } from 'react-query';
-import type { SubmitHandler } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import GeneralLayout from '@/layouts/_general-layout';
+import { ContactInfo } from '@/components/contact-us/contact-info';
+import ContactForm from '@/components/contact-us/form';
 import { LocationIcon } from '@/components/icons/contact/location-icon';
-import { PhoneIcon } from '@/components/icons/contact/phone-icon';
 import { MailIcon } from '@/components/icons/contact/mail-icon';
-import { Form } from '@/components/ui/forms/form';
-import Input from '@/components/ui/forms/input';
-import Textarea from '@/components/ui/forms/textarea';
-import Seo from '@/layouts/_seo';
-import Button from '@/components/ui/button';
-import client from '@/data/client';
+import { PhoneIcon } from '@/components/icons/contact/phone-icon';
+import * as socialIcons from '@/components/icons/social';
+import Link from '@/components/ui/link';
 import PageHeading from '@/components/ui/page-heading';
 import routes from '@/config/routes';
-import * as yup from 'yup';
+import { useContactUs } from '@/data/contact';
 import { useSettings } from '@/data/settings';
-
-function ContactInfo({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex max-w-xs flex-row items-center pr-4 sm:pr-2 lg:max-w-sm lg:pr-0">
-      <div className="flex w-12 flex-shrink-0 justify-center text-brand">
-        {icon}
-      </div>
-      <div className="mt-0 ltr:pl-5 rtl:pr-5">
-        <h3 className="mb-2 text-15px font-medium text-dark dark:text-light">
-          {title}
-        </h3>
-        <p className="leading-[1.8em]">{description}</p>
-      </div>
-    </div>
-  );
-}
-
-const contactUsFormSchema = yup.object().shape({
-  name: yup.string().required(),
-  email: yup.string().email().required(),
-  subject: yup.string().required(),
-  description: yup.string().required(),
-});
+import GeneralLayout from '@/layouts/_general-layout';
+import Seo from '@/layouts/_seo';
+import { getIcon } from '@/lib/get-icon';
+import type { CreateContactUsInput, NextPageWithLayout } from '@/types';
+import { isEmpty } from 'lodash';
+import type { GetStaticProps } from 'next';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useEffect, useState } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
 
 const ContactUsPage: NextPageWithLayout = () => {
   const { t } = useTranslation('common');
   const { settings } = useSettings();
   const { contactDetails } = settings ?? {};
   let [reset, setReset] = useState<CreateContactUsInput | null>(null);
-  const { mutate } = useMutation(client.settings.contactUs, {
-    onSuccess: () => {
-      toast.success('Successfully sent your message');
+  const { mutate, isLoading, isSuccess } = useContactUs();
+  const onSubmit: SubmitHandler<CreateContactUsInput> = (values) => {
+    mutate(values);
+  };
+  useEffect(() => {
+    if (isSuccess) {
       setReset({
         name: '',
         email: '',
         subject: '',
         description: '',
       });
-    },
-    onError: (res) => {
-      toast.error('Ops! something went wrong');
-      console.log(res);
-    },
-  });
-  const onSubmit: SubmitHandler<CreateContactUsInput> = (values) => {
-    mutate(values);
-  };
+    }
+  }, [isSuccess]);
+
   return (
     <>
       <Seo
@@ -118,50 +83,35 @@ const ContactUsPage: NextPageWithLayout = () => {
                   contactDetails?.website ?? t('contact-us-site-message')
                 }
               />
+              {!isEmpty(contactDetails?.socials) ? (
+                <div className="flex items-center gap-5">
+                  {contactDetails?.socials?.map(({ icon, url }, idx) => (
+                    <Link
+                      key={idx}
+                      href={url}
+                      target="_blank"
+                      className="group flex items-center"
+                    >
+                      {getIcon({
+                        iconList: socialIcons,
+                        iconName: icon,
+                        className:
+                          'w-4 h-4 text-dark-800 dark:text-light-900 shrink-0',
+                      })}
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                ''
+              )}
             </div>
           </div>
           <div className="w-full flex-grow pt-12 lg:p-10 xl:p-12">
-            <Form<CreateContactUsInput>
+            <ContactForm
               onSubmit={onSubmit}
-              validationSchema={contactUsFormSchema}
-              resetFields={reset}
-            >
-              {({ register, formState: { errors } }) => (
-                <>
-                  <fieldset className="mb-6 grid gap-5 sm:grid-cols-2">
-                    <Input
-                      label={t('contact-us-name-field')}
-                      {...register('name')}
-                      error={errors.name?.message}
-                    />
-                    <Input
-                      label={t('contact-us-email-field')}
-                      type="email"
-                      {...register('email')}
-                      error={errors.email?.message}
-                    />
-                    <Input
-                      label={t('contact-us-subject-field')}
-                      {...register('subject')}
-                      error={errors.subject?.message}
-                      className="sm:col-span-2"
-                    />
-                    <Textarea
-                      label={t('contact-us-message-field')}
-                      {...register('description')}
-                      error={errors.description?.message}
-                      className="sm:col-span-2"
-                    />
-                  </fieldset>
-                  <Button
-                    type="submit"
-                    className="mb-1 w-full flex-1 sm:flex-none md:w-auto"
-                  >
-                    {t('contact-us-submit-button')}
-                  </Button>
-                </>
-              )}
-            </Form>
+              reset={reset}
+              isLoading={isLoading}
+            />
           </div>
         </div>
       </div>

@@ -38,6 +38,10 @@ export default function Logo({
             loading="eager"
             alt={settings?.siteTitle ?? 'Dark Logo'}
             className="object-contain"
+            priority
+            sizes="(max-width: 768px) 100vw,
+              (max-width: 1200px) 50vw,
+              33vw"
           />
         )}
         {isMounted && !isDarkMode && (

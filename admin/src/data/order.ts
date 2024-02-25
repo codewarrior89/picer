@@ -45,7 +45,10 @@ export const useOrderQuery = ({
 }) => {
   const { data, error, isLoading } = useQuery<Order, Error>(
     [API_ENDPOINTS.ORDERS, { id, language }],
-    () => orderClient.get({ id, language })
+    () => orderClient.get({ id, language }),
+    {
+      enabled: Boolean(id), // Set to true to enable or false to disable
+    }
   );
 
   return {
@@ -119,7 +122,11 @@ export const useUpdateOrderMutation = () => {
 };
 
 export const useDownloadInvoiceMutation = (
-  { order_id, isRTL, language }: { order_id: string, isRTL: boolean, language: string },
+  {
+    order_id,
+    isRTL,
+    language,
+  }: { order_id: string; isRTL: boolean; language: string },
   options: any = {}
 ) => {
   const { t } = useTranslation();
@@ -150,3 +157,21 @@ export const useDownloadInvoiceMutation = (
     }
   );
 };
+
+export function useOrderSeen() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation('common');
+  const {
+    mutate: readOrderNotice,
+    isLoading,
+    isSuccess,
+  } = useMutation(orderClient.orderSeen, {
+    onSuccess: () => {},
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries(API_ENDPOINTS.ORDER_SEEN);
+    },
+  });
+
+  return { readOrderNotice, isLoading, isSuccess };
+}

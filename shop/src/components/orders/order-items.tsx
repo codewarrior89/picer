@@ -97,7 +97,7 @@ export const OrderItems = ({
       order_id: orderId,
       name: record.name,
       image: record.image,
-      my_review: getReview(record?.my_review, record?.order_id),
+      my_review: getReview(record?.my_review, record?.pivot?.order_id),
       ...(record.pivot?.variation_option_id && {
         variation_option_id: record.pivot?.variation_option_id,
       }),
@@ -141,7 +141,7 @@ export const OrderItems = ({
               onClick={() => (getStatus ? openReviewModal(record) : null)}
               disabled={getStatus ? false : true}
             >
-              {getReview(record?.my_review, record?.order_id)
+              {getReview(record?.my_review, record?.pivot?.order_id)
                 ? t('text-update-review')
                 : t('text-write-review')}
             </button>

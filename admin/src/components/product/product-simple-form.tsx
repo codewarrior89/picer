@@ -8,6 +8,7 @@ import FileInput from '@/components/ui/file-input';
 import Checkbox from '@/components/ui/checkbox/checkbox';
 import { Config } from '@/config';
 import { useRouter } from 'next/router';
+import Alert from '@/components/ui/alert';
 
 type IProps = {
   initialValues: any;
@@ -31,10 +32,11 @@ export default function ProductSimpleForm({ initialValues }: IProps) {
     <div className="my-5 flex flex-wrap sm:my-8">
       <Description
         title={t('form:form-title-simple-product-info')}
-        details={`${initialValues
-          ? t('form:item-description-edit')
-          : t('form:item-description-add')
-          } ${t('form:form-description-simple-product-info')}`}
+        details={`${
+          initialValues
+            ? t('form:item-description-edit')
+            : t('form:item-description-add')
+        } ${t('form:form-description-simple-product-info')}`}
         className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
       />
 
@@ -99,6 +101,37 @@ export default function ProductSimpleForm({ initialValues }: IProps) {
           className="mb-5"
         />
 
+        {is_digital ? (
+          <>
+            <Label>{t('form:input-label-digital-file')}</Label>
+            <FileInput
+              name="digital_file_input"
+              control={control}
+              multiple={false}
+              acceptFile={true}
+              defaultValue={{}}
+            />
+            <Alert
+              message={t('form:info-about-digital-product')}
+              variant="info"
+              closeable={false}
+              className="mt-5 mb-5"
+            />
+            <input type="hidden" {...register(`digital_file`)} />
+            {
+              // @ts-ignore
+              errors.digital_file_input && (
+                <p className="my-2 text-xs text-red-500 text-start">
+                  {
+                    // @ts-ignore
+                    t('form:error-digital-file-is-required')
+                  }
+                </p>
+              )
+            }
+          </>
+        ) : null}
+
         {is_external ? (
           <div>
             <Input
@@ -107,6 +140,7 @@ export default function ProductSimpleForm({ initialValues }: IProps) {
               error={t(errors.external_product_url?.message!)}
               variant="outline"
               className="mb-5"
+              required
             />
             <Input
               label={t('form:input-label-external-product-button-text')}
@@ -114,9 +148,10 @@ export default function ProductSimpleForm({ initialValues }: IProps) {
               error={t(errors.external_product_button_text?.message!)}
               variant="outline"
               className="mb-5"
+              required
             />
           </div>
-        ) :
+        ) : (
           <>
             <Label>{t('form:input-label-digital-file')}</Label>
             <FileInput
@@ -133,7 +168,7 @@ export default function ProductSimpleForm({ initialValues }: IProps) {
               </p>
             )}
           </>
-        }
+        )}
       </Card>
     </div>
   );

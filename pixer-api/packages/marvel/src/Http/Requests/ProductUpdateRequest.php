@@ -57,7 +57,7 @@ class ProductUpdateRequest extends FormRequest
             'digital_file'                 => ['array'],
             'product_type'                 => ['required', Rule::in($productType)],
             'unit'                         => ['string'],
-            'description'                  => ['nullable', 'string'],
+            'description'                  => ['nullable', 'string', 'max:10000'],
             'quantity'                     => ['nullable', 'integer'],
             'sku'                          => ['string', Rule::unique('variation_options')->where(fn ($query) => $query->whereSku($this->sku))],
             'image'                        => ['array'],

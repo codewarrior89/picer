@@ -1,8 +1,9 @@
 import type { Settings } from '@/types';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import client from './client';
 import { API_ENDPOINTS } from './client/endpoints';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 export const useSettings = () => {
   const { locale } = useRouter();
@@ -23,3 +24,21 @@ export const useSettings = () => {
     error,
   };
 };
+
+export function useSubscription() {
+  let [isSubscribed, setIsSubscribed] = useState(false);
+
+  const subscription = useMutation(client.settings.subscribe, {
+    onSuccess: () => {
+      setIsSubscribed(true);
+    },
+    onError: () => {
+      setIsSubscribed(false);
+    },
+  });
+
+  return {
+    ...subscription,
+    isSubscribed,
+  };
+}

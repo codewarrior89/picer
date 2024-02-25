@@ -37,7 +37,6 @@ export default function RegisterUserForm() {
       closeModal();
     },
     onError: (err: any) => {
-      console.log(err.response.data, 'error');
       setServerError(err.response.data);
     },
   });
