@@ -1,5 +1,4 @@
 <?php
-
 namespace Marvel\Console;
 
 use Illuminate\Console\Command;
@@ -16,27 +15,16 @@ use function Laravel\Prompts\{text, confirm, info, error, table};
 
 class InstallCommand extends Command
 {
-    private array $appData;
-    protected MarvelVerification $verification;
     protected $signature = 'marvel:install';
 
     protected $description = 'Installing Marvel Dependencies';
+
     public function handle()
     {
-        $this->verification = new MarvelVerification();
-        $shouldGetLicenseKeyFromUser = $this->shouldGetLicenseKey();
-        if ($shouldGetLicenseKeyFromUser) {
-            $this->getLicenseKey();
-            $description = $this->appData['description'] ?? '';
-            $this->components->info("Thank you for using " . APP_NOTICE_DOMAIN . ". $description");
-        } else {
-            $this->appData = $this->verification->jsonSerialize();
-        }
-
         info('Installing Marvel Dependencies...');
         info('Do you want to migrate Tables?');
         info('If you have already run this command or migrated tables then be aware.');
-        info('Tt will erase all of your data.');
+        info('It will erase all of your data.');
 
         info('Please use arrow key for navigation.');
         if (confirm('Are you sure!')) {
@@ -116,76 +104,6 @@ class InstallCommand extends Command
         info('Thank You.');
     }
 
-
-    private function createDatabase(): void
-    {
-        $databaseName = config('database.connections.mysql.database');
-        $servername = config('database.connections.mysql.host');
-        $username = config('database.connections.mysql.username');
-        $password = config('database.connections.mysql.password');
-
-        try {
-            $conn = new PDO("mysql:host=$servername", $username, $password);
-            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-            // Check if the database exists
-            $query = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$databaseName'";
-            $stmt = $conn->query($query);
-            $databaseExists = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$databaseExists) {
-                // Create the database
-                $createDatabaseQuery = "CREATE DATABASE $databaseName";
-                $conn->exec($createDatabaseQuery);
-                info("Database $databaseName created successfully.");
-            }
-            // else {
-            //     $this->info("Database $databaseName already exists.");
-            // }
-        } catch (PDOException $e) {
-            info("Connection failed: " . $e->getMessage());
-        }
-    }
-
-    private function getLicenseKey($count = 0)
-    {
-        $message = 'Kindly enter a valid License Key or visit https://redq.io/pickbazar-laravel-ecommerce for a legitimate license key';
-        if ($count < 1) {
-            $message = 'Please Enter Your License Key.';
-        }
-        $licenseKey = text($message);
-        $isValid = $this->licenseKeyValidator($licenseKey);
-        if (!$isValid) {
-            ++$count;
-            error("Invalid Licensing Key");
-            $this->getLicenseKey($count);
-        }
-        return $isValid;
-    }
-
-    private function licenseKeyValidator(string $licenseKey): bool
-    {
-        $verification = $this->verification->verify($licenseKey);
-        $this->appData = $verification->jsonSerialize();
-        return $verification->getTrust();
-    }
-
-
-
-    private function shouldGetLicenseKey()
-    {
-        $trust = empty($this->verification->getTrust());
-        $env = config("app.env");
-        if ($env == "production") {
-            return true;
-        } elseif ($env == "local" && $trust) {
-            return true;
-        } elseif ($env == "development" && $trust) {
-            return true;
-        }
-        return false;
-    }
-
     private function modifySettingsData(): void
     {
 
@@ -196,8 +114,8 @@ class InstallCommand extends Command
             'options' => [
                 ...$settings->options,
                 'app_settings' => [
-                    'last_checking_time' => $this->appData['last_checking_time'],
-                    'trust'       => $this->appData['trust'],
+                    'last_checking_time' => null,
+                    'trust'       => null,
                 ]
             ]
         ]);
