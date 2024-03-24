@@ -232,9 +232,11 @@ class UserController extends CoreController
     {
         try {
             $user = $request->user();
-
             if (isset($user)) {
-                return $this->repository->with(['profile', 'wallet', 'address', 'shops.balance', 'managed_shop.balance'])->find($user->id);
+                return $this->repository
+                    ->with(['profile', 'wallet', 'address', 'shops.balance', 'managed_shop.balance'])
+                    ->find($user->id)
+                    ->loadLastOrder();
             }
             throw new AuthorizationException(NOT_AUTHORIZED);
         } catch (MarvelException $e) {
@@ -756,11 +758,11 @@ class UserController extends CoreController
             $language = $request['language'] ?? DEFAULT_LANGUAGE;
             $marvel = new MarvelVerification($licenseKey);
             if (!$marvel->getTrust()) {
-                throw new MarvelNotFoundException("Invalid Key");
+                throw new MarvelNotFoundException(INVALID_LICENSE_KEY);
             }
             return $marvel->modifySettingsData($language);
         } catch (MarvelException $th) {
-            throw new MarvelException("Invalid Key");
+            throw new MarvelException(INVALID_LICENSE_KEY);
         }
     }
     public function fetchUsersByPermission(Request $request)

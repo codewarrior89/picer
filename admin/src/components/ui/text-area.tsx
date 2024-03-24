@@ -1,11 +1,12 @@
-import classNames from 'classnames';
-import cn from 'classnames';
+import TooltipLabel from '@/components/ui/tooltip-label';
+import { default as classNames, default as cn } from 'classnames';
 import React, { TextareaHTMLAttributes } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 export interface Props extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   className?: string;
   inputClassName?: string;
+  toolTipText?: string;
   label?: string;
   name: string;
   error?: string;
@@ -28,6 +29,7 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, Props>((props, ref) => {
   const {
     className,
     label,
+    toolTipText,
     name,
     error,
     variant = 'normal',
@@ -48,16 +50,18 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, Props>((props, ref) => {
     {
       [classes.shadow]: shadow,
     },
-    inputClassName
+    inputClassName,
   );
 
   return (
     <div className={twMerge(classNames(className))}>
       {label && (
-        <label className="mb-3 block text-sm font-semibold leading-none text-body-dark">
-          {label}
-          {required ? <span className="ml-0.5 text-red-500">*</span> : ''}
-        </label>
+        <TooltipLabel
+          htmlFor={name}
+          toolTipText={toolTipText}
+          label={label}
+          required={required}
+        />
       )}
       <textarea
         id={name}
@@ -65,8 +69,8 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, Props>((props, ref) => {
         className={twMerge(
           classNames(
             rootClassName,
-            disabled ? 'cursor-not-allowed border-[#D4D8DD] bg-[#EEF1F4]' : ''
-          )
+            disabled ? 'cursor-not-allowed border-[#D4D8DD] bg-[#EEF1F4]' : '',
+          ),
         )}
         autoComplete="off"
         autoCorrect="off"

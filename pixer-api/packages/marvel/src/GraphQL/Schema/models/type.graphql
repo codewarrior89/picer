@@ -174,6 +174,10 @@ type Banner {
 input BannerInputType {
     title: String
     description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     image: AttachmentInput
 }
 

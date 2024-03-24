@@ -10,7 +10,11 @@ extend type Query {
             builder: "Marvel\\GraphQL\\Queries\\RefundPolicyQuery@fetchRefundPolicies"
             defaultCount: 15
         )
-    refundPolicy( id: ID @eq slug: String @eq language: String @eq): RefundPolicy @find
+    refundPolicy(
+        id: ID @eq
+        slug: String @eq
+        language: String @eq
+    ): RefundPolicy @find
 }
 
 type RefundPolicy {
@@ -34,6 +38,10 @@ input CreateRefundPolicyInput {
     status: String! @rules(apply: ["required"])
     slug: String
     description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     shop_id: ID
     language: String
 }
@@ -45,6 +53,10 @@ input UpdateRefundPolicyInput {
     status: String
     slug: String
     description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     shop_id: ID
     language: String
 }

@@ -15,6 +15,7 @@ export const Routes = {
   shopSettings: '/settings/shop',
   companyInformation: '/settings/company-information',
   maintenance: '/settings/maintenance',
+  promotionPopup: '/settings/promotion-popup',
   storeSettings: '/vendor/settings',
   storeKeepers: '/vendor/store_keepers',
   profileUpdate: '/profile-update',
@@ -155,6 +156,9 @@ export const Routes = {
     },
   },
   visitStore: (slug: string) => `${process.env.NEXT_PUBLIC_SHOP_URL}/${slug}`,
+  vendorRequestForFlashSale: {
+    ...routesFactory('/flash-sale/vendor-request'),
+  },
 };
 
 function routesFactory(endpoint: string) {
@@ -177,5 +181,8 @@ function routesFactory(endpoint: string) {
         : `${language}${endpoint}/${slug}/translate`;
     },
     details: (slug: string) => `${endpoint}/${slug}`,
+    editByIdWithoutLang: (id: string, shop?: string) => {
+      return shop ? `/${shop}${endpoint}/${id}/edit` : `${endpoint}/${id}/edit`;
+    },
   };
 }

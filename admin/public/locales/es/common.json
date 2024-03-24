@@ -524,5 +524,6 @@
   "text-title-sale": "Venta",
   "text-title-balance": "Balance",
   "text-title-withdraw": "Retirar",
-  "text-title-description": "Descripción"
+  "text-title-description": "Descripción",
+  "text-image-uploading-message": "¡Espere por favor! La imagen se está cargando."
 }

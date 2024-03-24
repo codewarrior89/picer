@@ -54,6 +54,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('flash_sales');
         Schema::dropIfExists('flash_sale_requests');
-        Schema::dropIfExists('flash_sale_product');
+        Schema::dropIfExists('flash_sale_products');
     }
 };

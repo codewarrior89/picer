@@ -23,6 +23,8 @@ export type LanguageSwitcherProps = {
   routes: any;
   className?: string | undefined;
   enablePreviewMode?: boolean;
+  isCouponApprove?: boolean;
+  couponApproveButton?: boolean;
   isShop?: boolean;
   shopSlug?: string;
 };
@@ -36,6 +38,8 @@ const LanguageSwitcher = ({
   enablePreviewMode,
   isShop,
   shopSlug,
+  isCouponApprove,
+  couponApproveButton,
 }: LanguageSwitcherProps) => {
   const router = useRouter();
   const { t } = useTranslation('common');
@@ -84,6 +88,8 @@ const LanguageSwitcher = ({
         previewUrl={preview}
         deleteModalView={deleteModalView}
         enablePreviewMode={enablePreviewMode}
+        couponApproveButton={couponApproveButton}
+        isCouponApprove={isCouponApprove}
       />
       {Config.defaultLanguage === router.locale && (
         // <Popover className="relative inline-block">

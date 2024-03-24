@@ -216,6 +216,7 @@ export interface User {
   role: string;
   created_at: string;
   updated_at: string;
+  last_order: Order;
 }
 
 export interface UpdateProfileInput {
@@ -447,6 +448,7 @@ export interface Product {
   is_external: boolean;
   external_product_url: string;
   external_product_button_text: string;
+  video?: string[];
 }
 
 export interface ProductPaginator extends PaginatorInfo<Product> {}
@@ -495,6 +497,7 @@ export interface Order {
     amount?: number;
   };
   sales_tax: number;
+  reviews?: Review[];
 }
 
 export interface DigitalFile {

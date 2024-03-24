@@ -388,5 +388,6 @@
   "text-title-seconds": "seconds",
   "text-title-change-language": "Change Language",
   "text-title-language": "Language",
-  "text-maintenance-mode-title": "Maintenance Mode Begins In"
+  "text-maintenance-mode-title": "Maintenance Mode Begins In",
+  "error-email-required": "Email is required."
 }

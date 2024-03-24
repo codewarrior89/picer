@@ -1,30 +1,30 @@
 import Card from '@/components/common/card';
+import { SaveIcon } from '@/components/icons/save';
+import { eventsValidationSchema } from '@/components/settings/events/events-validation-schema';
+import {
+  EMAIL_GROUP_OPTION,
+  PUSH_NOTIFICATION_OPTION,
+  SMS_GROUP_OPTION,
+} from '@/components/settings/events/eventsOption';
 import Button from '@/components/ui/button';
 import Description from '@/components/ui/description';
 import ValidationError from '@/components/ui/form-validation-error';
-import Label from '@/components/ui/label';
 import SelectInput from '@/components/ui/select-input';
-import { Config } from '@/config';
+import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
+import TooltipLabel from '@/components/ui/tooltip-label';
 import { useUpdateSettingsMutation } from '@/data/settings';
 import { Settings } from '@/types';
+import { useConfirmRedirectIfDirty } from '@/utils/confirmed-redirect-if-dirty';
+import {
+  formatEventAPIData,
+  formatEventOptions,
+} from '@/utils/format-event-options';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { split } from 'lodash';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import {
-  formatEventAPIData,
-  formatEventOptions,
-} from '@/utils/format-event-options';
-import {
-  EMAIL_GROUP_OPTION,
-  SMS_GROUP_OPTION,
-  PUSH_NOTIFICATION_OPTION,
-} from '@/components/settings/events/eventsOption';
-import { eventsValidationSchema } from '@/components/settings/events/events-validation-schema';
-import { SaveIcon } from '@/components/icons/save';
-import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
 
 type EventFormValues = {
   smsEvent: any;
@@ -45,12 +45,10 @@ export default function EventsSettingsForm({ settings }: IProps) {
   const { language, options } = settings ?? {};
 
   const {
-    register,
     handleSubmit,
     control,
-    getValues,
-    watch,
-    formState: { errors },
+    reset,
+    formState: { errors, isDirty },
   } = useForm<EventFormValues>({
     shouldUnregister: true,
     //@ts-ignore
@@ -85,7 +83,9 @@ export default function EventsSettingsForm({ settings }: IProps) {
         pushNotification,
       },
     });
+    reset(values, { keepValues: true });
   }
+  useConfirmRedirectIfDirty({ isDirty });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -97,7 +97,6 @@ export default function EventsSettingsForm({ settings }: IProps) {
         />
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <div className="mb-5">
-            <Label>{t('form:input-label-realtime-notification-options')}</Label>
             <SelectInput
               name="pushNotification"
               control={control}
@@ -113,6 +112,8 @@ export default function EventsSettingsForm({ settings }: IProps) {
               isCloseMenuOnSelect={false}
               options={PUSH_NOTIFICATION_OPTION}
               isMulti
+              label={t('form:input-label-realtime-notification-options')}
+              toolTipText={t('form:input-tooltip-notification-options')}
             />
 
             <ValidationError message={t(errors.currency?.message)} />
@@ -127,7 +128,6 @@ export default function EventsSettingsForm({ settings }: IProps) {
         />
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <div className="mb-5">
-            <Label>{t('form:input-label-sms-options')}</Label>
             <SelectInput
               name="smsEvent"
               control={control}
@@ -145,6 +145,8 @@ export default function EventsSettingsForm({ settings }: IProps) {
               isCloseMenuOnSelect={false}
               options={SMS_GROUP_OPTION}
               isMulti
+              label={t('form:input-label-sms-options')}
+              toolTipText={t('form:input-tooltip-sms-options')}
             />
             <ValidationError message={t(errors.currency?.message)} />
           </div>
@@ -159,7 +161,6 @@ export default function EventsSettingsForm({ settings }: IProps) {
 
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <div className="mb-5">
-            <Label>{t('form:input-label-email-options')}</Label>
             <SelectInput
               name="emailEvent"
               control={control}
@@ -177,6 +178,8 @@ export default function EventsSettingsForm({ settings }: IProps) {
               isCloseMenuOnSelect={false}
               options={EMAIL_GROUP_OPTION}
               isMulti
+              label={t('form:input-label-email-options')}
+              toolTipText={t('form:input-tooltip-email-options')}
             />
             <ValidationError message={t(errors.currency?.message)} />
           </div>
@@ -185,7 +188,7 @@ export default function EventsSettingsForm({ settings }: IProps) {
       <StickyFooterPanel className="z-0">
         <Button
           loading={loading}
-          disabled={loading}
+          disabled={loading || !Boolean(isDirty)}
           className="text-sm md:text-base"
         >
           <SaveIcon className="relative w-6 h-6 top-px shrink-0 ltr:mr-2 rtl:pl-2" />

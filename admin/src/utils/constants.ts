@@ -11,6 +11,7 @@ export const CART_KEY = 'pick-cart';
 export const CHECKOUT = 'pickbazar-checkout';
 export const RESPONSIVE_WIDTH = 1024 as number;
 export const MAINTENANCE_DETAILS = 'MAINTENANCE_DETAILS';
+export const MAXIMUM_WORD_COUNT_FOR_RICH_TEXT_EDITOR: number = 10000;
 export const phoneRegExp =
   /^\+?((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 export const URLRegExp =

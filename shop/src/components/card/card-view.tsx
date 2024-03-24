@@ -66,7 +66,7 @@ const CardsView = ({
       render: (record: any) => {
         return record?.default_card ? (
           <div className="w-9 text-brand">
-            <CheckIconWithBg className="w-5 h-5" />
+            <CheckIconWithBg className="h-5 w-5" />
           </div>
         ) : (
           ''
@@ -142,10 +142,10 @@ const CardsView = ({
         return (
           <div className="relative flex items-center justify-end">
             <Menu>
-              <Menu.Button className="relative inline-flex items-center justify-center h-8 space-x-1">
-                <span className="inline-flex w-1 h-1 rounded-full shrink-0 bg-dark-700 dark:bg-light-800"></span>
-                <span className="inline-flex w-1 h-1 rounded-full shrink-0 bg-dark-700 dark:bg-light-800"></span>
-                <span className="inline-flex w-1 h-1 rounded-full shrink-0 bg-dark-700 dark:bg-light-800"></span>
+              <Menu.Button className="relative inline-flex h-8 items-center justify-center space-x-1">
+                <span className="inline-flex h-1 w-1 shrink-0 rounded-full bg-dark-700 dark:bg-light-800"></span>
+                <span className="inline-flex h-1 w-1 shrink-0 rounded-full bg-dark-700 dark:bg-light-800"></span>
+                <span className="inline-flex h-1 w-1 shrink-0 rounded-full bg-dark-700 dark:bg-light-800"></span>
               </Menu.Button>
               <Transition
                 as={Fragment}
@@ -191,7 +191,7 @@ const CardsView = ({
       //@ts-ignore
       columns={columns}
       data={payments}
-      className="w-full shadow-none card-view-table"
+      className="card-view-table w-full shadow-none"
       scroll={{ x: 800 }}
       rowClassName={(record: any) =>
         record?.default_card ? 'row-highlight' : ''

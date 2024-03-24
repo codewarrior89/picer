@@ -3,6 +3,10 @@ import { Config } from '@/config';
 import LanguageAction from './language-switcher';
 import shop from '@/components/layouts/shop';
 import { useRouter } from 'next/router';
+import { CheckMarkCircle } from '@/components/icons/checkmark-circle';
+import { CloseFillIcon } from '@/components/icons/close-fill';
+import { useModalAction } from '../modal/modal.context';
+import { useTranslation } from 'react-i18next';
 
 export type LanguageSwitcherProps = {
   record: any;
@@ -13,6 +17,8 @@ export type LanguageSwitcherProps = {
   enablePreviewMode?: boolean;
   isShop?: boolean;
   shopSlug?: string;
+  couponApproveButton?: boolean;
+  isCouponApprove?: boolean;
 };
 
 export default function LanguageSwitcher({
@@ -24,6 +30,8 @@ export default function LanguageSwitcher({
   enablePreviewMode,
   isShop,
   shopSlug,
+  couponApproveButton,
+  isCouponApprove,
 }: LanguageSwitcherProps) {
   const { enableMultiLang } = Config;
   const {
@@ -44,6 +52,8 @@ export default function LanguageSwitcher({
           enablePreviewMode={enablePreviewMode}
           isShop={isShop}
           shopSlug={shopSlug}
+          couponApproveButton={couponApproveButton}
+          isCouponApprove={isCouponApprove}
         />
       ) : (
         <ActionButtons
@@ -52,6 +62,8 @@ export default function LanguageSwitcher({
           previewUrl={preview}
           enablePreviewMode={enablePreviewMode}
           deleteModalView={deleteModalView}
+          couponApproveButton={couponApproveButton}
+          isCouponApprove={isCouponApprove}
         />
       )}
     </>

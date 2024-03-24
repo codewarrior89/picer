@@ -21,6 +21,7 @@ use Marvel\Http\Controllers\DownloadController;
 use Marvel\Http\Controllers\FaqsController;
 use Marvel\Http\Controllers\FeedbackController;
 use Marvel\Http\Controllers\FlashSaleController;
+use Marvel\Http\Controllers\FlashSaleVendorRequestController;
 use Marvel\Http\Controllers\ManufacturerController;
 use Marvel\Http\Controllers\MessageController;
 use Marvel\Http\Controllers\OrderController;
@@ -332,6 +333,14 @@ Route::group(
         Route::get('products-stock', [ProductController::class, 'productStock']);
         Route::get('products-by-flash-sale', [FlashSaleController::class, 'getProductsByFlashSale']);
         Route::get('top-rate-product', [AnalyticsController::class, 'topRatedProducts']);
+        Route::apiResource('coupons', CouponController::class, [
+            'only' => ['update'],
+        ]);
+        // Route::get('products-requested-for-flash-sale-by-vendor', [FlashSaleVendorRequestController::class, 'getProductsByFlashSaleVendorRequest']);
+        Route::get('requested-products-for-flash-sale', [FlashSaleVendorRequestController::class, 'getRequestedProductsForFlashSale']);
+        Route::apiResource('vendor-requests-for-flash-sale', FlashSaleVendorRequestController::class, [
+            'only' => ['index', 'show', 'store', 'destroy'],
+        ]);
     }
 );
 
@@ -377,6 +386,15 @@ Route::group(
         Route::apiResource('terms-and-conditions', TermsAndConditionsController::class, [
             'only' => ['store', 'update', 'destroy'],
         ]);
+
+        Route::apiResource('coupons', CouponController::class, [
+            'only' => ['store', 'destroy'],
+        ]);
+
+        Route::apiResource('terms-and-conditions', TermsAndConditionsController::class, [
+            'only' => ['store', 'update', 'destroy'],
+        ]);
+        // Route::post('products-request-for-flash-sale', [FlashSaleVendorRequestController::class, 'productsRequestForFlashSale']);
     }
 );
 
@@ -413,9 +431,9 @@ Route::group(['middleware' => ['permission:' . Permission::SUPER_ADMIN, 'auth:sa
     Route::apiResource('resources', ResourceController::class, [
         'only' => ['update', 'destroy']
     ]);
-    Route::apiResource('coupons', CouponController::class, [
-        'only' => ['store', 'update', 'destroy'],
-    ]);
+    // Route::apiResource('coupons', CouponController::class, [
+    //     'only' => ['store', 'update', 'destroy'],
+    // ]);
     // Route::apiResource('order-status', OrderStatusController::class, [
     //     'only' => ['store', 'update', 'destroy'],
     // ]);
@@ -475,5 +493,13 @@ Route::group(['middleware' => ['permission:' . Permission::SUPER_ADMIN, 'auth:sa
     Route::get('all-staffs', [UserController::class, 'allStaffs']);
     Route::resource('refund-policies', RefundPolicyController::class, [
         'only' => ['store', 'update', 'destroy'],
+    ]);
+    Route::post('approve-coupon', [CouponController::class, 'approveCoupon']);
+    Route::post('disapprove-coupon', [CouponController::class, 'disApproveCoupon']);
+    // Route::get('requested-products-for-flash-sale', [FlashSaleVendorRequestController::class, 'getRequestedProductsForFlashSale']);
+    Route::post('approve-flash-sale-requested-products', [FlashSaleVendorRequestController::class, 'approveFlashSaleProductsRequest']);
+    Route::post('disapprove-flash-sale-requested-products', [FlashSaleVendorRequestController::class, 'disapproveFlashSaleProductsRequest']);
+    Route::apiResource('vendor-requests-for-flash-sale', FlashSaleVendorRequestController::class, [
+        'only' => ['update'],
     ]);
 });

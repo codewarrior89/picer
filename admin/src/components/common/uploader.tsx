@@ -148,18 +148,18 @@ export default function Uploader({
             //     alt="uploaded image"
             //   />
             // </div>
-            <figure className="relative h-16 w-28">
+            <figure className="relative flex items-center justify-center h-16 w-28 aspect-square">
               <Image
                 src={file.thumbnail}
                 alt={filename}
                 fill
                 sizes="(max-width: 768px) 100vw"
-                className="object-contain"
+                className="object-cover"
               />
             </figure>
           ) : (
             <div className="flex flex-col items-center">
-              <div className="flex h-14 w-14 min-w-0 items-center justify-center overflow-hidden">
+              <div className="flex items-center justify-center min-w-0 overflow-hidden h-14 w-14">
                 <Image
                   src={zipPlaceholder}
                   width={56}
@@ -167,7 +167,7 @@ export default function Uploader({
                   alt="upload placeholder"
                 />
               </div>
-              <p className="flex cursor-default items-baseline p-1 text-xs text-body">
+              <p className="flex items-baseline p-1 text-xs cursor-default text-body">
                 <span
                   className="inline-block max-w-[64px] overflow-hidden overflow-ellipsis whitespace-nowrap"
                   title={`${filename}.${fileType}`}
@@ -194,7 +194,7 @@ export default function Uploader({
           ) : null} */}
           {!disabled ? (
             <button
-              className="absolute top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs text-light shadow-xl outline-none end-1"
+              className="absolute flex items-center justify-center w-4 h-4 text-xs bg-red-600 rounded-full shadow-xl outline-none top-1 text-light end-1"
               onClick={() => handleDelete(file.thumbnail)}
             >
               <CloseIcon width={10} height={10} />
@@ -232,7 +232,7 @@ export default function Uploader({
       >
         {!disabled ? <input {...getInputProps()} /> : ''}
         <UploadIcon className="text-muted-light" />
-        <p className="mt-4 text-center text-sm text-body">
+        <p className="mt-4 text-sm text-center text-body">
           {helperText ? (
             <span className="font-semibold text-gray-500">{helperText}</span>
           ) : (
@@ -246,16 +246,16 @@ export default function Uploader({
           )}
         </p>
         {error && (
-          <p className="mt-4 text-center text-sm text-red-600">{error}</p>
+          <p className="mt-4 text-sm text-center text-red-600">{error}</p>
         )}
       </div>
 
       {(!!thumbs.length || loading) && (
-        <aside className="mt-2 flex flex-wrap">
+        <aside className="flex flex-wrap mt-2">
           {!!thumbs.length && thumbs}
           {loading && (
-            <div className="mt-2 flex h-16 items-center ms-2">
-              <Loader simple={true} className="h-6 w-6" />
+            <div className="flex items-center h-16 mt-2 ms-2">
+              <Loader simple={true} className="w-6 h-6" />
             </div>
           )}
         </aside>

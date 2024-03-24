@@ -34,7 +34,7 @@ class UpdateRefundPolicyRequest extends FormRequest
             'target'      => ['string', 'max:255', Rule::in(RefundPolicyTarget::getValues())],
             'status'      => ['string', 'max:255', Rule::in(RefundPolicyStatus::getValues())],
             'slug'        => ['nullable', 'string', 'max: 255'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:10000'],
             'shop_id'     => ['nullable', 'exists:' . Shop::class . ',id'],
             'language'    => ['nullable', 'string'],
         ];

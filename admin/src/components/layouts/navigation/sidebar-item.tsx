@@ -28,6 +28,7 @@ function SidebarShortItem({
   icon: string;
   miniSidebar: boolean;
 }) {
+  const { closeSidebar } = useUI();
   const [dropdown, setDropdown] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
@@ -60,9 +61,10 @@ function SidebarShortItem({
                         : sanitizedPath === item?.href
                     )
                       ? 'bg-transparent font-medium text-accent-hover'
-                      : 'text-body-dark hover:text-accent focus:text-accent'
+                      : 'text-body-dark hover:text-accent focus:text-accent',
                   )}
                   title={t(item?.label)}
+                  onClick={() => closeSidebar()}
                 >
                   {t(item?.label)}
                 </Link>
@@ -78,7 +80,7 @@ function SidebarShortItem({
       <div
         className={cn(
           'relative flex w-full cursor-pointer items-center px-3 py-2.5 text-sm text-gray-600 before:absolute before:-right-5 before:top-0 before:h-full before:w-5 before:content-[""]',
-          miniSidebar ? 'hover:text-accent ltr:pl-3 rtl:pr-3' : null
+          miniSidebar ? 'hover:text-accent ltr:pl-3 rtl:pr-3' : null,
         )}
       >
         {getIcon({
@@ -172,7 +174,7 @@ const SidebarItem = ({
           initial={false}
           className={cn(
             'group cursor-pointer rounded-md px-3 py-2.5 text-body-dark hover:bg-gray-100 focus:text-accent',
-            isOpen ? 'bg-gray-100 font-medium' : ''
+            isOpen ? 'bg-gray-100 font-medium' : '',
           )}
           onClick={onClick}
         >
@@ -196,7 +198,7 @@ const SidebarItem = ({
               className={cn(
                 'h-3.5 w-3.5 shrink-0 opacity-75 transition-transform duration-300 ltr:ml-auto ltr:mr-0 rtl:mr-auto rtl:ml-0',
                 isOpen ? 'rotate-90 transform' : '',
-                width >= RESPONSIVE_WIDTH && miniSidebar ? 'hidden' : ''
+                width >= RESPONSIVE_WIDTH && miniSidebar ? 'hidden' : '',
               )}
             />
           </div>
@@ -249,18 +251,12 @@ const SidebarItem = ({
                                 : sanitizedPath === item?.href
                             )
                               ? 'bg-transparent font-medium text-accent-hover'
-                              : 'text-body-dark hover:text-accent focus:text-accent'
+                              : 'text-body-dark hover:text-accent focus:text-accent',
                           )}
                           title={t(item.label)}
+                          onClick={() => closeSidebar()}
                         >
-                          {/* {getIcon({
-                          iconList: sidebarIcons,
-                          iconName: item?.icon,
-                          className: 'w-5 h-5 me-3',
-                        })} */}
-                          <span onClick={() => closeSidebar()}>
-                            {t(item.label)}
-                          </span>
+                          <span>{t(item.label)}</span>
                         </Link>
                       </div>
                     );
@@ -285,9 +281,10 @@ const SidebarItem = ({
           ? `font-medium !text-accent-hover ${
               !miniSidebar ? 'bg-accent/10 hover:!bg-accent/10' : ''
             }`
-          : ''
+          : '',
       )}
       title={label}
+      onClick={() => closeSidebar()}
     >
       {icon ? (
         <span
@@ -298,7 +295,7 @@ const SidebarItem = ({
               : 'text-gray-600 group-focus:text-accent',
             miniSidebar && width >= RESPONSIVE_WIDTH
               ? 'group-hover:text-accent'
-              : null
+              : null,
           )}
         >
           {getIcon({
@@ -310,7 +307,6 @@ const SidebarItem = ({
       ) : null}
       <span
         className={cn(miniSidebar && width >= RESPONSIVE_WIDTH ? 'hidden' : '')}
-        onClick={() => closeSidebar()}
       >
         {label}
       </span>

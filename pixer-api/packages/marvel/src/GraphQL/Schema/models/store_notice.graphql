@@ -63,6 +63,10 @@ input CreateStoreNoticeInput {
     priority: String!
     notice: String!
     description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     effective_from: String
     expired_at: String!
     type: String!
@@ -73,6 +77,10 @@ input UpdateStoreNoticeInput {
     priority: String!
     notice: String!
     description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     effective_from: String
     expired_at: String!
     type: String!

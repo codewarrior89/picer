@@ -4,6 +4,7 @@ import React, { InputHTMLAttributes } from 'react';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/bootstrap.css';
 import { twMerge } from 'tailwind-merge';
+import TooltipLabel from '@/components/ui/tooltip-label';
 
 export interface Props extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
@@ -13,6 +14,7 @@ export interface Props extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
   error?: string;
   type?: string;
+  toolTipText?: string;
   showLabel?: boolean;
   required?: boolean;
   control: any;
@@ -25,6 +27,7 @@ const PhoneNumberInput: React.FC<Props> = ({
   error,
   className,
   inputClassName,
+  toolTipText,
   disabled,
   note,
   name,
@@ -37,13 +40,12 @@ const PhoneNumberInput: React.FC<Props> = ({
         render={({ field: { onChange, value } }) => (
           <>
             {showLabel ? (
-              <label
+              <TooltipLabel
                 htmlFor={name}
-                className="mb-3 block text-sm font-semibold leading-none text-body-dark"
-              >
-                {label}
-                {required ? <span className="ml-0.5 text-red-500">*</span> : ''}
-              </label>
+                toolTipText={toolTipText}
+                label={label}
+                required={required}
+              />
             ) : (
               ''
             )}
@@ -56,8 +58,8 @@ const PhoneNumberInput: React.FC<Props> = ({
                   disabled
                     ? `cursor-not-allowed !border-[#D4D8DD] !bg-[#EEF1F4] select-none`
                     : '',
-                  inputClassName
-                )
+                  inputClassName,
+                ),
               )}
               dropdownClass="focus:!ring-0 !border !border-border-base !shadow-350"
               aria-invalid={error ? 'true' : 'false'}

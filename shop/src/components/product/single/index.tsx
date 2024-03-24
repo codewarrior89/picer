@@ -19,6 +19,7 @@ import {
 } from '@/lib/framer-motion/fade-in-bottom';
 import { Product } from '@/types';
 import { isEmpty } from 'lodash';
+import { useSanitizeContent } from '@/lib/sanitize-content';
 
 type SingleProps = {
   product: Product;
@@ -47,17 +48,19 @@ const Single: React.FC<SingleProps> = ({ product }) => {
     total_reviews,
     tags,
     type,
+    video,
   } = product;
   const previews = getPreviews(gallery, image);
+  const content = useSanitizeContent({ description: description });
   return (
     <div className="relative">
       <div className="h-full min-h-screen p-4 md:px-6 lg:px-8 lg:pt-6">
-        <div className="sticky top-0 z-20 flex items-center p-4 mb-1 -mx-4 -mt-2 bg-light-300 dark:bg-dark-100 sm:static sm:top-auto sm:z-0 sm:m-0 sm:mb-4 sm:bg-transparent sm:p-0 sm:dark:bg-transparent">
+        <div className="sticky top-0 z-20 -mx-4 mb-1 -mt-2 flex items-center bg-light-300 p-4 dark:bg-dark-100 sm:static sm:top-auto sm:z-0 sm:m-0 sm:mb-4 sm:bg-transparent sm:p-0 sm:dark:bg-transparent">
           <button
             onClick={() => router.push(routes?.home)}
             className="group inline-flex items-center gap-1.5 font-medium text-dark/70 hover:text-dark rtl:flex-row-reverse dark:text-light/70 hover:dark:text-light lg:mb-6"
           >
-            <LongArrowIcon className="w-4 h-4" />
+            <LongArrowIcon className="h-4 w-4" />
             {t('text-back')}
           </button>
         </div>
@@ -76,10 +79,29 @@ const Single: React.FC<SingleProps> = ({ product }) => {
                 fill
                 quality={100}
                 src={img?.original ?? placeholder}
-                className="object-cover bg-light-500 dark:bg-dark-300"
+                className="bg-light-500 object-cover dark:bg-dark-300"
               />
             </motion.div>
           ))}
+          {video?.length
+            ? video.map((item: any, index: number) => (
+                <div
+                  key={`product-video-${index}`}
+                  className="relative aspect-[3/2]"
+                >
+                  {item.url.includes('iframe') ? (
+                    <div
+                      className="product-video-iframe"
+                      dangerouslySetInnerHTML={{ __html: item.url }}
+                    />
+                  ) : (
+                    <div className="product-video-iframe">
+                      <video controls src={item.url} />
+                    </div>
+                  )}
+                </div>
+              ))
+            : null}
         </motion.div>
         <motion.div
           variants={fadeInBottom()}
@@ -88,13 +110,20 @@ const Single: React.FC<SingleProps> = ({ product }) => {
           <ProductDetailsPaper product={product} className="lg:hidden" />
           <div className="lg:mx-auto 3xl:max-w-[1200px]">
             <div className="w-full rtl:space-x-reverse lg:flex lg:space-x-14 lg:pb-3 xl:space-x-20 3xl:space-x-28">
-              <div className="hidden lg:block 3xl:max-w-[600px]">
-                <div className="pb-5 leading-[1.9em] dark:text-light-600">
-                  {description}
-                </div>
+              <div className="block 3xl:max-w-[600px]">
+                {content ? (
+                  <div
+                    className="pb-5 leading-[1.9em] dark:text-light-600 react-editor-description"
+                    dangerouslySetInnerHTML={{
+                      __html: content,
+                    }}
+                  />
+                ) : (
+                  ''
+                )}
                 <ProductSocialShare
                   productSlug={slug}
-                  className="pt-5 border-t border-light-500 dark:border-dark-400 md:pt-7"
+                  className="border-t border-light-500 pt-5 dark:border-dark-400 md:pt-7"
                 />
               </div>
               <ProductInformation
@@ -107,7 +136,7 @@ const Single: React.FC<SingleProps> = ({ product }) => {
                 className="flex-shrink-0 pb-6 pt-2.5 lg:min-w-[350px] lg:max-w-[470px] lg:pb-0"
               />
             </div>
-            <div className="w-full mt-4 md:mt-8 md:space-y-10 lg:mt-12 lg:flex lg:flex-col lg:space-y-12">
+            <div className="mt-4 w-full md:mt-8 md:space-y-10 lg:mt-12 lg:flex lg:flex-col lg:space-y-12">
               <AverageRatings
                 ratingCount={rating_count}
                 totalReviews={total_reviews}
@@ -123,7 +152,7 @@ const Single: React.FC<SingleProps> = ({ product }) => {
 
           <ProductSocialShare
             productSlug={slug}
-            className="pt-5 border-t border-light-500 dark:border-dark-400 md:pt-7 lg:hidden"
+            className="border-t border-light-500 pt-5 dark:border-dark-400 md:pt-7 lg:hidden"
           />
         </motion.div>
       </div>

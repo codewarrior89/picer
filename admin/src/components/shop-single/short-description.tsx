@@ -33,12 +33,12 @@ const ShortDescription: React.FC<ShortDescriptionProps> = ({
         <div
           {...rest}
           className={twMerge(
-            classNames('text-sm leading-[171.429%] text-[#666]', className)
+            classNames('text-sm leading-[171.429%] text-[#666]', className),
           )}
         >
           {content?.length < character
             ? content
-            : content.substring(0, character) + '...'}
+            : content?.substring(0, character) + '...'}
           {buttonText && content?.length >= character ? (
             <span
               className="cursor-pointer font-semibold text-accent"

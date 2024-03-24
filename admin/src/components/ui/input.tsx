@@ -1,10 +1,13 @@
+import TooltipLabel from '@/components/ui/tooltip-label';
 import cn from 'classnames';
 import React, { InputHTMLAttributes } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 export interface Props extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
   inputClassName?: string;
   label?: string;
+  toolTipText?: string;
   note?: string;
   name: string;
   error?: string;
@@ -47,9 +50,10 @@ const Input = React.forwardRef<HTMLInputElement, Props>(
       disabled,
       showLabel = true,
       required,
+      toolTipText,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const rootClassName = cn(
       classes.root,
@@ -62,19 +66,18 @@ const Input = React.forwardRef<HTMLInputElement, Props>(
         [classes.shadow]: shadow,
       },
       sizeClasses[dimension],
-      inputClassName
+      inputClassName,
     );
     let numberDisable = type === 'number' && disabled ? 'number-disable' : '';
     return (
-      <div className={className}>
+      <div className={twMerge(className)}>
         {showLabel ? (
-          <label
+          <TooltipLabel
             htmlFor={name}
-            className="mb-3 block text-sm font-semibold leading-none text-body-dark"
-          >
-            {label}
-            {required ? <span className="ml-0.5 text-red-500">*</span> : ''}
-          </label>
+            toolTipText={toolTipText}
+            label={label}
+            required={required}
+          />
         ) : (
           ''
         )}
@@ -102,7 +105,7 @@ const Input = React.forwardRef<HTMLInputElement, Props>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = 'Input';

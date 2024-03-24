@@ -22,7 +22,7 @@ export default function SettingsPageHeader({
     scrollToTheLeft,
   } = useScrollableSlider();
   const menuItems: any =
-    siteSettings?.sidebarLinks?.admin.settings.childMenu[0].childMenu;
+    siteSettings?.sidebarLinks?.admin?.settings?.childMenu[0]?.childMenu;
   const sanitizedPath = router.asPath.split('#')[0].split('?')[0];
   return (
     <>
@@ -34,7 +34,7 @@ export default function SettingsPageHeader({
           title="Prev"
           ref={sliderPrevBtn}
           onClick={() => scrollToTheLeft()}
-          className="!absolute -top-1 z-10 !h-[calc(100%-4px)] w-8 bg-gradient-to-r from-gray-100 via-gray-100 to-transparent px-0 text-gray-500 start-0 hover:text-black dark:from-gray-50 dark:via-gray-50 lg:hidden"
+          className="absolute -top-1 z-10 h-[calc(100%-4px)] w-8 bg-gradient-to-r from-gray-100 via-gray-100 to-transparent px-0 text-gray-500 start-0 hover:text-black 3xl:hidden"
         >
           <ChevronLeft className="h-[18px] w-[18px]" />
         </button>
@@ -57,7 +57,7 @@ export default function SettingsPageHeader({
                   "relative shrink-0 pb-3 font-medium text-body before:absolute before:bottom-0 before:h-px before:bg-accent before:content-[''] hover:text-heading",
                   sanitizedPath === item.href
                     ? 'text-heading before:w-full'
-                    : null
+                    : null,
                 )}
               >
                 {t(item.label)}
@@ -69,7 +69,7 @@ export default function SettingsPageHeader({
           title="Next"
           ref={sliderNextBtn}
           onClick={() => scrollToTheRight()}
-          className="!absolute -top-1 z-10 flex !h-[calc(100%-4px)] w-8 items-center justify-center bg-gradient-to-l from-gray-100 via-gray-100 to-transparent text-gray-500 end-0 hover:text-black dark:from-gray-50 dark:via-gray-50 lg:hidden"
+          className="absolute -top-1 z-10 flex h-[calc(100%-4px)] w-8 items-center justify-center bg-gradient-to-l from-gray-100 via-gray-100 to-transparent text-gray-500 end-0 hover:text-black 3xl:hidden"
         >
           <ChevronRight className="h-[18px] w-[18px]" />
         </button>

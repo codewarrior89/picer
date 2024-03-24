@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { FlashSale } from '@/types';
 import classNames from 'classnames';
 import { twMerge } from 'tailwind-merge';
+import { useSanitizeContent } from '@/utils/sanitize-content';
 
 type SingleViewProps = {
   data: FlashSale;
@@ -16,6 +17,7 @@ const SingleView: React.FC<SingleViewProps> = ({
   ...rest
 }) => {
   const { t } = useTranslation();
+  const description = useSanitizeContent({ description: data?.description });
   return (
     <div className={twMerge(classNames(className))} {...rest}>
       <h2 className="mb-8 border-b border-b-[#E5E5E5] pb-6 text-2xl font-semibold text-muted-black">
@@ -42,10 +44,13 @@ const SingleView: React.FC<SingleViewProps> = ({
             ''
           )}
 
-          {data?.description ? (
-            <p className="mb-8 text-base leading-[150%] text-[#666] lg:text-lg">
-              {data?.description}
-            </p>
+          {description ? (
+            <p
+              className="mb-8 text-base leading-[150%] text-[#666] lg:text-lg react-editor-description"
+              dangerouslySetInnerHTML={{
+                __html: description,
+              }}
+            />
           ) : (
             ''
           )}

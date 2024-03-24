@@ -36,7 +36,11 @@ type TermsAndConditions {
 
 input CreateTermsConditionsInput {
     title: String! @rules(apply: ["required", "max:255"])
-    description: String @rules(apply: ["required"])
+    description: String
+        @rules(
+            apply: ["required", "max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     slug: String
     user_id: ID
     shop_id: ID
@@ -49,6 +53,10 @@ input UpdateTermsConditionsInput {
     id: ID!
     title: String
     description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     slug: String
     user_id: ID
     shop_id: ID

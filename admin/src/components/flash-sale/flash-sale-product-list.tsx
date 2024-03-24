@@ -21,14 +21,14 @@ import { useRouter } from 'next/router';
 
 export type IProps = {
   products: Product[] | undefined;
-  type: string;
-  rate: string;
-  paginatorInfo: MappedPaginatorInfo | null;
-  onPagination: (current: number) => void;
-  onSort: (current: any) => void;
-  onOrder: (current: string) => void;
-  handleSearch: (data: SearchValue) => void;
-  handleOnLimitChange: (data: any) => void;
+  type?: string | null;
+  rate?: string | null;
+  paginatorInfo?: MappedPaginatorInfo | null;
+  onPagination?: (current: number) => void;
+  onSort?: (current: any) => void;
+  onOrder?: (current: string) => void;
+  handleSearch?: (data: SearchValue) => void;
+  handleOnLimitChange?: (data: any) => void;
 };
 
 type SearchValue = {
@@ -105,15 +105,6 @@ const FlashSaleProductList = ({
         </div>
       ),
     },
-    // {
-    //   title: t('table:table-item-title'),
-    //   className: 'cursor-pointer',
-    //   dataIndex: 'name',
-    //   key: 'name',
-    //   align: alignLeft,
-    //   // width: 100,
-    //   ellipsis: true,
-    // },
     {
       title: t('table:table-item-sku'),
       // className: 'cursor-pointer',
@@ -139,7 +130,6 @@ const FlashSaleProductList = ({
     },
     {
       title: t('table:table-item-unit'),
-      // className: 'cursor-pointer',
       dataIndex: 'price',
       key: 'price',
       align: alignLeft,
@@ -298,6 +288,7 @@ const FlashSaleProductList = ({
           baseAmount: Number(record?.price),
         });
         const isInvalidPrice = useIsInvalidPrice({
+          // @ts-ignore
           type,
           product_type: record?.product_type,
           min_price: Number(record?.min_price),
@@ -389,7 +380,7 @@ const FlashSaleProductList = ({
               'bg-opacity-10 capitalize',
               status?.toLocaleLowerCase() === 'draft'
                 ? 'bg-[#F3AF00] text-[#F3AF00]'
-                : 'bg-accent text-accent'
+                : 'bg-accent text-accent',
             )}
           />
           {record?.quantity > 0 && record?.quantity < 10 && (
@@ -418,6 +409,7 @@ const FlashSaleProductList = ({
           </h2>
           <div className="w-[20.8125rem]">
             <Search
+              // @ts-ignore
               onSearch={handleSearch}
               placeholderText={t('form:input-placeholder-search-deals')}
               inputClassName="h-auto py-2 px-3 border-[#DFDFDF] rounded-md"

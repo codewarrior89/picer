@@ -29,7 +29,7 @@ class RefundRequest extends FormRequest
         return [
             'order_id' => ['required', 'exists:Marvel\Database\Models\Order,id'],
             'title' => ['string'],
-            'description' => ['string', 'nullable'],
+            'description' => ['string', 'nullable', 'max:10000'],
             'images' => ['array', 'nullable'],
             'refund_reason_id' => ['exists:Marvel\Database\Models\RefundReason,id'],
         ];

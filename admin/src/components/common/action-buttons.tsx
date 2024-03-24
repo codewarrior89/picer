@@ -5,11 +5,15 @@ import { Eye } from '@/components/icons/eye-icon';
 import { WalletPointsIcon } from '@/components/icons/wallet-point';
 import Link from '@/components/ui/link';
 import { useTranslation } from 'next-i18next';
+import { STAFF, SUPER_ADMIN } from '@/utils/constants';
 import { CheckMarkCircle } from '@/components/icons/checkmark-circle';
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import { CloseFillIcon } from '@/components/icons/close-fill';
 import { AdminIcon } from '@/components/icons/admin-icon';
 import { EyeIcon } from '@/components/icons/category/eyes-icon';
+import { getAuthCredentials } from '@/utils/auth-utils';
+import { useRouter } from 'next/router';
+import { Routes } from '@/config/routes';
 
 type Props = {
   id: string;
@@ -24,12 +28,16 @@ type Props = {
   isShopActive?: boolean;
   approveButton?: boolean;
   termApproveButton?: boolean;
+  couponApproveButton?: boolean;
   showAddWalletPoints?: boolean;
   changeRefundStatus?: boolean;
   showMakeAdminButton?: boolean;
   showReplyQuestion?: boolean;
   customLocale?: string;
   isTermsApproved?: boolean;
+  isCouponApprove?: boolean;
+  flashSaleVendorRequestApproveButton?: boolean;
+  isFlashSaleVendorRequestApproved?: boolean;
 };
 
 const ActionButtons = ({
@@ -51,9 +59,15 @@ const ActionButtons = ({
   showReplyQuestion = false,
   customLocale,
   isTermsApproved,
+  couponApproveButton,
+  isCouponApprove,
+  flashSaleVendorRequestApproveButton = false,
+  isFlashSaleVendorRequestApproved,
 }: Props) => {
   const { t } = useTranslation();
   const { openModal } = useModalAction();
+  const router = useRouter();
+  const { role } = getAuthCredentials();
 
   function handleDelete() {
     openModal(deleteModalView, id);
@@ -95,16 +109,34 @@ const ActionButtons = ({
     }
   }
 
+  function handleCouponStatus(status: boolean) {
+    if (status === true) {
+      openModal('COUPON_APPROVE_VIEW', id);
+    } else {
+      openModal('COUPON_DISAPPROVE_VIEW', id);
+    }
+  }
+
   function handleReplyQuestion() {
     openModal('REPLY_QUESTION', id);
   }
 
+  function handleVendorFlashSaleStatus(status: boolean) {
+    if (status !== true) {
+      openModal('VENDOR_FS_REQUEST_APPROVE_VIEW', id);
+    } else {
+      openModal('VENDOR_FS_REQUEST_DISAPPROVE_VIEW', id);
+    }
+  }
+
+  // TODO: need to be checked about last coupon code.
+
   return (
-    <div className="inline-flex w-auto items-center gap-3">
+    <div className="inline-flex items-center w-auto gap-3">
       {showReplyQuestion && (
         <button
           onClick={handleReplyQuestion}
-          className="text-accent transition duration-200 hover:text-accent-hover focus:outline-none"
+          className="transition duration-200 text-accent hover:text-accent-hover focus:outline-none"
         >
           {t('form:button-text-reply')}
         </button>
@@ -112,7 +144,7 @@ const ActionButtons = ({
       {showMakeAdminButton && (
         <button
           onClick={handleMakeAdmin}
-          className="text-accent transition duration-200 hover:text-accent-hover focus:outline-none"
+          className="transition duration-200 text-accent hover:text-accent-hover focus:outline-none"
           title={t('common:text-make-admin')}
         >
           <AdminIcon width={17} />
@@ -121,7 +153,7 @@ const ActionButtons = ({
       {showAddWalletPoints && (
         <button
           onClick={handleAddWalletPoints}
-          className="text-accent transition duration-200 hover:text-accent-hover focus:outline-none"
+          className="transition duration-200 text-accent hover:text-accent-hover focus:outline-none"
           title={t('common:text-add-wallet-points')}
         >
           <WalletPointsIcon width={18} />
@@ -131,7 +163,7 @@ const ActionButtons = ({
       {changeRefundStatus && (
         <button
           onClick={handleUpdateRefundStatus}
-          className="text-accent transition duration-200 hover:text-accent-hover focus:outline-none"
+          className="transition duration-200 text-accent hover:text-accent-hover focus:outline-none"
           title={t('common:text-change-refund-status')}
         >
           <CheckMarkCircle width={20} />
@@ -141,7 +173,7 @@ const ActionButtons = ({
       {editModalView && (
         <button
           onClick={handleEditModal}
-          className="text-body transition duration-200 hover:text-heading focus:outline-none"
+          className="transition duration-200 text-body hover:text-heading focus:outline-none"
           title={t('common:text-edit')}
         >
           <EditIcon width={16} />
@@ -151,7 +183,7 @@ const ActionButtons = ({
         (!isShopActive ? (
           <button
             onClick={() => handleShopStatus(true)}
-            className="text-accent transition duration-200 hover:text-accent-hover focus:outline-none"
+            className="transition duration-200 text-accent hover:text-accent-hover focus:outline-none"
             title={t('common:text-approve-shop')}
           >
             <CheckMarkCircle width={16} />
@@ -165,11 +197,32 @@ const ActionButtons = ({
             <CloseFillIcon width={16} />
           </button>
         ))}
+
+      {couponApproveButton &&
+        role === SUPER_ADMIN &&
+        (!isCouponApprove ? (
+          <button
+            onClick={() => handleCouponStatus(true)}
+            className="ml-3 transition duration-200 text-accent hover:text-accent-hover focus:outline-none"
+            title={t('common:text-approve-coupon')}
+          >
+            <CheckMarkCircle width={18} />
+          </button>
+        ) : (
+          <button
+            onClick={() => handleCouponStatus(false)}
+            className="ml-3 text-red-500 transition duration-200 hover:text-red-600 focus:outline-none"
+            title={t('common:text-disapprove-coupon')}
+          >
+            <CloseFillIcon width={18} />
+          </button>
+        ))}
+
       {termApproveButton &&
         (!isTermsApproved ? (
           <button
             onClick={() => handleTermsStatus(true)}
-            className="text-accent transition duration-200 hover:text-accent-hover focus:outline-none"
+            className="transition duration-200 text-accent hover:text-accent-hover focus:outline-none"
             title={t('common:text-approve-shop')}
           >
             <CheckMarkCircle width={16} />
@@ -196,7 +249,7 @@ const ActionButtons = ({
           ) : (
             <button
               onClick={() => handleUserStatus('active')}
-              className="text-accent transition duration-200 hover:text-accent focus:outline-none"
+              className="transition duration-200 text-accent hover:text-accent focus:outline-none"
               title={t('common:text-activate-user')}
             >
               <CheckMarkCircle width={16} />
@@ -234,10 +287,23 @@ const ActionButtons = ({
           title={t('common:text-view')}
           locale={customLocale}
         >
-          <Eye className="h-5 w-5" />
+          <Eye className="w-5 h-5" />
         </Link>
       )}
-      {deleteModalView && (
+
+      {deleteModalView &&
+        (role !== STAFF ||
+          router.asPath !== `/${router.query.shop}${Routes.coupon.list}`) && (
+          <button
+            onClick={handleDelete}
+            className="text-red-500 transition duration-200 hover:text-red-600 focus:outline-none"
+            title={t('common:text-delete')}
+          >
+            <TrashIcon width={14} />
+          </button>
+        )}
+
+      {/* {deleteModalView && (
         <button
           onClick={handleDelete}
           className="text-red-500 transition duration-200 hover:text-red-600 focus:outline-none"
@@ -245,7 +311,26 @@ const ActionButtons = ({
         >
           <TrashIcon width={14} />
         </button>
-      )}
+      )} */}
+
+      {flashSaleVendorRequestApproveButton &&
+        (isFlashSaleVendorRequestApproved ? (
+          <button
+            onClick={() => handleVendorFlashSaleStatus(true)}
+            className="transition duration-200 text-red-500 hover:text-red-600 focus:outline-none"
+            title="Disapprove request ?"
+          >
+            <CloseFillIcon width={17} />
+          </button>
+        ) : (
+          <button
+            onClick={() => handleVendorFlashSaleStatus(false)}
+            className="text-green-500 transition duration-200 hover:text-green-600 focus:outline-none"
+            title="Approve request ?"
+          >
+            <CheckMarkCircle width={16} />
+          </button>
+        ))}
     </div>
   );
 };

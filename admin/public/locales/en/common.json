@@ -537,5 +537,15 @@
   "text-title-sale": "Sale",
   "text-title-balance": "Balance",
   "text-title-withdraw": "Withdraw",
-  "text-title-description": "Description"
+  "text-title-description": "Description",
+  "text-approve": "Approve",
+  "text-disapprove": "Disapprove",
+  "text-approve-coupon": "Approve Coupon",
+  "text-want-approve-coupon": "Are you want to approve the coupon?",
+  "text-want-disapprove-coupon": "Are you want to disapprove the coupon?",
+  "text-disapprove-coupon": "Disapprove Coupon",
+  "text-all-coupons": "All coupons",
+  "text-new-coupon": "Add new coupon",
+  "text-popup-settings": "Promo Popup",
+  "text-image-uploading-message": "Please wait! Image is uploading"
 }

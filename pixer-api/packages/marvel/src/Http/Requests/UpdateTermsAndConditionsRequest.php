@@ -33,7 +33,7 @@ class UpdateTermsAndConditionsRequest extends FormRequest
 
         $rules =  [
             'title'       => ['required', 'string'],
-            'description' => ['required', 'string'],
+            'description' => ['required', 'string', 'max:10000'],
             'slug'        => ['nullable', 'string'],
             'language'    => ['nullable', 'string'],
         ];

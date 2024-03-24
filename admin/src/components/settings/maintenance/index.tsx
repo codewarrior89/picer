@@ -1,58 +1,32 @@
 import Card from '@/components/common/card';
 import { SaveIcon } from '@/components/icons/save';
 import Button from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
+import Color from '@/components/ui/color';
+import DatePicker from '@/components/ui/date-picker';
 import Description from '@/components/ui/description';
 import FileInput from '@/components/ui/file-input';
-import ValidationError from '@/components/ui/form-validation-error';
 import Input from '@/components/ui/input';
-import Label from '@/components/ui/label';
+import Range from '@/components/ui/range';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
 import SwitchInput from '@/components/ui/switch-input';
 import TextArea from '@/components/ui/text-area';
 import { useUpdateSettingsMutation } from '@/data/settings';
-import { Settings } from '@/types';
-import {
-  checkIsMaintenanceModeComing,
-  checkIsMaintenanceModeStart,
-} from '@/utils/constants';
+import { MaintenanceFormValues, Settings } from '@/types';
+import { useConfirmRedirectIfDirty } from '@/utils/confirmed-redirect-if-dirty';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { addDays } from 'date-fns';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { maintenanceValidationSchema } from './maintenance-validation-schema';
-
-type MaintenanceFormValues = {
-  isUnderMaintenance: boolean;
-  maintenance: {
-    image: any;
-    title: string;
-    description: string;
-    start: string;
-    until: string;
-    isOverlayColor: boolean;
-    overlayColor: string;
-    buttonTitleOne: string;
-    buttonTitleTwo: string;
-    overlayColorRange: string;
-    newsLetterTitle: string;
-    newsLetterDescription: string;
-    aboutUsTitle: string;
-    aboutUsDescription: string;
-    contactUsTitle: string;
-  };
-};
+import {
+  checkIsMaintenanceModeComing,
+  checkIsMaintenanceModeStart,
+} from '@/utils/constants';
 
 type IProps = {
   settings?: Settings | null;
-};
-
-export const isInArray = (array: Date[], value: Date) => {
-  return !!array?.find((item) => {
-    return item?.getDate() == value?.getDate();
-  });
 };
 
 export default function MaintenanceSettingsForm({ settings }: IProps) {
@@ -66,9 +40,9 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
     register,
     handleSubmit,
     control,
-    getValues,
+    reset,
     watch,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = useForm<MaintenanceFormValues>({
     shouldUnregister: true,
     // @ts-ignore
@@ -87,8 +61,10 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
         ...values,
       },
     });
+    reset(values, { keepValues: true });
   }
-
+  const isDirty = Object.keys(dirtyFields).length > 0;
+  useConfirmRedirectIfDirty({ isDirty });
   const startDate = watch('maintenance.start');
   const isOverlayColor = watch('maintenance.isOverlayColor');
   const isMaintenanceMode = watch('isUnderMaintenance');
@@ -99,7 +75,6 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
   const [underMaintenanceStart, setUnderMaintenanceStart] = useAtom(
     checkIsMaintenanceModeStart,
   );
-
   const maintenanceImageInformation = (
     <span>
       {t('form:maintenance-cover-image-help-text')} <br />
@@ -110,7 +85,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
+      <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
         <Description
           title={t('form:form-title-information')}
           details={t('form:site-maintenance-info-help-text')}
@@ -119,23 +94,23 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
 
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <div className="my-5">
-            <div className="flex items-center gap-x-4">
-              <SwitchInput name="isUnderMaintenance" control={control} />
-              <Label className="mb-0.5 ">
-                {t('form:input-label-enable-maintenance-mode')}
-              </Label>
-            </div>
+            <SwitchInput
+              name="isUnderMaintenance"
+              label={t('form:input-label-enable-maintenance-mode')}
+              toolTipText={t('form:input-tooltip-enable-maintenance-mode')}
+              control={control}
+            />
           </div>
         </Card>
       </div>
-      <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
+      <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
         <Description
           title={t('form:input-label-maintenance-cover-image')}
           details={maintenanceImageInformation}
           className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
         />
 
-        <Card className="logo-field-area w-full sm:w-8/12 md:w-2/3">
+        <Card className="w-full logo-field-area sm:w-8/12 md:w-2/3">
           <FileInput
             name="maintenance.image"
             control={control}
@@ -145,7 +120,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
         </Card>
       </div>
 
-      <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
+      <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
         <Description
           title={t('form:form-title-maintenance-information')}
           details={t('form:site-maintenance-info-help-text')}
@@ -155,6 +130,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <Input
             label={t('form:input-label-title')}
+            toolTipText={t('form:input-tooltip-maintenance-title')}
             {...register('maintenance.title')}
             error={t(errors.maintenance?.title?.message!)}
             variant="outline"
@@ -166,6 +142,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
           />
           <TextArea
             label={t('form:input-label-description')}
+            toolTipText={t('form:input-tooltip-maintenance-description')}
             {...register('maintenance.description')}
             error={t(errors.maintenance?.description?.message!)}
             variant="outline"
@@ -176,70 +153,42 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
             disabled={!isMaintenanceMode}
           />
           <div className="mb-5">
-            <Label>
-              {t('form:maintenance-start-time')}
-              {isMaintenanceMode ? (
-                <span className="ml-0.5 text-red-500">*</span>
-              ) : (
-                ''
-              )}
-            </Label>
-
-            <Controller
+            <DatePicker
               control={control}
               name="maintenance.start"
-              // @ts-ignore
-              render={({ field: { onChange, value } }) => {
-                return (
-                  <DatePicker
-                    minDate={today}
-                    selected={new Date(value)}
-                    startDate={new Date(startDate)}
-                    onChange={onChange}
-                    locale={locale}
-                    todayButton="Today"
-                    placeholderText="Start Date"
-                    disabled={!isMaintenanceMode}
-                  />
-                );
-              }}
+              minDate={today}
+              startDate={new Date(startDate)}
+              locale={locale}
+              placeholder="Start Date"
+              disabled={!isMaintenanceMode}
+              label={t('form:maintenance-start-time')}
+              toolTipText={t('form:input-tooltip-maintenance-start-time')}
+              {...(isMaintenanceMode && {
+                required: true,
+              })}
+              error={t(errors.maintenance?.start?.message!)}
             />
-            <ValidationError message={t(errors.maintenance?.start?.message!)} />
           </div>
           <div className="w-full">
-            <Label>
-              {t('form:maintenance-end-date')}
-              {isMaintenanceMode ? (
-                <span className="ml-0.5 text-red-500">*</span>
-              ) : (
-                ''
-              )}
-            </Label>
-
-            <Controller
+            <DatePicker
               control={control}
               name="maintenance.until"
-              // @ts-ignore
-              render={({ field: { onChange, onBlur, value } }) => {
-                return (
-                  <DatePicker
-                    selectsEnd
-                    selected={new Date(value)}
-                    disabled={!startDate || !isMaintenanceMode}
-                    minDate={addDays(new Date(startDate), 1)}
-                    placeholderText="End Date"
-                    onChange={onChange}
-                    locale={locale}
-                  />
-                );
-              }}
+              disabled={!startDate || !isMaintenanceMode}
+              minDate={addDays(new Date(startDate), 1)}
+              placeholder="End Date"
+              locale={locale}
+              {...(isMaintenanceMode && {
+                required: true,
+              })}
+              toolTipText={t('form:input-tooltip-maintenance-end-time')}
+              label={t('form:maintenance-end-date')}
+              error={t(errors.maintenance?.until?.message!)}
             />
-            <ValidationError message={t(errors.maintenance?.until?.message!)} />
           </div>
         </Card>
       </div>
 
-      <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
+      <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
         <Description
           title="Maintenance mode extra settings"
           details="Add maintenance mode extra settings here."
@@ -248,43 +197,31 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
 
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <div className="mb-5">
-            <div className="flex items-center gap-x-4">
-              <SwitchInput
-                name="maintenance.isOverlayColor"
-                control={control}
-                disabled={!isMaintenanceMode}
-              />
-              <Label className="mb-0.5 ">Overlay color enable?</Label>
-            </div>
+            <SwitchInput
+              name="maintenance.isOverlayColor"
+              control={control}
+              disabled={!isMaintenanceMode}
+              label="Overlay color enable?"
+              toolTipText={t('form:input-tooltip-maintenance-overlay-color')}
+            />
           </div>
 
           {isOverlayColor ? (
             <div className="mb-5">
               <div className="flex flex-col gap-y-4">
-                <div className="flex items-center space-x-4">
-                  <label htmlFor="maintenance.overlayColor">
-                    Overlay Color
-                  </label>
-
-                  <input
-                    type="color"
-                    {...register('maintenance.overlayColor')}
-                    id="maintenance.overlayColor"
-                    disabled={!isMaintenanceMode}
-                  />
-                </div>
-                <div className="flex items-center space-x-4">
-                  <label htmlFor="maintenance.overlayColorRange">Alpha</label>
-                  <input
-                    id="maintenance.overlayColorRange"
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    {...register('maintenance.overlayColorRange')}
-                    disabled={!isMaintenanceMode}
-                  />
-                </div>
+                <Color
+                  {...register('maintenance.overlayColor')}
+                  disabled={!isMaintenanceMode}
+                  label="Overlay Color"
+                />
+                <Range
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  {...register('maintenance.overlayColorRange')}
+                  disabled={!isMaintenanceMode}
+                  label="Alpha"
+                />
               </div>
             </div>
           ) : (
@@ -292,6 +229,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
           )}
           <Input
             label="Button Title One"
+            toolTipText={t('form:input-tooltip-maintenance-button-one')}
             {...register('maintenance.buttonTitleOne')}
             error={t(errors.maintenance?.buttonTitleOne?.message!)}
             variant="outline"
@@ -303,6 +241,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
           />
           <Input
             label="Button Title Two"
+            toolTipText={t('form:input-tooltip-maintenance-button-two')}
             {...register('maintenance.buttonTitleTwo')}
             error={t(errors.maintenance?.buttonTitleTwo?.message!)}
             variant="outline"
@@ -314,7 +253,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
         </Card>
       </div>
 
-      <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
+      <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
         <Description
           title="News letter settings"
           details="Add news letter settings here."
@@ -324,6 +263,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <Input
             label="News letter title."
+            toolTipText={t('form:input-tooltip-maintenance-newsletter-title')}
             {...register('maintenance.newsLetterTitle')}
             error={t(errors.maintenance?.newsLetterTitle?.message!)}
             variant="outline"
@@ -335,6 +275,9 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
           />
           <TextArea
             label={t('form:input-label-description')}
+            toolTipText={t(
+              'form:input-tooltip-maintenance-newsletter-description',
+            )}
             {...register('maintenance.newsLetterDescription')}
             error={t(errors.maintenance?.newsLetterDescription?.message!)}
             variant="outline"
@@ -346,7 +289,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
         </Card>
       </div>
 
-      <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
+      <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
         <Description
           title="Side bar drawer content"
           details="Add side bar content here."
@@ -356,6 +299,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <Input
             label="About us heading."
+            toolTipText={t('form:input-tooltip-maintenance-drawer-title')}
             {...register('maintenance.aboutUsTitle')}
             error={t(errors.maintenance?.aboutUsTitle?.message!)}
             variant="outline"
@@ -367,6 +311,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
           />
           <TextArea
             label={t('form:input-label-description')}
+            toolTipText={t('form:input-tooltip-maintenance-drawer-description')}
             {...register('maintenance.aboutUsDescription')}
             error={t(errors.maintenance?.aboutUsDescription?.message!)}
             variant="outline"
@@ -378,6 +323,7 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
           />
           <Input
             label="Contact us heading."
+            toolTipText={t('form:input-tooltip-maintenance-contact-us')}
             {...register('maintenance.contactUsTitle')}
             error={t(errors.maintenance?.contactUsTitle?.message!)}
             variant="outline"
@@ -392,10 +338,10 @@ export default function MaintenanceSettingsForm({ settings }: IProps) {
       <StickyFooterPanel className="z-0">
         <Button
           loading={loading}
-          disabled={loading}
+          disabled={loading || !Boolean(isDirty)}
           className="text-sm md:text-base"
         >
-          <SaveIcon className="relative top-px h-6 w-6 shrink-0 ltr:mr-2 rtl:pl-2" />
+          <SaveIcon className="relative w-6 h-6 top-px shrink-0 ltr:mr-2 rtl:pl-2" />
           {t('form:button-label-save-settings')}
         </Button>
       </StickyFooterPanel>

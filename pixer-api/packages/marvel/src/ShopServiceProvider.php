@@ -19,10 +19,23 @@ use Nuwave\Lighthouse\WhereConditions\WhereConditionsServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Marvel\Ai\Ai;
 use Marvel\Console\AdminCreateCommand;
+use Marvel\Console\AWSSetupCommand;
 use Marvel\Console\CopyFilesCommand;
 use Marvel\Console\GenerateBitPayConfig;
+use Marvel\Console\DatabaseSetupCommand;
+use Marvel\Console\DefaultLanguageSetupCommand;
+use Marvel\Console\ENVSetupCommand;
+use Marvel\Console\FrontendSetupCommand;
 use Marvel\Console\ImportDemoData;
+use Marvel\Console\MailchimpNewsletterSetupCommand;
+use Marvel\Console\MailSetupCommand;
+use Marvel\Console\MarvelInfoCommand;
+use Marvel\Console\OpenAiSetupCommand;
+use Marvel\Console\OTPGatewaySetupCommand;
+use Marvel\Console\QueueConnectionSetupCommand;
 use Marvel\Console\SettingsDataImporter;
+use Marvel\Console\TestMailSendCommand;
+use Marvel\Console\TranslationEnabledCommand;
 use Marvel\Database\Models\Settings;
 use Marvel\Enums\EventType;
 use Marvel\Enums\ManufacturerType;
@@ -87,6 +100,19 @@ class ShopServiceProvider extends ServiceProvider
         CopyFilesCommand::class,
         GenerateBitPayConfig::class,
         SettingsDataImporter::class,
+        MailSetupCommand::class,
+        AWSSetupCommand::class,
+        FrontendSetupCommand::class,
+        TranslationEnabledCommand::class,
+        DefaultLanguageSetupCommand::class,
+        QueueConnectionSetupCommand::class,
+        OTPGatewaySetupCommand::class,
+        MailchimpNewsletterSetupCommand::class,
+        ENVSetupCommand::class,
+        OpenAiSetupCommand::class,
+        DatabaseSetupCommand::class,
+        MarvelInfoCommand::class,
+        TestMailSendCommand::class,
     ];
 
     /**
@@ -187,24 +213,24 @@ class ShopServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/shop.php', 'shop');
 
         config([
-            'auth' => File::getRequire(__DIR__ . '/../config/auth.php'),
-            'cors' => File::getRequire(__DIR__ . '/../config/cors.php'),
-            'cache' => File::getRequire(__DIR__ . '/../config/cache.php'),
+            'auth'               => File::getRequire(__DIR__ . '/../config/auth.php'),
+            'cors'               => File::getRequire(__DIR__ . '/../config/cors.php'),
+            'cache'              => File::getRequire(__DIR__ . '/../config/cache.php'),
             'graphql-playground' => File::getRequire(__DIR__ . '/../config/graphql-playground.php'),
-            'laravel-omnipay' => File::getRequire(__DIR__ . '/../config/laravel-omnipay.php'),
-            'media-library' => File::getRequire(__DIR__ . '/../config/media-library.php'),
-            'permission' => File::getRequire(__DIR__ . '/../config/permission.php'),
-            'sanctum' => File::getRequire(__DIR__ . '/../config/sanctum.php'),
-            'services' => File::getRequire(__DIR__ . '/../config/services.php'),
-            'scout' => File::getRequire(__DIR__ . '/../config/scout.php'),
-            'sluggable' => File::getRequire(__DIR__ . '/../config/sluggable.php'),
-            'constants' => File::getRequire(__DIR__ . '/../config/constants.php'),
-            'newsletter' => File::getRequire(__DIR__ . '/../config/newsletter.php'),
-            'paystack' => File::getRequire(__DIR__ . '/../config/paystack.php'),
-            'paymongo' => File::getRequire(__DIR__ . '/../config/paymongo.php'),
-            'graphiql' => File::getRequire(__DIR__ . '/../config/graphiql.php'),
-            'sslcommerz' => File::getRequire(__DIR__ . '/../config/sslcommerz.php'),
-            'broadcasting' => File::getRequire(__DIR__ . '/../config/broadcasting.php')
+            'laravel-omnipay'    => File::getRequire(__DIR__ . '/../config/laravel-omnipay.php'),
+            'media-library'      => File::getRequire(__DIR__ . '/../config/media-library.php'),
+            'permission'         => File::getRequire(__DIR__ . '/../config/permission.php'),
+            'sanctum'            => File::getRequire(__DIR__ . '/../config/sanctum.php'),
+            'services'           => File::getRequire(__DIR__ . '/../config/services.php'),
+            'scout'              => File::getRequire(__DIR__ . '/../config/scout.php'),
+            'sluggable'          => File::getRequire(__DIR__ . '/../config/sluggable.php'),
+            'constants'          => File::getRequire(__DIR__ . '/../config/constants.php'),
+            'newsletter'         => File::getRequire(__DIR__ . '/../config/newsletter.php'),
+            'paystack'           => File::getRequire(__DIR__ . '/../config/paystack.php'),
+            'paymongo'           => File::getRequire(__DIR__ . '/../config/paymongo.php'),
+            'graphiql'           => File::getRequire(__DIR__ . '/../config/graphiql.php'),
+            'sslcommerz'         => File::getRequire(__DIR__ . '/../config/sslcommerz.php'),
+            'broadcasting'       => File::getRequire(__DIR__ . '/../config/broadcasting.php')
         ]);
 
         // Register the service the package provides.

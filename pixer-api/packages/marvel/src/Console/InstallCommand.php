@@ -2,8 +2,6 @@
 
 namespace Marvel\Console;
 
-use Carbon\Carbon;
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Marvel\Database\Models\Settings;
@@ -14,8 +12,7 @@ use Spatie\Permission\Models\Role;
 use Marvel\Database\Seeders\MarvelSeeder;
 use PDO;
 use PDOException;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use function Laravel\Prompts\{text, confirm, info, error, table};
 
 class InstallCommand extends Command
 {
@@ -36,23 +33,28 @@ class InstallCommand extends Command
             $this->appData = $this->verification->jsonSerialize();
         }
 
-        $this->info('Installing Marvel Dependencies...');
-        if ($this->confirm('Do you want to migrate Tables? If you have already run this command or migrated tables then be aware, it will erase all of your data.')) {
+        info('Installing Marvel Dependencies...');
+        info('Do you want to migrate Tables?');
+        info('If you have already run this command or migrated tables then be aware.');
+        info('Tt will erase all of your data.');
 
-            $this->info('Migrating Tables Now....');
+        info('Please use arrow key for navigation.');
+        if (confirm('Are you sure!')) {
+
+            info('Migrating Tables Now....');
 
             $this->call('migrate:fresh');
 
-            $this->info('Tables Migration completed.');
+            info('Tables Migration completed.');
 
-            if ($this->confirm('Do you want to seed dummy data?')) {
+            if (confirm('Do you want to seed dummy data?')) {
                 $this->call('marvel:seed');
                 $this->call('db:seed', [
                     '--class' => MarvelSeeder::class
                 ]);
             }
 
-            $this->info('Importing required settings...');
+            info('Importing required settings...');
 
             $this->call(
                 'db:seed',
@@ -62,10 +64,12 @@ class InstallCommand extends Command
 
             );
 
-            $this->info('Settings import is completed.');
+            info('Settings import is completed.');
         } else {
-            if ($this->confirm('Do you want to seed dummy Settings data? If "yes", then please follow next steps carefully.')) {
-                $this->call('marvel:settings_seed');
+            info('Do you want to seed dummy Settings data?');
+            info('If "yes", then please follow next steps carefully.');
+            if (confirm('Are you sure!')) {
+                $this->call('marvel:settings-seed');
             }
         }
 
@@ -91,12 +95,25 @@ class InstallCommand extends Command
         $this->call('marvel:copy-files');
 
         $this->modifySettingsData();
-
-        $this->info('Everything is successful. Now clearing all cached...');
-
+        
+        info('You need to configure your mail server for proper application performance.');
+        info('Do you want to configure mail server.');
+        $confirmed = confirm(
+            label: "Are you sure!",
+            default: true,
+            yes: 'Yes, I accept',
+            no: 'No, I decline',
+        );
+        if ($confirmed) {
+            $this->call('marvel:mail-setup');
+        } else {
+            info('You can configuration by below command or manual process.');
+            table(['Command', 'Details'], [['marvel:mail-setup', 'Mail setup (mailtrap, mailgun, gmail)']]);
+        }
+        
+        info('Everything is successful. Now clearing all cached...');
         $this->call('optimize:clear');
-
-        $this->info('Thank You.');
+        info('Thank You.');
     }
 
 
@@ -120,28 +137,27 @@ class InstallCommand extends Command
                 // Create the database
                 $createDatabaseQuery = "CREATE DATABASE $databaseName";
                 $conn->exec($createDatabaseQuery);
-                $this->info("Database $databaseName created successfully.");
+                info("Database $databaseName created successfully.");
             }
             // else {
             //     $this->info("Database $databaseName already exists.");
             // }
         } catch (PDOException $e) {
-            $this->info("Connection failed: " . $e->getMessage());
+            info("Connection failed: " . $e->getMessage());
         }
     }
 
     private function getLicenseKey($count = 0)
     {
-        $message = 'Please Enter a valid License Key! Please visit us at https://redq.io for a valid license key.';
+        $message = 'Kindly enter a valid License Key or visit https://redq.io/pickbazar-laravel-ecommerce for a legitimate license key';
         if ($count < 1) {
             $message = 'Please Enter Your License Key.';
         }
-        $licenseKey = $this->ask($message);
+        $licenseKey = text($message);
         $isValid = $this->licenseKeyValidator($licenseKey);
         if (!$isValid) {
             ++$count;
-            $description = $this->appData['description'] ?? '';
-            $this->components->error("Invalid Licensing Key. $description");
+            error("Invalid Licensing Key");
             $this->getLicenseKey($count);
         }
         return $isValid;

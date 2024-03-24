@@ -483,6 +483,9 @@ export interface Coupon {
   expire_at: string;
   created_at: string;
   updated_at: string;
+  target?: boolean;
+  shop_id?: string;
+  is_approve?: boolean;
 }
 
 export interface CouponInput {
@@ -495,6 +498,7 @@ export interface CouponInput {
   active_from: string;
   expire_at: string;
   language?: string;
+  shop_id?: string;
 }
 
 export interface StoreNotice {
@@ -545,7 +549,7 @@ export interface FAQs {
 
 export interface FAQsInput {
   faq_title: string;
-  faq_description: string;
+  faq_description?: string;
   shop_id?: string;
   language?: string;
   slug?: string;
@@ -604,7 +608,7 @@ export interface TermsAndConditions {
 
 export interface TermsAndConditionsInput {
   title: string;
-  description: string;
+  description?: string;
   shop_id?: string;
 }
 
@@ -1136,6 +1140,19 @@ export interface Settings {
   updated_at: string;
 }
 
+export interface PromoPopupFormValues {
+  image?: Attachment;
+  title?: string;
+  description?: string;
+  popUpDelay?: number;
+  popUpExpiredIn?: number;
+  isPopUpNotShow?: boolean;
+  popUpNotShow?: {
+    title?: string;
+    popUpExpiredIn?: number;
+  };
+}
+
 export interface SettingsInput {
   language?: string;
   options?: SettingsOptionsInput;
@@ -1201,8 +1218,8 @@ export interface SeoSettingsInput {
 }
 
 export interface GoogleSettingsInput {
-  isEnable: boolean;
-  tagManagerId: string;
+  isEnable?: boolean;
+  tagManagerId?: string;
 }
 
 export interface FacebookSettingsInput {
@@ -1215,6 +1232,7 @@ export interface SettingsOptions {
   siteTitle?: string;
   siteSubtitle?: string;
   currency?: string;
+  defaultAi?: string;
   paymentGateway?: any;
   defaultPaymentGateway?: string;
   useOtp?: boolean;
@@ -1246,9 +1264,51 @@ export interface SettingsOptions {
   freeShippingAmount?: number;
   pushNotification?: PushNotification;
   enableTerms?: boolean;
+  enableCoupons?: boolean;
   maintenance: Maintenance;
   isUnderMaintenance: boolean;
+  isPromoPopUp?: boolean;
+  promoPopup?: PromoPopupFormValues;
+  reviewSystem?: string;
+  useGoogleMap?: boolean;
+  isProductReview?: boolean;
+  freeShipping?: boolean;
+  freeShippingAmount?: number;
 }
+
+// *************** OLD Code ***************
+// export interface SettingsOptions {
+//   siteTitle?: string;
+//   siteSubtitle?: string;
+//   currency?: string;
+//   defaultAi?: string;
+//   useOtp?: boolean;
+//   useAi?: boolean;
+//   useGoogleMap?: boolean;
+//   isProductReview?: boolean;
+//   freeShipping?: boolean;
+//   contactDetails?: ContactDetails;
+//   minimumOrderAmount?: number;
+//   freeShippingAmount?: number;
+//   currencyToWalletRatio?: number;
+//   signupPoints?: number;
+//   maxShopDistance?: number;
+//   maximumQuestionLimit?: number;
+//   deliveryTime?: DeliveryTime[];
+//   logo?: Attachment;
+//   taxClass?: string;
+//   shippingClass?: string;
+//   seo?: SeoSettings;
+//   google?: GoogleSettings;
+//   facebook?: FacebookSettings;
+//   paymentGateway?: any;
+//   defaultPaymentGateway?: string;
+//   guestCheckout: boolean;
+//   smsEvent?: SmsEvent;
+//   emailEvent?: EmailEvent;
+//   pushNotification?: PushNotification;
+//   server_info?: ServerInfo;
+// }
 
 export interface Maintenance {
   image: Attachment;
@@ -1258,7 +1318,6 @@ export interface Maintenance {
   until: string;
   isUnderMaintenance: boolean;
 }
-
 
 export interface ServerInfo {
   max_execution_time?: string;
@@ -1302,7 +1361,12 @@ export interface SettingsOptionsInput {
   server_info?: ServerInfo;
   useGoogleMap?: boolean;
   enableTerms?: boolean;
+  enableCoupons?: boolean;
   isProductReview?: boolean;
+  isPromoPopUp?: boolean;
+  promoPopup?: PromoPopupFormValues;
+  enableReviewPopup?: boolean;
+  reviewSystem?: string;
 }
 
 export interface SmsEvent {
@@ -1378,8 +1442,8 @@ export interface DeliveryTime {
 }
 
 export interface DeliveryTimeInput {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
 }
 
 export interface ContactDetailsInput {
@@ -1721,6 +1785,7 @@ export interface ProductQueryOptions extends QueryOptions {
   user_id: string;
   flash_sale_builder: boolean;
   product_type: string;
+  searchedByUser: string;
 }
 
 export interface UserQueryOptions extends QueryOptions {
@@ -1770,6 +1835,7 @@ export interface NotifyLogsQueryOptions extends QueryOptions {
 
 export interface CouponQueryOptions extends QueryOptions {
   code: string;
+  shop_id: string;
 }
 export interface StoreNoticeQueryOptions extends QueryOptions {
   notice: string;
@@ -1786,6 +1852,7 @@ export interface FlashSaleQueryOptions extends QueryOptions {
   title?: string;
   shop_id?: string;
   slug?: string;
+  request_from?: string;
 }
 
 export interface TermsAndConditionsQueryOptions extends QueryOptions {
@@ -1851,60 +1918,117 @@ export interface ItemProps {
   title: string;
 }
 
-export interface ShopPaginator extends PaginatorInfo<Shop> { }
+export interface ShopPaginator extends PaginatorInfo<Shop> {}
 
-export interface WithdrawPaginator extends PaginatorInfo<Withdraw> { }
+export interface WithdrawPaginator extends PaginatorInfo<Withdraw> {}
 
-export interface UserPaginator extends PaginatorInfo<User> { }
+export interface UserPaginator extends PaginatorInfo<User> {}
 
-export interface LicensedDomainPaginator extends PaginatorInfo<Domain> { }
+export interface LicensedDomainPaginator extends PaginatorInfo<Domain> {}
 
-export interface QuestionPaginator extends PaginatorInfo<Question> { }
+export interface QuestionPaginator extends PaginatorInfo<Question> {}
 
-export interface StaffPaginator extends PaginatorInfo<User> { }
+export interface StaffPaginator extends PaginatorInfo<User> {}
 
-export interface OrderPaginator extends PaginatorInfo<Order> { }
+export interface OrderPaginator extends PaginatorInfo<Order> {}
 
-export interface NotifyLogsPaginator extends PaginatorInfo<NotifyLogs> { }
+export interface NotifyLogsPaginator extends PaginatorInfo<NotifyLogs> {}
 
-export interface CouponPaginator extends PaginatorInfo<Coupon> { }
+export interface CouponPaginator extends PaginatorInfo<Coupon> {}
 
-export interface StoreNoticePaginator extends PaginatorInfo<StoreNotice> { }
+export interface StoreNoticePaginator extends PaginatorInfo<StoreNotice> {}
 
-export interface FAQsPaginator extends PaginatorInfo<FAQs> { }
+export interface FAQsPaginator extends PaginatorInfo<FAQs> {}
 
-export interface FlashSalePaginator extends PaginatorInfo<FlashSale> { }
+export interface FlashSalePaginator extends PaginatorInfo<FlashSale> {}
 
 export interface TermsAndConditionsPaginator
-  extends PaginatorInfo<TermsAndConditions> { }
+  extends PaginatorInfo<TermsAndConditions> {}
 
-export interface ProductPaginator extends PaginatorInfo<Product> { }
+export interface ProductPaginator extends PaginatorInfo<Product> {}
 
-export interface CategoryPaginator extends PaginatorInfo<Category> { }
+export interface CategoryPaginator extends PaginatorInfo<Category> {}
 
-export interface TaxPaginator extends PaginatorInfo<Tax> { }
+export interface TaxPaginator extends PaginatorInfo<Tax> {}
 
-export interface ReviewPaginator extends PaginatorInfo<Review> { }
+export interface ReviewPaginator extends PaginatorInfo<Review> {}
 
-export interface TagPaginator extends PaginatorInfo<Tag> { }
+export interface TagPaginator extends PaginatorInfo<Tag> {}
 
-export interface AttributePaginator extends PaginatorInfo<Attribute> { }
+export interface AttributePaginator extends PaginatorInfo<Attribute> {}
 
 export interface AttributeValuePaginator
-  extends PaginatorInfo<AttributeValue> { }
+  extends PaginatorInfo<AttributeValue> {}
 
-export interface ShippingPaginator extends PaginatorInfo<Shipping> { }
+export interface ShippingPaginator extends PaginatorInfo<Shipping> {}
 
-export interface AuthorPaginator extends PaginatorInfo<Author> { }
+export interface AuthorPaginator extends PaginatorInfo<Author> {}
 
-export interface RefundPolicyPaginator extends PaginatorInfo<RefundPolicy> { }
+export interface RefundPolicyPaginator extends PaginatorInfo<RefundPolicy> {}
 
-export interface RefundReasonPaginator extends PaginatorInfo<RefundReason> { }
+export interface RefundReasonPaginator extends PaginatorInfo<RefundReason> {}
 
-export interface ManufacturerPaginator extends PaginatorInfo<Manufacturer> { }
+export interface ManufacturerPaginator extends PaginatorInfo<Manufacturer> {}
 
-export interface OrderStatusPaginator extends PaginatorInfo<OrderStatus> { }
+export interface OrderStatusPaginator extends PaginatorInfo<OrderStatus> {}
 
-export interface ConversionPaginator extends PaginatorInfo<Conversations> { }
+export interface ConversionPaginator extends PaginatorInfo<Conversations> {}
 
-export interface MessagePaginator extends PaginatorInfo<Message> { }
+export interface MessagePaginator extends PaginatorInfo<Message> {}
+
+export interface FlashSaleProductsRequest {
+  id: string;
+  title: string;
+  flash_sale_id: string;
+  requested_product_ids: Product[];
+  request_status: string;
+  note: string;
+  deleted_at?: string;
+  created_at: string;
+  updated_at: string;
+  flash_sale: FlashSale;
+}
+
+export interface FlashSaleProductsRequestInput {
+  title: string;
+  flash_sale_id: string;
+  // requested_product_ids: Product[];
+  note?: string;
+  language?: string;
+}
+
+export interface FlashSaleProductsRequestQueryOptions extends QueryOptions {
+  title?: string;
+  requested_product_ids?: Product[];
+  request_status?: string;
+  shop_id?: string;
+}
+
+export interface FlashSaleRequestedProductsQueryOptions
+  extends ProductQueryOptions {
+  vendor_request_id: string;
+}
+
+export interface FlashSaleProductsRequestPaginator
+  extends PaginatorInfo<FlashSaleProductsRequest> {}
+
+export type MaintenanceFormValues = {
+  isUnderMaintenance: boolean;
+  maintenance: {
+    image: Attachment;
+    title: string;
+    description: string;
+    start: string;
+    until: string;
+    isOverlayColor: boolean;
+    overlayColor: string;
+    buttonTitleOne: string;
+    buttonTitleTwo: string;
+    overlayColorRange: string;
+    newsLetterTitle: string;
+    newsLetterDescription: string;
+    aboutUsTitle: string;
+    aboutUsDescription: string;
+    contactUsTitle: string;
+  };
+};

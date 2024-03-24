@@ -10,6 +10,9 @@ extend type Query {
         flash_sale_builder: Boolean
         status: String
         shop_id: String
+        searchedByUser: String
+        author: String
+        manufacturer: String
     ): [Product]
         @paginate(
             builder: "Marvel\\GraphQL\\Queries\\ProductQuery@fetchProducts"
@@ -278,7 +281,11 @@ input CreateProductInput {
     quantity: Int
     product_type: ProductType! @rules(apply: ["required"])
     unit: String! @rules(apply: ["required"])
-    description: String @rules(apply: ["max:10000"])
+    description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     categories: [ID!]
     tags: [ID!]
     digital_file: DigitalFileInput
@@ -317,7 +324,11 @@ input UpdateProductInput {
     quantity: Int
     product_type: ProductType! @rules(apply: ["required"])
     unit: String! @rules(apply: ["required"])
-    description: String @rules(apply: ["max:10000"])
+    description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     categories: [ID!]
     tags: [ID!]
     digital_file: DigitalFileInput

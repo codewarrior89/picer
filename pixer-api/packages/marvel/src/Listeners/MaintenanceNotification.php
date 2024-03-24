@@ -4,6 +4,7 @@ namespace Marvel\Listeners;
 
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Notification;
@@ -15,7 +16,7 @@ use Marvel\Events\StoreNoticeEvent;
 use Marvel\Notifications\MaintenanceReminder;
 use Marvel\Notifications\StoreNoticeNotification;
 
-class MaintenanceNotification 
+class MaintenanceNotification
 {
     /**
      * Create the event listener.
@@ -54,10 +55,15 @@ class MaintenanceNotification
 
     public function shouldSendEmail(Settings $settings): bool
     {
-        $isUnderMaintenance = $settings->options['isUnderMaintenance'] ?? false;
-        $currentTime = now();
-        $startTime = Carbon::parse($settings->options['maintenance']['start']);
+        $shouldSendEmail = false;
+        try {
+            $isUnderMaintenance = $settings->options['isUnderMaintenance'] ?? false;
+            $currentTime = now();
+            $startTime = Carbon::parse($settings->options['maintenance']['start']);
 
-        return $isUnderMaintenance && ($currentTime < $startTime);
+            $shouldSendEmail = $isUnderMaintenance && ($currentTime < $startTime);
+        } catch (Exception $th) {
+        }
+        return $shouldSendEmail;
     }
 }

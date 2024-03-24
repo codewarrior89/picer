@@ -8,7 +8,7 @@ export const HealthWellness: React.FC<React.SVGAttributes<{}>> = (props) => {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <g clip-path="url(#clip0_1318_627)">
+      <g clipPath="url(#clip0_1318_627)">
         <path d="M16.8183 6.8141V3.33312H9.27259V6.8141" fill="#D8E4EF" />
         <path d="M11.7885 6.8141V3.33312H9.27259V6.8141" fill="#91B8D8" />
         <path

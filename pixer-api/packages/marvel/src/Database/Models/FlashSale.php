@@ -6,6 +6,7 @@ use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Marvel\Traits\TranslationTrait;
 
@@ -49,6 +50,14 @@ class FlashSale extends Model
      */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'flash_sale_products');
+        return $this->belongsToMany(Product::class, 'flash_sale_products')->withPivot('flash_sale_id', 'product_id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function flashSaleRequests(): HasMany
+    {
+        return $this->hasMany(FlashSaleRequests::class);
     }
 }

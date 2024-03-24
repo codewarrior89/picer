@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import Input from '@/components/ui/input';
 import { Controller, useForm } from 'react-hook-form';
-import { DatePicker } from '@/components/ui/date-picker';
+import DatePicker from '@/components/ui/date-picker';
 import Button from '@/components/ui/button';
 import TextArea from '@/components/ui/text-area';
 import Description from '@/components/ui/description';
@@ -260,53 +260,35 @@ export default function CreateOrUpdateStoreNoticeForm({
 
           <div className="flex flex-col mb-4 sm:flex-row">
             <div className="w-full p-0 mb-5 sm:mb-0 sm:w-1/2 sm:pe-2">
-              <Label>{`${t('form:store-notice-active-from')}*`}</Label>
-
-              <Controller
+              <DatePicker
                 control={control}
                 name="effective_from"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  //@ts-ignore
-                  <DatePicker
-                    dateFormat="dd/MM/yyyy"
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    selected={value ?? new Date()}
-                    selectsStart
-                    minDate={new Date()}
-                    maxDate={expired_at}
-                    startDate={effective_from}
-                    endDate={expired_at}
-                    className="border border-border-base"
-                    disabled={isTranslateStoreNotice}
-                  />
-                )}
+                dateFormat="dd/MM/yyyy"
+                minDate={new Date()}
+                maxDate={new Date(expired_at)}
+                startDate={new Date(effective_from)}
+                endDate={new Date(expired_at)}
+                className="border border-border-base"
+                disabled={isTranslateStoreNotice}
+                label={t('form:store-notice-active-from')}
+                error={t(errors.effective_from?.message!)}
+                required
               />
-              <ValidationError message={t(errors.effective_from?.message!)} />
             </div>
             <div className="w-full p-0 sm:w-1/2 sm:ps-2">
-              <Label>{`${t('form:store-notice-expire-at')}*`}</Label>
-
-              <Controller
+              <DatePicker
+                dateFormat="dd/MM/yyyy"
                 control={control}
                 name="expired_at"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  //@ts-ignore
-                  <DatePicker
-                    dateFormat="dd/MM/yyyy"
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    selected={value}
-                    selectsEnd
-                    startDate={effective_from}
-                    endDate={expired_at}
-                    minDate={effective_from}
-                    className="border border-border-base"
-                    disabled={isTranslateStoreNotice}
-                  />
-                )}
+                startDate={new Date(effective_from)}
+                endDate={new Date(expired_at)}
+                minDate={new Date(effective_from)}
+                className="border border-border-base"
+                disabled={isTranslateStoreNotice}
+                error={t(errors.expired_at?.message!)}
+                label={t('form:store-notice-expire-at')}
+                required
               />
-              <ValidationError message={t(errors.expired_at?.message!)} />
             </div>
           </div>
           {superAdmin && (

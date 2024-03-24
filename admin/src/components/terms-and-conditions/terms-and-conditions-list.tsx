@@ -145,7 +145,11 @@ const TermsAndConditionsLists = ({
       ellipsis: true,
       onHeaderCell: () => onHeaderClick('description'),
       render: (text: string) => (
-        <span className="whitespace-nowrap">{text}</span>
+        <span
+          dangerouslySetInnerHTML={{
+            __html: text?.length < 100 ? text : text?.substring(0, 100) + '...',
+          }}
+        />
       ),
     },
 

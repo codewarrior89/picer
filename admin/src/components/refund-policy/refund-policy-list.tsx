@@ -99,6 +99,13 @@ const RefundPolicyList = ({
       width: 350,
       ellipsis: true,
       align: alignLeft,
+      render: (text: string) => (
+        <span
+          dangerouslySetInnerHTML={{
+            __html: text?.length < 130 ? text : text?.substring(0, 130) + '...',
+          }}
+        />
+      ),
     },
     {
       title: (
@@ -146,7 +153,7 @@ const RefundPolicyList = ({
       align: 'right' as AlignType,
       width: 180,
       render: (slug: string, record: RefundPolicy) => (
-        <div className='inline-flex w-auto items-center gap-3'>
+        <div className="inline-flex w-auto items-center gap-3">
           <ActionButtons
             id={slug}
             detailsUrl={`${Routes.refundPolicies.details(slug)}`}

@@ -32,11 +32,22 @@ abstract class BaseRepository extends Repository implements CacheableInterface
         return $model->first();
     }
 
+    
     /**
-     * @param $field
-     * @param null $value
-     * @param string[] $columns
-     * @return JsonResponse
+     * The function finds a model by a specific field and value, and throws an exception if it is not
+     * found.
+     * 
+     * @param string field The "field" parameter is used to specify the column name in the database table that
+     * you want to search for. It is typically a string value representing the name of the column.
+     * @param mixed value The "value" parameter is the value that you want to search for in the specified
+     * field. It is used to find a specific record in the database table based on the given field and
+     * value.
+     * @param array columns The "columns" parameter is an optional parameter that specifies which columns
+     * from the database table should be retrieved. By default, it is set to ['*'], which means all
+     * columns will be retrieved. However, you can pass an array of specific column names to retrieve
+     * only those columns.
+     * 
+     * @return \Illuminate\Database\Eloquent\Model first model that matches the given field and value.
      */
     public function findOneByFieldOrFail($field, $value = null, $columns = ['*'])
     {

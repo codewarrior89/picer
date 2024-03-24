@@ -39,7 +39,7 @@ class UpdateCouponRequest extends FormRequest
 
 
         $rules =  [
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:10000'],
             'image'       => ['array',],
             'language'    => ['nullable', 'string'],
             'amount'    => $rule['amount'],

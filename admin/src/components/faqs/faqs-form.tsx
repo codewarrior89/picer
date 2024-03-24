@@ -1,36 +1,30 @@
-import { useEffect } from 'react';
-import Input from '@/components/ui/input';
-import { useForm } from 'react-hook-form';
-import Button from '@/components/ui/button';
-import TextArea from '@/components/ui/text-area';
-import Description from '@/components/ui/description';
 import Card from '@/components/common/card';
-import Label from '@/components/ui/label';
-import { useRouter } from 'next/router';
-import ValidationError from '@/components/ui/form-validation-error';
-import { useTranslation } from 'next-i18next';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { FAQs } from '@/types';
-import { useUsersOrShopsQuery } from '@/data/store-notice';
-import { getErrorMessage } from '@/utils/form-error';
-import { Config } from '@/config';
-import { getAuthCredentials } from '@/utils/auth-utils';
-import { find } from 'lodash';
-import { useSettingsQuery } from '@/data/settings';
-import { useCallback, useMemo } from 'react';
-import { useModalAction } from '@/components/ui/modal/modal.context';
-import OpenAIButton from '@/components/openAI/openAI.button';
-import { ItemProps } from '@/types';
 import { chatbotAutoSuggestionForFAQs } from '@/components/faqs/faqs-ai-prompts';
 import { faqsValidationSchema } from '@/components/faqs/faqs-validation-schema';
-import { useCreateFaqsMutation, useUpdateFaqsMutation } from '@/data/faqs';
-import { useMeQuery } from '@/data/user';
-import { useShopQuery } from '@/data/shop';
+import OpenAIButton from '@/components/openAI/openAI.button';
+import Button from '@/components/ui/button';
+import Description from '@/components/ui/description';
+import Input from '@/components/ui/input';
+import { useModalAction } from '@/components/ui/modal/modal.context';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
+import RichTextEditor from '@/components/ui/wysiwyg-editor/editor';
+import { Config } from '@/config';
+import { useCreateFaqsMutation, useUpdateFaqsMutation } from '@/data/faqs';
+import { useSettingsQuery } from '@/data/settings';
+import { useShopQuery } from '@/data/shop';
+import { useMeQuery } from '@/data/user';
+import { FAQs, ItemProps } from '@/types';
+import { getAuthCredentials } from '@/utils/auth-utils';
+import { getErrorMessage } from '@/utils/form-error';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useTranslation } from 'next-i18next';
+import { useRouter } from 'next/router';
+import { useCallback, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 
 type FormValues = {
   faq_title: string;
-  faq_description: string;
+  faq_description?: string;
 };
 
 type IProps = {
@@ -54,7 +48,7 @@ export default function CreateOrUpdateFaqsForm({ initialValues }: IProps) {
     { slug: router.query.shop as string },
     {
       enabled: !!router.query.shop,
-    }
+    },
   );
   const shopId = shopData?.id!;
 
@@ -124,6 +118,7 @@ export default function CreateOrUpdateFaqsForm({ initialValues }: IProps) {
       });
     }
   };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="my-5 flex flex-wrap sm:my-8">
@@ -139,11 +134,12 @@ export default function CreateOrUpdateFaqsForm({ initialValues }: IProps) {
 
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <Input
-            label={`${t('form:input-title')}*`}
+            label={t('form:input-title')}
             {...register('faq_title')}
             error={t(errors.faq_title?.message!)}
             variant="outline"
             className="mb-5"
+            required={true}
             // disabled={isTranslateFaqs}
           />
 
@@ -164,13 +160,12 @@ export default function CreateOrUpdateFaqsForm({ initialValues }: IProps) {
               />
             )}
 
-            <TextArea
-              label={`${t('form:input-label-description')}*`}
-              {...register('faq_description')}
-              error={t(errors.faq_description?.message!)}
-              variant="outline"
-              className="mb-5"
-              // disabled={isTranslateFaqs}
+            <RichTextEditor
+              title={t('form:input-label-description')}
+              required={true}
+              error={t(errors?.faq_description?.message!)}
+              name="faq_description"
+              control={control}
             />
           </div>
         </Card>

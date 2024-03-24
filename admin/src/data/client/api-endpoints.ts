@@ -90,4 +90,12 @@ export const API_ENDPOINTS = {
   TOP_RATED_PRODUCTS: 'top-rate-product',
   MY_STAFFS: '/my-staffs',
   ALL_STAFFS: '/all-staffs',
+  APPROVE_COUPON: 'approve-coupon',
+  DISAPPROVE_COUPON: 'disapprove-coupon',
+  REQUEST_LISTS_FOR_FLASH_SALE: 'vendor-requests-for-flash-sale',
+  REQUESTED_PRODUCTS_FOR_FLASH_SALE: 'requested-products-for-flash-sale',
+  APPROVE_FLASH_SALE_REQUESTED_PRODUCTS:
+    'approve-flash-sale-requested-products',
+  DISAPPROVE_FLASH_SALE_REQUESTED_PRODUCTS:
+    'disapprove-flash-sale-requested-products',
 };

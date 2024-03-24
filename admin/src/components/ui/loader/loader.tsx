@@ -1,5 +1,7 @@
+import { twMerge } from 'tailwind-merge';
 import styles from './loader.module.css';
 import cn from 'classnames';
+import { useTranslation } from 'next-i18next';
 
 interface Props {
   className?: string;
@@ -9,6 +11,7 @@ interface Props {
 }
 
 const Loader = (props: Props) => {
+  const { t } = useTranslation();
   const { className, showText = true, text = 'Loading...', simple } = props;
   return (
     <>
@@ -16,16 +19,17 @@ const Loader = (props: Props) => {
         <div className={cn(className, styles.simple_loading)} />
       ) : (
         <div
-          className={cn(
-            'w-full flex flex-col items-center justify-center',
-            className
+          className={twMerge(
+            cn('w-full flex flex-col items-center justify-center', className),
           )}
           style={{ height: 'calc(100vh - 200px)' }}
         >
           <div className={styles.loading} />
 
           {showText && (
-            <h3 className="text-lg font-semibold text-body italic">{text}</h3>
+            <h3 className="text-lg font-semibold text-body italic">
+              {t(text)}
+            </h3>
           )}
         </div>
       )}

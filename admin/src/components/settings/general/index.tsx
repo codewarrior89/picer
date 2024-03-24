@@ -1,62 +1,38 @@
 import Card from '@/components/common/card';
+import { SaveIcon } from '@/components/icons/save';
 import { AI } from '@/components/settings/ai';
+import { generalSettingsValidationSchema } from '@/components/settings/general/general-validation-schema';
 import Button from '@/components/ui/button';
 import Description from '@/components/ui/description';
 import FileInput from '@/components/ui/file-input';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import SelectInput from '@/components/ui/select-input';
+import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
 import SwitchInput from '@/components/ui/switch-input';
-import { Config } from '@/config';
 import { useUpdateSettingsMutation } from '@/data/settings';
 import { siteSettings } from '@/settings/site.settings';
-import ValidationError from '@/components/ui/form-validation-error';
-import { DatePicker } from '@/components/ui/date-picker';
-import {
-  AttachmentInput,
-  Settings,
-  Shipping,
-  Tax,
-  ServerInfo,
-  ItemProps,
-} from '@/types';
+import { ServerInfo, Settings, Shipping, Tax } from '@/types';
+import { useConfirmRedirectIfDirty } from '@/utils/confirmed-redirect-if-dirty';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import { useCallback, useMemo, useState } from 'react';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import OpenAIButton from '@/components/openAI/openAI.button';
-import { useModalAction } from '@/components/ui/modal/modal.context';
-import {
-  chatbotAutoSuggestion,
-  chatbotAutoSuggestion1,
-} from '@/components/settings/openAIPromptSample';
-import { generalSettingsValidationSchema } from '@/components/settings/general/general-validation-schema';
-import { SaveIcon } from '@/components/icons/save';
-import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 type FormValues = {
   siteTitle: string;
   siteSubtitle: string;
-  // siteLink: string;
-  // copyrightText: string;
-  // externalText: string;
-  // externalLink: string;
   minimumOrderAmount: number;
   logo: any;
   collapseLogo: any;
-  // useOtp: boolean;
   useAi: boolean;
   defaultAi: any;
   useMustVerifyEmail: boolean;
-  // freeShipping: boolean;
-  // freeShippingAmount: number;
   taxClass: Tax;
-  // shippingClass: Shipping;
   signupPoints: number;
   maximumQuestionLimit: number;
   currencyToWalletRatio: number;
-  // guestCheckout: boolean;
   server_info: ServerInfo;
   isUnderMaintenance: boolean;
   maintenance: {
@@ -70,19 +46,14 @@ type FormValues = {
 type IProps = {
   settings?: Settings | null;
   taxClasses: Tax[] | undefined | null;
-  // shippingClasses: Shipping[] | undefined | null;
 };
 
-export default function GeneralSettingsForm({
-  settings,
-  taxClasses, // shippingClasses,
-}: IProps) {
+export default function GeneralSettingsForm({ settings, taxClasses }: IProps) {
   const { t } = useTranslation();
   const { locale } = useRouter();
-  const [isCopied, setIsCopied] = useState(false);
   const { mutate: updateSettingsMutation, isLoading: loading } =
     useUpdateSettingsMutation();
-  const { language, options } = settings ?? {};
+  const { options } = settings ?? {};
 
   const [serverInfo, SetSeverInfo] = useState(options?.server_info);
 
@@ -90,10 +61,9 @@ export default function GeneralSettingsForm({
     register,
     handleSubmit,
     control,
-    getValues,
+    reset,
     watch,
-    setValue,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<FormValues>({
     shouldUnregister: true,
     //@ts-ignore
@@ -112,54 +82,15 @@ export default function GeneralSettingsForm({
       taxClass: !!taxClasses?.length
         ? taxClasses?.find((tax: Tax) => tax.id == options?.taxClass)
         : '',
-      // @ts-ignore
-      // shippingClass: !!shippingClasses?.length
-      //   ? shippingClasses?.find(
-      //       (shipping: Shipping) => shipping.id == options?.shippingClass,
-      //     )
-      //   : '',
     },
   });
-
-  const { openModal } = useModalAction();
-
-  const generateName = watch('siteTitle');
-  const autoSuggestionList = useMemo(() => {
-    return chatbotAutoSuggestion({ name: generateName ?? '' });
-  }, [generateName]);
-
-  const handleGenerateDescription = useCallback(() => {
-    openModal('GENERATE_DESCRIPTION', {
-      control,
-      name: generateName,
-      set_value: setValue,
-      key: 'seo.metaDescription',
-      suggestion: autoSuggestionList as ItemProps[],
-    });
-  }, [generateName]);
-
-  const autoSuggestionList1 = useMemo(() => {
-    return chatbotAutoSuggestion1({ name: generateName ?? '' });
-  }, [generateName]);
-
-  const handleGenerateDescription1 = useCallback(() => {
-    openModal('GENERATE_DESCRIPTION', {
-      control,
-      name: generateName,
-      set_value: setValue,
-      key: 'seo.ogDescription',
-      suggestion: autoSuggestionList1 as ItemProps[],
-    });
-  }, [generateName]);
-
-  // const enableFreeShipping = watch('freeShipping');
 
   // const isNotDefaultSettingsPage = Config.defaultLanguage !== locale;
 
   async function onSubmit(values: FormValues) {
     updateSettingsMutation({
       language: locale,
-      // @ts-ignore // // FIXME
+      // @ts-ignore //
       options: {
         ...options,
         ...values,
@@ -167,18 +98,16 @@ export default function GeneralSettingsForm({
         signupPoints: Number(values.signupPoints),
         currencyToWalletRatio: Number(values.currencyToWalletRatio),
         minimumOrderAmount: Number(values.minimumOrderAmount),
-        // freeShippingAmount: Number(values.freeShippingAmount),
         defaultAi: values?.defaultAi?.value,
-        // guestCheckout: values?.guestCheckout,
         taxClass: values?.taxClass?.id,
-        // shippingClass: values?.shippingClass?.id,
         logo: values?.logo,
         //@ts-ignore
         collapseLogo: values?.collapseLogo,
       },
     });
+    reset(values, { keepValues: true });
   }
-
+  useConfirmRedirectIfDirty({ isDirty });
   let useAi = watch('useAi');
 
   const upload_max_filesize =
@@ -277,6 +206,7 @@ export default function GeneralSettingsForm({
         <Card className="w-full sm:w-8/12 md:w-2/3">
           <Input
             label={t('form:input-label-site-title')}
+            toolTipText={t('form:input-tooltip-site-title')}
             {...register('siteTitle')}
             error={t(errors.siteTitle?.message!)}
             variant="outline"
@@ -284,6 +214,7 @@ export default function GeneralSettingsForm({
           />
           <Input
             label={t('form:input-label-site-subtitle')}
+            toolTipText={t('form:input-tooltip-site-sub-title')}
             {...register('siteSubtitle')}
             error={t(errors.siteSubtitle?.message!)}
             variant="outline"
@@ -291,7 +222,8 @@ export default function GeneralSettingsForm({
           />
 
           <Input
-            label={`${t('form:input-label-signup-points')}`}
+            label={t('form:input-label-signup-points')}
+            toolTipText={t('form:input-tooltip-signUp-point')}
             {...register('signupPoints')}
             type="number"
             error={t(errors.signupPoints?.message!)}
@@ -301,7 +233,8 @@ export default function GeneralSettingsForm({
           />
 
           <Input
-            label={`${t('form:input-label-min-order-amount')}`}
+            label={t('form:input-label-min-order-amount')}
+            toolTipText={t('form:input-tooltip-minimum-cart-amount')}
             {...register('minimumOrderAmount')}
             type="number"
             error={t(errors.minimumOrderAmount?.message!)}
@@ -310,7 +243,8 @@ export default function GeneralSettingsForm({
             // disabled={isNotDefaultSettingsPage}
           />
           <Input
-            label={`${t('form:input-label-wallet-currency-ratio')}`}
+            label={t('form:input-label-wallet-currency-ratio')}
+            toolTipText={t('form:input-tooltip-wallet-currency-ratio')}
             {...register('currencyToWalletRatio')}
             type="number"
             error={t(errors.currencyToWalletRatio?.message!)}
@@ -320,7 +254,8 @@ export default function GeneralSettingsForm({
           />
 
           <Input
-            label={`${t('form:input-label-maximum-question-limit')}`}
+            label={t('form:input-label-maximum-question-limit')}
+            toolTipText={t('form:input-tooltip-maximum-question-limit')}
             {...register('maximumQuestionLimit')}
             type="number"
             error={t(errors.maximumQuestionLimit?.message!)}
@@ -330,103 +265,26 @@ export default function GeneralSettingsForm({
           />
 
           <div className="mb-5">
-            <Label>{t('form:input-label-tax-class')}</Label>
             <SelectInput
               name="taxClass"
               control={control}
               getOptionLabel={(option: any) => option.name}
               getOptionValue={(option: any) => option.id}
               options={taxClasses!}
+              label={t('form:input-label-tax-class')}
+              toolTipText={t('form:input-tooltip-tax-class')}
               // disabled={isNotDefaultSettingsPage}
             />
           </div>
 
-          {/* <div className="mb-5">
-            <Label>{t('form:input-label-shipping-class')}</Label>
-            <SelectInput
-              name="shippingClass"
-              control={control}
-              getOptionLabel={(option: any) => option.name}
-              getOptionValue={(option: any) => option.id}
-              options={shippingClasses!}
-              // disabled={isNotDefaultSettingsPage}
-            />
-          </div> */}
-
-          {/* <div className="mb-5">
-            <div className="flex items-center gap-x-4">
-              <SwitchInput
-                name="useOtp"
-                control={control}
-                // disabled={isNotDefaultSettingsPage}
-              />
-              <Label className="!mb-0.5">
-                {t('form:input-label-enable-otp')}
-              </Label>
-            </div>
-          </div> */}
-
-          {/* <div className="mb-5">
-            <div className="flex items-center gap-x-4">
-              <SwitchInput
-                name="useMustVerifyEmail"
-                control={control}
-                // disabled={isNotDefaultSettingsPage}
-              />
-              <Label className="!mb-0.5 ">
-                {t('form:input-label-use-must-verify-email')}
-              </Label>
-            </div>
-          </div> */}
-
-          {/* <div className="mb-5">
-            <div className="flex items-center gap-x-4">
-              <SwitchInput
-                name="guestCheckout"
-                control={control}
-                // disabled={isNotDefaultSettingsPage}
-              />
-              <Label className="!mb-0.5 ">
-                {t('form:input-label-enable-guest-checkout')}
-              </Label>
-            </div>
-          </div> */}
-
-          {/* <div className="flex items-center gap-x-4">
-            <SwitchInput
-              name="freeShipping"
-              control={control}
-              checked={enableFreeShipping}
-              // disabled={isNotDefaultSettingsPage}
-            />
-            <Label className="!mb-0.5 ">
-              {t('form:input-label-enable-free-shipping')}
-            </Label>
-          </div> */}
-
-          {/* {enableFreeShipping && (
-            <Input
-              label={t('form:free-shipping-input-label-amount')}
-              {...register('freeShippingAmount')}
-              error={t(errors.freeShippingAmount?.message!)}
-              variant="outline"
-              type="number"
-              className="mt-5"
-              // disabled={isNotDefaultSettingsPage}
-            />
-          )} */}
-
           <div className="mt-5 mb-5">
-            <div className="flex items-center gap-x-4">
-              <SwitchInput
-                name="useAi"
-                control={control}
-                // disabled={isNotDefaultSettingsPage}
-              />
-              <Label className="!mb-0.5 ">
-                {t('form:input-label-enable-open-ai')}
-              </Label>
-            </div>
+            <SwitchInput
+              name="useAi"
+              control={control}
+              label={t('form:input-label-enable-open-ai')}
+              toolTipText={t('form:input-tooltip-enable-ai')}
+              // disabled={isNotDefaultSettingsPage}
+            />
           </div>
           {useAi ? (
             <div className="mb-5">
@@ -449,7 +307,7 @@ export default function GeneralSettingsForm({
       <StickyFooterPanel className="z-0">
         <Button
           loading={loading}
-          disabled={loading}
+          disabled={loading || !Boolean(isDirty)}
           className="text-sm md:text-base"
         >
           <SaveIcon className="relative w-6 h-6 top-px shrink-0 ltr:mr-2 rtl:pl-2" />

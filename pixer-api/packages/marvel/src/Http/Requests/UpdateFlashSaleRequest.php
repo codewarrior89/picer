@@ -33,7 +33,7 @@ class UpdateFlashSaleRequest extends FormRequest
 
         $rules =  [
             'title'       => ['required', 'string'],
-            'description' => ['required', 'string'],
+            'description' => ['required', 'string', 'max:10000'],
             'start_date'  => ['required', 'string'],
             'end_date'    => ['required', 'string'],
             'slug'        => ['nullable', 'string'],

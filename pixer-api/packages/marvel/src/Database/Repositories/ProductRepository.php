@@ -124,13 +124,33 @@ class ProductRepository extends BaseRepository
         $user = $request->user();
         switch ($user) {
             case $user->hasPermissionTo(Permission::SUPER_ADMIN):
-                // if condition : when he entered into vendor shop & check
-                // else condition : during deal data build
-                if ($request->shop_id) {
-                    $products_query = $products_query->where('in_flash_sale', '=', true)->where('shop_id', '=', $request->shop_id);
+
+                // if condition : during deal data build
+                // else condition : when he entered into vendor shop & check
+                if ($request->searchedByUser === 'super_admin_builder') {
+
+                    $shop_id = $request->shop_id ?? null;
+                    $author_id = $request->author ?? null;
+                    $manufacturer_id = $request->manufacturer ?? null;
+
+                    $products_query = $products_query->where('in_flash_sale', '=', false)
+                        ->where('sale_price', '=', null)
+                        ->whereNotIn('id', function ($query) {
+                            $query->select('product_id')->from('flash_sale_requests_products');
+                        })
+                        ->when($shop_id, function ($products_query) use ($shop_id) {
+                            return $products_query->where('shop_id', '=',  $shop_id);
+                        })
+                        ->when($author_id, function ($products_query) use ($author_id) {
+                            return $products_query->where('author_id', '=',  $author_id);
+                        })
+                        ->when($manufacturer_id, function ($products_query) use ($manufacturer_id) {
+                            return $products_query->where('manufacturer_id', '=',  $manufacturer_id);
+                        });
                 } else {
-                    $products_query = $products_query->where('in_flash_sale', '=', false)->where('sale_price', '=', null);
+                    $products_query = $products_query->where('in_flash_sale', '=', true)->where('shop_id', '=', $request->shop_id);
                 }
+
                 break;
 
             case $user->hasPermissionTo(Permission::STORE_OWNER):
@@ -138,19 +158,30 @@ class ProductRepository extends BaseRepository
                 // if condition : when he want to see shop specific products
                 // else condition : fetched all deal products of vendor's listed all shops. This can be used in vendor root page route
                 if ($request->shop_id) {
-                    $products_query = $products_query->where('in_flash_sale', '=', true);
+                    // if : fetching shop product for building flash sale request
+                    // else : just seeing which products are selected for flash sale of this shop
+                    if ($request->searchedByUser === 'vendor') {
+                        $products_query = $products_query->where('in_flash_sale', '=', false)
+                            ->where('shop_id', '=', $request->shop_id)
+                            ->where('sale_price', '=', null);
+                    } else {
+                        $products_query = $products_query->where('in_flash_sale', '=', true);
+                    }
                 } else {
                     $products_query = $products_query->where('in_flash_sale', '=', true)->whereIn('shop_id', $user->shops->pluck('id'));
                 }
+
                 break;
 
             case $user->hasPermissionTo(Permission::STAFF):
+
                 // staff can see only his assigned shop's deals product
                 $products_query = $products_query->where('in_flash_sale', '=', true);
                 break;
 
 
             case $user->hasPermissionTo(Permission::CUSTOMER):
+
                 // customer can see all the products of a deal
                 $products_query = $products_query->where('in_flash_sale', '=', true);
                 break;

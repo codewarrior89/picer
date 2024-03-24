@@ -33,6 +33,10 @@ type Manufacturer {
 input CreateManufacturerInput {
     name: String!
     description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     type_id: ID! @rules(apply: ["exists:types,id"])
     is_approved: Boolean
     website: String
@@ -55,6 +59,10 @@ input UpdateManufacturerInput {
     language: String
     socials: [ShopSocialInput]
     description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     image: AttachmentInput
     cover_image: AttachmentInput
 }

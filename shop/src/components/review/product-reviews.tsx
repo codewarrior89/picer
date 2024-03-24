@@ -55,7 +55,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
 
           {/* Pagination */}
           {paginatorInfo && (
-            <div className="flex flex-col items-center justify-between py-5 space-y-1 border-t border-light-500 dark:border-dark-400 md:flex-row md:space-y-0 md:py-3">
+            <div className="flex flex-col items-center justify-between space-y-1 border-t border-light-500 py-5 dark:border-dark-400 md:flex-row md:space-y-0 md:py-3">
               <div className="text-13px text-dark-700 dark:text-light-900 md:mt-2">
                 {t('text-page')}{' '}
                 {
@@ -65,7 +65,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
                 {t('text-of')}{' '}
                 {Math.ceil(
                   //@ts-ignore
-                  paginatorInfo.total / paginatorInfo.perPage,
+                  paginatorInfo.total / paginatorInfo.perPage
                 )}
               </div>
 
@@ -89,7 +89,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
           )}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center px-5 py-16 border-b border-light-500 dark:border-dark-400">
+        <div className="flex flex-col items-center justify-center border-b border-light-500 px-5 py-16 dark:border-dark-400">
           <h3 className="text-lg font-semibold text-dark-600 dark:text-light-600">
             {t('text-no-reviews-found')}
           </h3>

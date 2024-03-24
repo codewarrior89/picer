@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Marvel\Database\Models\Order;
 use Marvel\Database\Models\Review;
 use Marvel\Database\Repositories\ReviewRepository;
+use Marvel\Database\Repositories\SettingsRepository;
 use Marvel\Exceptions\MarvelException;
 use Marvel\Http\Requests\FeedbackCreateRequest;
 use Marvel\Http\Requests\ReviewCreateRequest;
@@ -21,10 +22,12 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class ReviewController extends CoreController
 {
     public $repository;
+    public $settingsRepository;
 
-    public function __construct(ReviewRepository $repository)
+    public function __construct(ReviewRepository $repository, SettingsRepository $settingsRepository)
     {
         $this->repository = $repository;
+        $this->settingsRepository = $settingsRepository;
     }
 
 
@@ -55,6 +58,7 @@ class ReviewController extends CoreController
      */
     public function store(ReviewCreateRequest $request)
     {
+        $setting = $this->settingsRepository->first();
         $product_id = $request['product_id'];
         $order_id = $request['order_id'];
         try {
@@ -68,15 +72,22 @@ class ReviewController extends CoreController
 
             $user_id = $request->user()->id;
             $request['user_id'] = $user_id;
-            if (isset($request['variation_option_id']) && !empty($request['variation_option_id'])) {
-                $review = $this->repository->where('user_id', $user_id)->where('order_id', $order_id)->where('product_id', $product_id)->where('shop_id', $request['shop_id'])->where('variation_option_id', $request['variation_option_id'])->get();
-            } else {
-                $review = $this->repository->where('user_id', $user_id)->where('order_id', $order_id)->where('product_id', $product_id)->where('shop_id', $request['shop_id'])->get();
+
+            // check if the review is following conventional system.
+            if (!empty($setting->options['reviewSystem']['value']) && $setting->options['reviewSystem']['value'] === 'review_single_time') {
+
+                // find out if any review exists or not
+                if (isset($request['variation_option_id']) && !empty($request['variation_option_id'])) {
+                    $review = $this->repository->where('user_id', $user_id)->where('order_id', $order_id)->where('product_id', $product_id)->where('shop_id', $request['shop_id'])->where('variation_option_id', $request['variation_option_id'])->get();
+                } else {
+                    $review = $this->repository->where('user_id', $user_id)->where('order_id', $order_id)->where('product_id', $product_id)->where('shop_id', $request['shop_id'])->get();
+                }
+
+                if (count($review)) {
+                    throw new HttpException(400, ALREADY_GIVEN_REVIEW_FOR_THIS_PRODUCT);
+                }
             }
 
-            if (count($review)) {
-                throw new HttpException(400, ALREADY_GIVEN_REVIEW_FOR_THIS_PRODUCT);
-            }
             return $this->repository->storeReview($request);
         } catch (MarvelException $e) {
             throw new MarvelException(ALREADY_GIVEN_REVIEW_FOR_THIS_PRODUCT);

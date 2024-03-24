@@ -6,6 +6,7 @@ extend type Query {
         language: String
         searchJoin: String = "AND"
         hasProducts: _ @whereHasConditions(columns: ["name", "slug"])
+        request_from: String
     ): [FlashSale!]!
         @paginate(
             builder: "Marvel\\GraphQL\\Queries\\FlashSaleQuery@fetchFlashSales"
@@ -58,7 +59,11 @@ input SaleBuilderInput {
 input CreateFlashSaleInput {
     title: String! @rules(apply: ["required", "max:255"])
     slug: String
-    description: String @rules(apply: ["required"])
+    description: String
+        @rules(
+            apply: ["required", "max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     start_date: String @rules(apply: ["required"])
     language: String
     end_date: String
@@ -75,6 +80,10 @@ input UpdateFlashSaleInput {
     title: String! @rules(apply: ["required", "max:255"])
     slug: String
     description: String
+        @rules(
+            apply: ["max:10000"]
+            messages: { max: "Description should be max 10000 character" }
+        )
     start_date: String
     cover_image: AttachmentInput
     image: AttachmentInput

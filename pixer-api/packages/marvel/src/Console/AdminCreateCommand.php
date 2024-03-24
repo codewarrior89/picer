@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Marvel\Enums\Permission as UserPermission;
 use Illuminate\Support\Facades\Validator;
 use Marvel\Enums\Role as UserRole;
+use function Laravel\Prompts\{text, confirm, info, password, error};
 
 
 
@@ -21,15 +22,31 @@ class AdminCreateCommand extends Command
     {
         try {
 
-            if ($this->confirm('Do you want to create an admin?')) {
+            if (confirm('Do you want to create an admin?')) {
 
-                $this->info('Provide admin credentials info to create an admin user for you.');
-                $name = $this->ask('Enter admin name');
-                $email = $this->ask('Enter admin email');
-                $password = $this->secret('Enter your admin password');
-                $confirmPassword = $this->secret('Enter your password again');
+                info('Provide admin credentials info to create an admin user for you.');
+                $name = text(label: 'Enter admin name', required: 'Admin Name is required');
 
-                $this->info('Please wait, Creating an admin profile for you...');
+                // Manually validate the email input
+                do {
+                    $email = text(label: 'Enter admin email', required: 'Admin Email is required');
+                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        info('Invalid email address format. Please enter a valid email.');
+                    } else {
+                        // Break out of the loop if the email is valid
+                        break;
+                    }
+                } while (true);
+
+                do {
+                    $password = password(label: 'Enter your admin password', required: 'Password is required');
+                    $confirmPassword = password(label: 'Enter your password again', required: 'Confirm Password is required');
+                    if ($password !== $confirmPassword) {
+                        info('Passwords do not match. Please try again.');
+                    }
+                } while ($password !== $confirmPassword);
+
+                info('Please wait, Creating an admin profile for you...');
                 $validator = Validator::make(
                     [
                         'name' =>  $name,
@@ -45,9 +62,9 @@ class AdminCreateCommand extends Command
                     ]
                 );
                 if ($validator->fails()) {
-                    $this->info('User not created. See error messages below:');
+                    info('User not created. See error messages below:');
                     foreach ($validator->errors()->all() as $error) {
-                        $this->error($error);
+                        error($error);
                     }
                     return;
                 }
@@ -67,10 +84,10 @@ class AdminCreateCommand extends Command
                 );
                 $user->assignRole(UserRole::SUPER_ADMIN);
 
-                $this->info('User Creation Successful!');
+                info('User Creation Successful!');
             }
         } catch (\Exception $e) {
-            $this->error($e->getMessage());
+            error($e->getMessage());
         }
     }
 }

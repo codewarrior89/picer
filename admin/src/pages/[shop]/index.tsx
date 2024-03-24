@@ -63,12 +63,12 @@ export default function ShopPage() {
   const { price: totalEarnings } = usePrice(
     data && {
       amount: data?.balance?.total_earnings!,
-    }
+    },
   );
   const { price: currentBalance } = usePrice(
     data && {
       amount: data?.balance?.current_balance!,
-    }
+    },
   );
 
   const phoneNumber = useFormatPhoneNumber({
@@ -100,7 +100,7 @@ export default function ShopPage() {
   ) {
     router.replace(Routes.dashboard);
   }
-  console.log(settings?.options?.maintenance?.isUnderMaintenance);
+
   return (
     <div className="-m-5 md:-m-8">
       {!is_active && (
