@@ -121,3 +121,7 @@ class InstallCommand extends Command
         ]);
     }
 }
+C:\Users\Jeet Singh\Desktop\NEXT-JS_YT_DLDR\SERVER\picer\pixer-api\packages\marvel\src\Console\InstallCommand.php
+
+
+cp InstallCommand.php /var/www/pixer-laravel/pixer-api/packages/marvel/src/Console
